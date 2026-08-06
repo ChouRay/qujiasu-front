@@ -164,10 +164,8 @@ const handleMenuSelect = (index: string) => {
 
 .main-content {
   flex: 1;
-  max-width: 1200px;
   width: 100%;
   margin: 0 auto;
-  padding: 40px 20px;
   background-color: #f5f7fa;
 }
 
