@@ -39,6 +39,7 @@
             </el-button>
           </div>
         </div>
+		<div class="banner-image"></div>
       </div>
     </section>
 
