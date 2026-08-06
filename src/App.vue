@@ -13,10 +13,10 @@
             class="nav-menu-inner"
             @select="handleMenuSelect"
           >
-            <el-menu-item index="/">首页</el-menu-item>
-            <el-menu-item index="/package">套餐购买</el-menu-item>
-            <el-menu-item index="/software">软件下载</el-menu-item>
-            <el-menu-item index="/agent">代理加盟</el-menu-item>
+            <el-menu-item index="/" key="home">首页</el-menu-item>
+            <el-menu-item index="/package" key="package">套餐购买</el-menu-item>
+            <el-menu-item index="/software" key="software">软件下载</el-menu-item>
+            <el-menu-item index="/agent" key="agent">代理加盟</el-menu-item>
           </el-menu>
         </nav>
         <div class="auth-buttons">
