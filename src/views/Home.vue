@@ -2,7 +2,6 @@
   <div class="home-page">
     <!-- 轮播图/横幅区域 -->
     <section class="banner-section">
-      <div class="banner-overlay"></div>
       <div class="banner-container">
         <div class="banner-content">
           <h1 class="banner-title">趣加速 - 专业网络加速服务</h1>
@@ -148,6 +147,7 @@ const goToPurchase = () => {
   margin-bottom: 20px;
   letter-spacing: 2px;
   line-height: 1.3;
+  color: #027cff;
 }
 
 .banner-subtitle {
@@ -173,6 +173,7 @@ const goToPurchase = () => {
   flex-direction: column;
   align-items: center;
   gap: 12px;
+  color: #212529;
 }
 
 .feature-icon {
@@ -184,7 +185,7 @@ const goToPurchase = () => {
 
 .feature-item span {
   font-size: 14px;
-  color: #fff;
+  color: #212529;
 }
 
 .banner-actions {
@@ -204,7 +205,10 @@ const goToPurchase = () => {
   max-width: 600px;
   height: 500px;
   border-radius: 16px;
-  background-color: rgba(255, 255, 255, 0.1);
+  background-image: url('@/assets/images/img-product.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 /* 产品展示区 */
