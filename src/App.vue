@@ -77,6 +77,16 @@ const handleMenuSelect = (index: string) => {
 </script>
 
 <style scoped>
+/* 全局样式重置 - 消除浏览器默认边距 */
+:global(html),
+:global(body) {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  overflow-x: hidden;
+}
+
 .app-container {
   min-height: 100vh;
   display: flex;
