@@ -94,27 +94,31 @@ const goToPurchase = () => {
 
 <style scoped>
 .home-page {
-  min-height: calc(100vh - 120px);
+  width: 100%;
+  min-height: 100vh;
   background-color: #f5f7fa;
 }
 
 /* 轮播图/横幅区域 */
 .banner-section {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 80px 20px;
-  min-height: 680px;
+  padding: 80px 0;
+  min-height: calc(100vh - 60px);
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 100%;
 }
 
 .banner-container {
-  max-width: 1200px;
   width: 100%;
+  max-width: 100%;
+  padding: 0 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 60px;
+  box-sizing: border-box;
 }
 
 .banner-content {
@@ -190,12 +194,14 @@ const goToPurchase = () => {
 /* 产品展示区 */
 .product-section {
   background-color: #fff;
-  padding: 60px 20px;
+  padding: 60px 0;
+  width: 100%;
 }
 
 .section-header {
   text-align: center;
   margin-bottom: 65px;
+  padding: 0 20px;
 }
 
 .section-title {
@@ -212,8 +218,10 @@ const goToPurchase = () => {
 }
 
 .product-cards {
-  max-width: 1200px;
-  margin: 0 auto;
+  width: 100%;
+  max-width: 100%;
+  padding: 0 20px;
+  box-sizing: border-box;
   display: flex;
   justify-content: center;
   gap: 40px;
