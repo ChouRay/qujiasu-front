@@ -51,7 +51,7 @@
       
       <div class="product-cards">
         <div class="product-card">
-          <div class="card-image placeholder-img-medium"></div>
+          <div class="card-image placeholder-img-medium" :style="{ backgroundImage: `url(${cardFast})` }"></div>
           <div class="card-content">
             <h3 class="card-title">极速稳定</h3>
             <p class="card-desc">采用最先进的加速技术，确保网络连接快速稳定</p>
@@ -85,6 +85,7 @@ import iconSafe from '@/assets/images/icon-safe.png'
 import iconAnonymous from '@/assets/images/icon-anonymous.png'
 import iconRocket from '@/assets/images/icon-rocket.png'
 import iconStable from '@/assets/images/icon-stable.png'
+import cardFast from '@/assets/images/card-fast.png'
 
 const router = useRouter()
 
