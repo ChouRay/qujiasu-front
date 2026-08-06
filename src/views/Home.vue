@@ -106,7 +106,6 @@ const goToPurchase = () => {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  padding: 80px 0;
   min-height: calc(100vh - 60px);
   display: flex;
   align-items: center;
