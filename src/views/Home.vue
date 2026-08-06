@@ -126,12 +126,15 @@ const goToPurchase = () => {
 }
 
 .banner-container {
+  max-width: 1200px;
+  margin: 0 auto;
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 60px;
   box-sizing: border-box;
+  padding: 0 20px;
 }
 
 .banner-content {
