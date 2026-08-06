@@ -38,7 +38,7 @@
             </el-button>
           </div>
         </div>
-        <div class="banner-image placeholder-img-large"></div>
+        <div class="banner-image" :style="{ backgroundImage: `url(${bannerImg})` }"></div>
       </div>
     </section>
 
@@ -80,6 +80,7 @@
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
+import bannerImg from '@/assets/images/banner.png'
 
 const router = useRouter()
 
