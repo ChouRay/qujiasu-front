@@ -6,7 +6,7 @@
         <div class="banner-content">
           <h1 class="banner-title">趣加速 - 专业网络加速服务</h1>
           <p class="banner-subtitle">提供稳定、安全、快速的网络加速解决方案</p>
-          <p class="banner-desc">全球节点覆盖，智能路由选择，7x24小时技术支持</p>
+          <p class="banner-desc">国内节点覆盖，智能路由选择，7x24小时技术支持</p>
           
           <!-- 特性图标 -->
           <div class="banner-features">
@@ -186,7 +186,6 @@ const goToPurchase = () => {
   width: 47px;
   height: 47px;
   border-radius: 8px;
-  background-color: rgba(255, 255, 255, 0.2);
 }
 
 .feature-item span {
