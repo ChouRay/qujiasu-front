@@ -2,6 +2,7 @@
   <div class="home-page">
     <!-- 轮播图/横幅区域 -->
     <section class="banner-section">
+      <div class="banner-overlay"></div>
       <div class="banner-container">
         <div class="banner-content">
           <h1 class="banner-title">趣加速 - 专业网络加速服务</h1>
@@ -38,7 +39,6 @@
             </el-button>
           </div>
         </div>
-        <div class="banner-image" :style="{ backgroundImage: `url(${bannerImg})` }"></div>
       </div>
     </section>
 
@@ -102,13 +102,27 @@ const goToPurchase = () => {
 
 /* 轮播图/横幅区域 */
 .banner-section {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background-image: url('@/assets/images/banner.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   padding: 80px 0;
   min-height: calc(100vh - 60px);
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
+  position: relative;
+}
+
+.banner-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1;
 }
 
 .banner-container {
