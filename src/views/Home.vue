@@ -154,12 +154,14 @@ const goToPurchase = () => {
   font-size: 1.5rem;
   margin-bottom: 16px;
   opacity: 0.95;
+  color: #212529;
 }
 
 .banner-desc {
   font-size: 1.1rem;
   margin-bottom: 42px;
   opacity: 0.9;
+  color: #212529;
 }
 
 .banner-features {
