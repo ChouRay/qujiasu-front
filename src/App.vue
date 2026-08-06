@@ -9,6 +9,7 @@
         <nav class="nav-menu">
           <el-menu
             mode="horizontal"
+            :ellipsis="false"
             :default-active="activeTab"
             class="nav-menu-inner"
             @select="handleMenuSelect"
