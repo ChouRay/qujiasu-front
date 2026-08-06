@@ -127,8 +127,6 @@ const goToPurchase = () => {
 
 .banner-container {
   width: 100%;
-  max-width: 100%;
-  padding: 0 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
