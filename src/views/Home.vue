@@ -12,19 +12,19 @@
           <div class="banner-features">
             <div class="feature-item">
               <div class="feature-icon placeholder-img"></div>
-              <span>高速稳定</span>
+              <span>安全</span>
             </div>
             <div class="feature-item">
               <div class="feature-icon placeholder-img"></div>
-              <span>安全可靠</span>
+              <span>高匿</span>
             </div>
             <div class="feature-item">
               <div class="feature-icon placeholder-img"></div>
-              <span>全球覆盖</span>
+              <span>极速</span>
             </div>
             <div class="feature-item">
               <div class="feature-icon placeholder-img"></div>
-              <span>专业技术</span>
+              <span>稳定</span>
             </div>
           </div>
           
