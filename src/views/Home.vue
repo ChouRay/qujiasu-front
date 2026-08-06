@@ -11,19 +11,19 @@
           <!-- 特性图标 -->
           <div class="banner-features">
             <div class="feature-item">
-              <div class="feature-icon" style="background-image: url('@/assets/images/icon-safe.png'); background-size: cover; background-position: center; background-repeat: no-repeat;"></div>
+              <div class="feature-icon" :style="{ backgroundImage: `url(${iconSafe})` }"></div>
               <span>安全</span>
             </div>
             <div class="feature-item">
-              <div class="feature-icon" style="background-image: url('@/assets/images/icon-anonymous.png'); background-size: cover; background-position: center; background-repeat: no-repeat;"></div>
+              <div class="feature-icon" :style="{ backgroundImage: `url(${iconAnonymous})` }"></div>
               <span>高匿</span>
             </div>
             <div class="feature-item">
-              <div class="feature-icon" style="background-image: url('@/assets/images/icon-rocket.png'); background-size: cover; background-position: center; background-repeat: no-repeat;"></div>
+              <div class="feature-icon" :style="{ backgroundImage: `url(${iconRocket})` }"></div>
               <span>极速</span>
             </div>
             <div class="feature-item">
-              <div class="feature-icon" style="background-image: url('@/assets/images/icon-stable.png'); background-size: cover; background-position: center; background-repeat: no-repeat;"></div>
+              <div class="feature-icon" :style="{ backgroundImage: `url(${iconStable})` }"></div>
               <span>稳定</span>
             </div>
           </div>
@@ -81,6 +81,10 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
 import bannerImg from '@/assets/images/banner.png'
+import iconSafe from '@/assets/images/icon-safe.png'
+import iconAnonymous from '@/assets/images/icon-anonymous.png'
+import iconRocket from '@/assets/images/icon-rocket.png'
+import iconStable from '@/assets/images/icon-stable.png'
 
 const router = useRouter()
 
