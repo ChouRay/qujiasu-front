@@ -22,8 +22,11 @@
                   v-model="loginform.accountnum"
                   auto-complete="off"
                   placeholder="请输入手机号或者用户名"
-                  prefix-icon="el-icon-user-solid"
-                ></el-input>
+                >
+                  <template #prefix>
+                    <el-icon><User /></el-icon>
+                  </template>
+                </el-input>
               </el-form-item>
               <el-form-item prop="password">
                 <el-input
@@ -31,8 +34,11 @@
                   v-model="loginform.password"
                   auto-complete="off"
                   placeholder="请输入密码"
-                  prefix-icon="el-icon-edit"
-                ></el-input>
+                >
+                  <template #prefix>
+                    <el-icon><Lock /></el-icon>
+                  </template>
+                </el-input>
               </el-form-item>
 
               <el-form-item class="mt-4">
@@ -88,6 +94,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import { User, Lock } from '@element-plus/icons-vue'
 
 const router = useRouter()
 const loginform = ref({
