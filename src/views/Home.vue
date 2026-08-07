@@ -385,10 +385,12 @@ const goToPurchase = () => {
   .banner-actions {
     flex-direction: column;
     gap: 12px;
+    align-items: stretch;
   }
   
   .banner-actions .el-button {
     width: 100%;
+    max-width: 280px;
   }
   
   .product-cards {
