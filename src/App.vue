@@ -117,11 +117,11 @@ const handleMenuSelect = (index: string) => {
 .logo {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 2px;
 }
 
 .logo-img {
-  height: 40px;
+  height: 68px;
   width: auto;
   object-fit: contain;
 }
