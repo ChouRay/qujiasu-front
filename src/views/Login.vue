@@ -270,20 +270,20 @@ const wxLogin = () => {
   }
 }
 
-::v-deep .el-form-item {
+:deep(.el-form-item) {
   margin-bottom: 18px;
 }
 
-::v-deep input.el-input__inner {
+:deep(input.el-input__inner) {
   height: 32px !important;
 }
 
-::v-deep .el-input__icon {
+:deep(.el-input__icon) {
   line-height: 14.5px !important;
 }
 
-::v-deep .el-input__prefix,
-::v-deep .el-input__suffix {
+:deep(.el-input__prefix),
+:deep(.el-input__suffix) {
   top: 1.8px !important;
 }
 
