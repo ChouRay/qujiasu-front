@@ -247,44 +247,52 @@ const wxLogin = () => {
 
 .hero {
   position: relative;
-  height: 80vh;
+  height: 600px;
   min-height: 500px;
+  width: 900px;
+  max-width: 100%;
   border-radius: 20px;
   overflow: hidden;
+  background: #fff;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  display: flex;
 }
 
 .background-image {
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
+  width: 55%;
   height: 100%;
   background-image: url('@/assets/images/bg-login-card.jpg');
   background-position: center;
-  background-size: contain;
+  background-size: cover;
   background-repeat: no-repeat;
-  border-radius: 20px;
+  border-radius: 20px 0 0 20px;
   overflow: hidden;
 }
 
 .right-panel {
   position: absolute;
-  top: 50%;
+  top: 0;
   right: 0;
-  transform: translateY(-50%);
-  width: 40%;
-  margin-right: 32px;
-  border-radius: 16px;
-  padding: 40px;
+  width: 45%;
+  height: 100%;
+  border-radius: 0 20px 20px 0;
+  padding: 40px 30px;
   z-index: 2;
-  border-left: 1px solid rgba(255, 255, 255, 0.2);
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .bottom-left-text {
   position: absolute;
   left: 40px;
   bottom: 12%;
-  max-width: 500px;
+  max-width: 400px;
   z-index: 2;
   color: #fff;
 }
@@ -306,6 +314,7 @@ const wxLogin = () => {
 
 .input1 {
   max-width: 360px;
+  width: 100%;
   margin-left: auto;
   margin-right: auto;
 }
