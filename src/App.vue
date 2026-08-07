@@ -3,10 +3,17 @@
     <!-- 顶部导航栏 -->
     <header class="header">
       <div class="header-content">
+        <!-- 移动端汉堡菜单按钮 -->
+        <div class="mobile-menu-btn" @click="drawerVisible = true">
+          <el-icon :size="24" color="#fff"><Menu /></el-icon>
+        </div>
+        
         <div class="logo">
           <img src="@/assets/images/logo.png" alt="趣加速 logo" class="logo-img" />
           <h1>趣加速</h1>
         </div>
+        
+        <!-- 桌面端导航菜单 -->
         <nav class="nav-menu">
           <el-menu
             mode="horizontal"
@@ -21,12 +28,53 @@
             <el-menu-item index="/agent" key="agent">代理加盟</el-menu-item>
           </el-menu>
         </nav>
+        
         <div class="auth-buttons">
           <el-button type="primary" variant="outline">注册</el-button>
           <el-button type="primary" @click="handleLogin">登录</el-button>
         </div>
       </div>
     </header>
+
+    <!-- 移动端侧边抽屉导航 -->
+    <el-drawer
+      v-model="drawerVisible"
+      direction="ltr"
+      size="280px"
+      class="mobile-drawer"
+      :show-close="true"
+    >
+      <template #header>
+        <div class="drawer-header">
+          <img src="@/assets/images/logo.png" alt="趣加速 logo" class="drawer-logo" />
+          <span class="drawer-title">趣加速</span>
+        </div>
+      </template>
+      
+      <el-menu
+        :default-active="activeTab"
+        mode="vertical"
+        @select="handleDrawerMenuSelect"
+        class="drawer-menu"
+      >
+        <el-menu-item index="/" key="drawer-home">
+          <el-icon><HomeFilled /></el-icon>
+          <span>首页</span>
+        </el-menu-item>
+        <el-menu-item index="/package" key="drawer-package">
+          <el-icon><ShoppingCart /></el-icon>
+          <span>套餐购买</span>
+        </el-menu-item>
+        <el-menu-item index="/software" key="drawer-software">
+          <el-icon><Download /></el-icon>
+          <span>软件下载</span>
+        </el-menu-item>
+        <el-menu-item index="/agent" key="drawer-agent">
+          <el-icon><UserFilled /></el-icon>
+          <span>代理加盟</span>
+        </el-menu-item>
+      </el-menu>
+    </el-drawer>
 
     <!-- 中间内容区域 -->
     <main class="main-content">
@@ -65,10 +113,12 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { Menu, HomeFilled, ShoppingCart, Download, UserFilled } from '@element-plus/icons-vue'
 import imgWXOpenQR from '@/assets/images/wx-open-qr.jpg'
 
 const route = useRoute()
 const router = useRouter()
+const drawerVisible = ref(false)
 
 const activeTab = computed(() => {
   return route.path
@@ -76,6 +126,11 @@ const activeTab = computed(() => {
 
 const handleMenuSelect = (index: string) => {
   router.push(index)
+}
+
+const handleDrawerMenuSelect = (index: string) => {
+  router.push(index)
+  drawerVisible.value = false
 }
 
 const handleLogin = () => {
@@ -136,6 +191,19 @@ const handleLogin = () => {
   font-weight: bold;
   margin: 0;
   cursor: pointer;
+}
+
+/* 移动端汉堡菜单按钮 - 默认隐藏 */
+.mobile-menu-btn {
+  display: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.mobile-menu-btn:hover {
+  background-color: rgba(255, 255, 255, 0.2);
 }
 
 .nav-menu {
@@ -247,5 +315,70 @@ const handleLogin = () => {
   font-size: 13px;
   color: #95a5a6;
   margin: 0;
+}
+
+/* 移动端抽屉样式 */
+.drawer-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.drawer-logo {
+  height: 40px;
+  width: auto;
+  object-fit: contain;
+}
+
+.drawer-title {
+  font-size: 20px;
+  font-weight: bold;
+  color: #667eea;
+}
+
+.drawer-menu {
+  border-right: none !important;
+}
+
+.drawer-menu :deep(.el-menu-item) {
+  font-size: 16px;
+  color: #333;
+}
+
+.drawer-menu :deep(.el-menu-item.is-active) {
+  background-color: #667eea !important;
+  color: #fff !important;
+}
+
+.drawer-menu :deep(.el-icon) {
+  margin-right: 10px;
+  font-size: 20px;
+}
+
+/* 响应式设计 - 手机端适配 */
+@media (max-width: 768px) {
+  .mobile-menu-btn {
+    display: block;
+  }
+
+  .nav-menu {
+    display: none;
+  }
+
+  .header-content {
+    padding: 0 15px;
+  }
+
+  .logo h1 {
+    font-size: 20px;
+  }
+
+  .logo-img {
+    height: 50px;
+  }
+
+  .auth-buttons {
+    display: none;
+  }
 }
 </style>
