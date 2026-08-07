@@ -65,11 +65,11 @@
                     >忘记密码?</a
                   >
                 </div>
+                
                 <div class="mt-5">
-                  <div content-position="center"
-                    ><span style="color: #020202"
-                      >其他登录方式</span
-                    ></div>
+                  <el-divider>
+                    <span style="color: #020202">其他登录方式</span>
+                  </el-divider>
                   <div class="text-center text-nowrap mt-3 f-1-2 cursor">
                     <img
                       src="@/assets/images/icon-wechat.png"
