@@ -125,37 +125,62 @@ const wxLogin = () => {
 }
 
 @media (max-width: 768px) {
+  .bg_main {
+    height: auto;
+    min-height: 100vh;
+    padding: 20px 0;
+  }
+
+  .container {
+    padding: 0 15px;
+  }
+
   .hero {
     height: auto;
-    min-height: 600px;
+    min-height: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 20px;
   }
 
   .background-image {
     display: none;
   }
 
-  .right-panel {
+  .bottom-left-text {
     position: relative;
+    left: auto;
+    bottom: auto;
+    width: 100%;
+    text-align: center;
+    padding: 0 0 30px;
+    max-width: 100%;
+  }
+
+  .bottom-left-text h2 {
+    font-size: 1.8rem;
+    display: block;
+    margin-bottom: 0;
+  }
+
+  .right-panel {
+    position: relative !important;
+    top: auto !important;
+    right: auto !important;
+    transform: none !important;
     width: 100% !important;
-    transform: translate(0, 0) !important;
-    top: auto;
-    right: auto;
-    margin-right: 0px !important;
+    max-width: 400px;
+    margin: 0 auto !important;
     border-radius: 16px;
     background: rgba(255, 255, 255, 1);
-    margin-top: 40px;
     padding: 30px 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-  }
-
-  .bottom-left-text {
-    position: relative;
-    left: auto;
-    bottom: auto;
-    padding: 40px 30px 0;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   }
 
   .login-title {
