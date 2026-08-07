@@ -137,13 +137,18 @@ const wxLogin = () => {
   .right-panel {
     position: relative;
     width: 100% !important;
-    transform: translate(-0%, -60%) !important;
+    transform: translate(0, 0) !important;
     top: auto;
     right: auto;
     margin-right: 0px !important;
     border-radius: 16px;
     background: rgba(255, 255, 255, 1);
     margin-top: 40px;
+    padding: 30px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
   }
 
   .bottom-left-text {
@@ -151,6 +156,47 @@ const wxLogin = () => {
     left: auto;
     bottom: auto;
     padding: 40px 30px 0;
+  }
+
+  .login-title {
+    font-size: 1.5rem;
+    margin-bottom: 24px;
+  }
+
+  .input1 {
+    width: 100%;
+    max-width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  :deep(.el-form-item) {
+    margin-bottom: 16px;
+    width: 100%;
+  }
+
+  :deep(input.el-input__inner) {
+    height: 40px !important;
+    font-size: 14px;
+  }
+
+  :deep(.el-input__icon) {
+    line-height: 40px !important;
+  }
+
+  :deep(.el-input__prefix),
+  :deep(.el-input__suffix) {
+    top: 0 !important;
+  }
+
+  .el-button.fpx16 {
+    height: 40px;
+    font-size: 16px;
+  }
+
+  .loginbtn,
+  .forgetPass {
+    font-size: 13px;
   }
 }
 
