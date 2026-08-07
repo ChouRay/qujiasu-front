@@ -66,11 +66,10 @@
                   >
                 </div>
                 <div class="mt-5">
-                  <el-divider content-position="center"
+                  <div content-position="center"
                     ><span style="color: #020202"
                       >其他登录方式</span
-                    ></el-divider
-                  >
+                    ></div>
                   <div class="text-center text-nowrap mt-3 f-1-2 cursor">
                     <img
                       src="@/assets/images/icon-wechat.png"
@@ -287,6 +286,7 @@ const wxLogin = () => {
   font-size: 14px;
   cursor: pointer;
   color: #1ab2ff;
+  margin-right: 12px;
 
   &:hover {
     color: red;
