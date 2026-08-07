@@ -359,6 +359,12 @@ const handleLogin = () => {
 @media (max-width: 768px) {
   .mobile-menu-btn {
     display: block;
+    order: 0;
+  }
+
+  .logo {
+    order: 1;
+    margin-left: 12px;
   }
 
   .nav-menu {
@@ -367,18 +373,27 @@ const handleLogin = () => {
 
   .header-content {
     padding: 0 15px;
-  }
-
-  .logo h1 {
-    font-size: 20px;
-  }
-
-  .logo-img {
-    height: 50px;
+    justify-content: flex-start;
   }
 
   .auth-buttons {
-    display: none;
+    display: flex;
+    order: 2;
+    margin-left: auto;
+    gap: 8px;
+  }
+
+  .auth-buttons .el-button {
+    padding: 6px 10px;
+    font-size: 13px;
+  }
+
+  .logo h1 {
+    font-size: 18px;
+  }
+
+  .logo-img {
+    height: 42px;
   }
 }
 </style>
