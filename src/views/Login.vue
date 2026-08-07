@@ -193,8 +193,11 @@ const wxLogin = () => {
   position: relative;
   height: 80vh;
   min-height: 500px;
-  border-radius: 16px;
+  border-radius: 20px;
   overflow: hidden;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
 .background-image {
@@ -205,8 +208,10 @@ const wxLogin = () => {
   height: 100%;
   background-image: url('@/assets/images/bg-login-card.jpg');
   background-position: center;
-  background-size: contain;
+  background-size: cover;
   background-repeat: no-repeat;
+  border-radius: 20px;
+  overflow: hidden;
 }
 
 .right-panel {
