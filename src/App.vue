@@ -42,10 +42,10 @@
           <p>售后 QQ: 2112212</p>
         </div>
         <div class="footer-section">
-          <h3>官方微信</h3>
-          <div class="qrcode-placeholder">
+          <h3>官方微信公众号</h3>
+          <div class="qrcode-content">
             <div class="qrcode-box">
-              <span>二维码占位</span>
+              <img width='100%' :src="imgWXOpenQR"/>
             </div>
           </div>
         </div>
@@ -64,6 +64,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import imgWXOpenQR from '@/assets/images/wx-open-qr.jpg'
 
 const route = useRoute()
 const router = useRouter()
@@ -211,22 +212,18 @@ const handleMenuSelect = (index: string) => {
   color: #bdc3c7;
 }
 
-.qrcode-placeholder {
-  display: flex;
-  justify-content: center;
-}
-
 .qrcode-box {
-  width: 120px;
-  height: 120px;
+  width: 140px;
+  height: 140px;
   background: #34495e;
-  border: 2px dashed #3498db;
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #7f8c8d;
   font-size: 12px;
+}
+.qrcode-content {
 }
 
 .copyright {

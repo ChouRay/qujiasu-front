@@ -51,7 +51,9 @@
       
       <div class="product-cards">
         <div class="product-card">
-          <div class="card-image placeholder-img-medium" :style="{ backgroundImage: `url(${cardFast})` }"></div>
+          <div class="card-image placeholder-img-medium">
+            <img width="288px" :src="cardFast" />
+          </div>
           <div class="card-content">
             <h3 class="card-title">极速稳定</h3>
             <p class="card-desc">采用最先进的加速技术，确保网络连接快速稳定</p>
@@ -59,7 +61,9 @@
         </div>
         
         <div class="product-card">
-          <div class="card-image placeholder-img-medium"></div>
+          <div class="card-image placeholder-img-medium">
+            <img width="288px" :src="cardSafe" />
+          </div>
           <div class="card-content">
             <h3 class="card-title">安全保障</h3>
             <p class="card-desc">多重加密保护，您的数据安全我们始终放在第一位</p>
@@ -67,7 +71,9 @@
         </div>
         
         <div class="product-card">
-          <div class="card-image placeholder-img-medium"></div>
+          <div class="card-image placeholder-img-medium">
+            <img width="288px" :src="cardService" />
+          </div>
           <div class="card-content">
             <h3 class="card-title">专业服务</h3>
             <p class="card-desc">7x24小时专业技术支持，随时为您解决问题</p>
@@ -86,6 +92,8 @@ import iconAnonymous from '@/assets/images/icon-anonymous.png'
 import iconRocket from '@/assets/images/icon-rocket.png'
 import iconStable from '@/assets/images/icon-stable.png'
 import cardFast from '@/assets/images/card-fast.png'
+import cardSafe from '@/assets/images/card-safe.png'
+import cardService from '@/assets/images/card-service.png'
 
 const router = useRouter()
 
@@ -309,10 +317,6 @@ const goToPurchase = () => {
   justify-content: center;
   color: #999;
   font-size: 14px;
-}
-
-.placeholder-img-medium::after {
-  content: '图片占位';
 }
 
 .placeholder-img-large {
