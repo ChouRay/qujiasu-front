@@ -4,6 +4,7 @@
     <header class="header">
       <div class="header-content">
         <div class="logo">
+          <img src="@/assets/images/logo.png" alt="趣加速 logo" class="logo-img" />
           <h1>趣加速</h1>
         </div>
         <nav class="nav-menu">
@@ -111,6 +112,18 @@ const handleMenuSelect = (index: string) => {
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-img {
+  height: 40px;
+  width: auto;
+  object-fit: contain;
 }
 
 .logo h1 {
