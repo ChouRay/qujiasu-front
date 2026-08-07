@@ -208,7 +208,7 @@ const wxLogin = () => {
   height: 100%;
   background-image: url('@/assets/images/bg-login-card.jpg');
   background-position: center;
-  background-size: cover;
+  background-size: contain;
   background-repeat: no-repeat;
   border-radius: 20px;
   overflow: hidden;
