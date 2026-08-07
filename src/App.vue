@@ -23,7 +23,7 @@
         </nav>
         <div class="auth-buttons">
           <el-button type="primary" variant="outline">注册</el-button>
-          <el-button type="primary">登录</el-button>
+          <el-button type="primary" @click="handleLogin">登录</el-button>
         </div>
       </div>
     </header>
@@ -76,6 +76,10 @@ const activeTab = computed(() => {
 
 const handleMenuSelect = (index: string) => {
   router.push(index)
+}
+
+const handleLogin = () => {
+  router.push('/login')
 }
 </script>
 

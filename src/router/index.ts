@@ -24,6 +24,12 @@ const routes = [
     name: 'Agent',
     component: () => import('@/views/Agent.vue'),
     meta: { title: '代理加盟' }
+  },
+  {
+    path: '/login',
+    name: 'Login',
+    component: () => import('@/views/Login.vue'),
+    meta: { title: '登录' }
   }
 ]
 
