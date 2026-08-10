@@ -8,7 +8,7 @@
           <el-icon :size="24" color="#fff"><Menu /></el-icon>
         </div>
         
-        <div class="logo">
+        <div class="logo" @click="handleLogoClick">
           <img src="@/assets/images/logo.png" alt="趣加速 logo" class="logo-img" />
           <h1>趣加速</h1>
         </div>
@@ -140,6 +140,10 @@ const handleLogin = () => {
 const handleRegister = () => {
   router.push('/register')
 }
+
+const handleLogoClick = () => {
+  router.push('/')
+}
 </script>
 
 <style scoped>
@@ -181,6 +185,11 @@ const handleRegister = () => {
   display: flex;
   align-items: center;
   gap: 2px;
+  cursor: pointer;
+}
+
+.logo:hover h1 {
+  color: #409eff;
 }
 
 .logo-img {
