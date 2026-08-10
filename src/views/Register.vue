@@ -72,52 +72,50 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'Register',
-  data() {
-    return {
-      form: {
-        phone: '',
-        password: '',
-        confirmPassword: '',
-        code: '',
-        inviteCode: '',
-        agree: false
-      }
-    }
-  },
-  methods: {
-    sendCode() {
-      if (!this.form.phone || !/^1[3-9]\d{9}$/.test(this.form.phone)) {
-        alert('请输入正确的手机号')
-        return
-      }
-      // TODO: 实现发送验证码逻辑
-      alert('验证码已发送')
-    },
-    handleRegister() {
-      if (this.form.password !== this.form.confirmPassword) {
-        alert('两次输入的密码不一致')
-        return
-      }
-      if (this.form.password.length < 6 || this.form.password.length > 20) {
-        alert('密码长度应为6-20位')
-        return
-      }
-      if (!/^[a-zA-Z0-9]+$/.test(this.form.password)) {
-        alert('密码应为字母和数字组合')
-        return
-      }
-      if (!this.form.agree) {
-        alert('请勾选同意协议')
-        return
-      }
-      // TODO: 实现注册逻辑
-      console.log('注册信息:', this.form)
-      alert('注册成功')
-    }
+<script setup lang="ts">
+import { ref, reactive } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
+const form = reactive({
+  phone: '',
+  password: '',
+  confirmPassword: '',
+  code: '',
+  inviteCode: '',
+  agree: false
+})
+
+const sendCode = () => {
+  if (!form.phone || !/^1[3-9]\d{9}$/.test(form.phone)) {
+    alert('请输入正确的手机号')
+    return
   }
+  // TODO: 实现发送验证码逻辑
+  alert('验证码已发送')
+}
+
+const handleRegister = () => {
+  if (form.password !== form.confirmPassword) {
+    alert('两次输入的密码不一致')
+    return
+  }
+  if (form.password.length < 6 || form.password.length > 20) {
+    alert('密码长度应为6-20位')
+    return
+  }
+  if (!/^[a-zA-Z0-9]+$/.test(form.password)) {
+    alert('密码应为字母和数字组合')
+    return
+  }
+  if (!form.agree) {
+    alert('请勾选同意协议')
+    return
+  }
+  // TODO: 实现注册逻辑
+  console.log('注册信息:', form)
+  alert('注册成功')
 }
 </script>
 
