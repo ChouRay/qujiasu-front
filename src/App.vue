@@ -188,10 +188,6 @@ const handleLogoClick = () => {
   cursor: pointer;
 }
 
-.logo:hover h1 {
-  color: #409eff;
-}
-
 .logo-img {
   height: 68px;
   width: auto;
