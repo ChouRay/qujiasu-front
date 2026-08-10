@@ -262,24 +262,24 @@ const wxLogin = () => {
   position: absolute;
   top: 0;
   left: 0;
-  width: 55%;
+  width: 100%;
   height: 100%;
   background-image: url('@/assets/images/bg-login-card.jpg');
   background-position: center;
-  background-size: contain;
+  background-size: cover;
   background-repeat: no-repeat;
-  border-radius: 20px 0 0 20px;
-  overflow: hidden;
+  border-radius: 20px;
+  z-index: 1;
 }
 
 .right-panel {
   position: absolute;
   top: 50%;
-  right: 0;
+  right: 10%;
   transform: translateY(-50%);
-  width: 45%;
-  max-height: 80%;
-  border-radius: 0 20px 20px 0;
+  width: 40%;
+  max-width: 400px;
+  border-radius: 16px;
   padding: 40px 30px;
   z-index: 2;
   background: #fff;
@@ -287,6 +287,7 @@ const wxLogin = () => {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
 }
 
 .bottom-left-text {
@@ -296,6 +297,7 @@ const wxLogin = () => {
   max-width: 400px;
   z-index: 2;
   color: #fff;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
 }
 
 .bottom-left-text h2 {
@@ -303,7 +305,6 @@ const wxLogin = () => {
   font-weight: 700;
   line-height: 1.1;
   margin-bottom: 45px;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
 }
 
 .login-title {
