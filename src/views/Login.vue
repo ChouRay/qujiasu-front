@@ -42,12 +42,12 @@
               </el-form-item>
 
               <el-form-item class="mt-4">
-                <el-button
+                <button
                   type="primary"
                   @click="submitForm('loginform')"
                   style="width: 100%; letter-spacing: 0.2rem"
-                  class="fpx16"
-                  >登录</el-button
+                  class="submit-btn"
+                  >登录</button
                 >
 
                 <div style="overflow: hidden; margin-top: 6px">
@@ -374,5 +374,22 @@ const wxLogin = () => {
 
 .cursor {
   cursor: pointer;
+}
+
+.submit-btn {
+  width: 100%;
+  height: 40px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.submit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
 }
 </style>
