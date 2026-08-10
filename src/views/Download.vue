@@ -109,13 +109,16 @@ export default {
 
 .download-btn {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  padding: 30px 40px;
+  justify-content: center;
+  gap: 10px;
+  padding: 0 30px;
+  height: 56px;
   border-radius: 12px;
   cursor: pointer;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  min-width: 150px;
+  min-width: 180px;
 
   &:hover {
     transform: translateY(-5px);
@@ -123,9 +126,8 @@ export default {
   }
 
   .btn-icon {
-    width: 64px;
-    height: 64px;
-    margin-bottom: 12px;
+    width: 32px;
+    height: 32px;
     object-fit: contain;
   }
 
