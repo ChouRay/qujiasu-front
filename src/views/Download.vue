@@ -36,6 +36,7 @@
 </template>
 
 <script>
+
 export default {
   name: 'Download',
 }
@@ -43,9 +44,9 @@ export default {
 
 <style lang="scss" scoped>
 .download-container {
-  min-height: 100vh;
+  min-height: 100vh;  
   position: relative;
-  display: flex;
+  display: flex;  
   flex-direction: column;
   align-items: center;
   padding-top: 80px;
@@ -158,8 +159,8 @@ export default {
   bottom: 0;
   left: 0;
   right: 0;
-  height: 400px;
-  background-image: url('@/assets/images/login-bg.png');
+  height: 1079px;
+  background-image: url('@/assets/images/bg-download.png');
   background-size: cover;
   background-position: center bottom;
   background-repeat: no-repeat;

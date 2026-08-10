@@ -14,9 +14,9 @@ const routes = [
     meta: { title: '套餐购买' }
   },
   {
-    path: '/software',
-    name: 'Software',
-    component: () => import('@/views/Software.vue'),
+    path: '/download',
+    name: 'Download',
+    component: () => import('@/views/Download.vue'),
     meta: { title: '软件下载' }
   },
   {

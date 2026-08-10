@@ -194,29 +194,7 @@ const wxLogin = () => {
     margin-right: 0;
   }
 
-  :deep(.el-form-item) {
-    margin-bottom: 16px;
-    width: 100%;
-  }
 
-  :deep(input.el-input__inner) {
-    height: 40px !important;
-    font-size: 14px;
-  }
-
-  :deep(.el-input__icon) {
-    line-height: 40px !important;
-  }
-
-  :deep(.el-input__prefix),
-  :deep(.el-input__suffix) {
-    top: 0 !important;
-  }
-
-  .el-button.fpx16 {
-    height: 40px;
-    font-size: 16px;
-  }
 
   .loginbtn,
   .forgetPass {
