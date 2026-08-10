@@ -30,7 +30,7 @@
         </nav>
         
         <div class="auth-buttons">
-          <el-button type="primary" variant="outline">注册</el-button>
+          <el-button type="primary" variant="outline" @click="handleRegister">注册</el-button>
           <el-button type="primary" @click="handleLogin">登录</el-button>
         </div>
       </div>
@@ -135,6 +135,10 @@ const handleDrawerMenuSelect = (index: string) => {
 
 const handleLogin = () => {
   router.push('/login')
+}
+
+const handleRegister = () => {
+  router.push('/register')
 }
 </script>
 
