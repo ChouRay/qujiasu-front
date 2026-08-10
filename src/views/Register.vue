@@ -3,13 +3,7 @@
     <div class="background-image"></div>
     <div class="container">
       <div class="hero">
-        <div class="left-panel">
-          <div class="bottom-left-text">
-            <h1>欢迎注册</h1>
-            <p>加速您的网络体验</p>
-          </div>
-        </div>
-        <div class="right-panel">
+        <div class="rigster-panel">
           <div class="login-form">
             <h2>账户注册</h2>
             <form @submit.prevent="handleRegister">
@@ -141,7 +135,7 @@ export default {
   left: 0;
   width: 100%;
   height: 100%;
-  background-image: url('@/assets/images/bg-login-card.jpg');
+  background-image: url('@/assets/images/login-bg.jpg');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -184,10 +178,10 @@ export default {
   opacity: 0.9;
 }
 
-.right-panel {
+.rigster-panel {
   position: absolute;
   top: 50%;
-  right: 10%;
+  left: 40%;
   transform: translateY(-50%);
   width: 40%;
   max-width: 450px;
