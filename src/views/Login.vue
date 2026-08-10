@@ -238,7 +238,7 @@ const wxLogin = () => {
 }
 
 .container {
-  max-width: 1016px;
+  max-width: 916px;
   width: 100%;
   margin: 0 auto;
   padding: 20px;
@@ -248,7 +248,7 @@ const wxLogin = () => {
   position: relative;
   height: 500px;
   min-height: 500px;
-  width: 2811px;
+  width: 100%;
   max-width: 100%;
   border-radius: 20px;
   overflow: hidden;
