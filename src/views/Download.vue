@@ -114,26 +114,26 @@ export default {
   align-items: center;
   justify-content: center;
   gap: 10px;
-  padding: 0 30px;
-  height: 56px;
+  padding: 0 24px;
+  height: 44px;
   border-radius: 12px;
   cursor: pointer;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  min-width: 180px;
+  min-width: 160px;
 
   &:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
   }
 
   .btn-icon {
-    width: 32px;
-    height: 32px;
+    width: 24px;
+    height: 24px;
     object-fit: contain;
   }
 
   .btn-text {
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 500;
     color: #fff;
   }
@@ -190,21 +190,18 @@ export default {
   }
 
   .download-btn {
-    padding: 20px 30px;
-    min-width: 120px;
+    padding: 0 20px;
+    height: 40px;
+    min-width: 140px;
 
     .btn-icon {
-      width: 48px;
-      height: 48px;
+      width: 22px;
+      height: 22px;
     }
 
     .btn-text {
       font-size: 14px;
     }
-  }
-
-  .bottom-bg {
-    height: 250px;
   }
 }
 
@@ -242,27 +239,23 @@ export default {
   }
 
   .download-btn {
-    width: 90%;
-    max-width: 320px;
+    width: 85%;
+    max-width: 280px;
     flex-direction: row;
     justify-content: center;
-    gap: 12px;
-    padding: 14px 20px;
-    height: 52px;
+    gap: 8px;
+    padding: 0 16px;
+    height: 40px;
     min-width: auto;
 
     .btn-icon {
-      width: 28px;
-      height: 28px;
+      width: 20px;
+      height: 20px;
     }
 
     .btn-text {
-      font-size: 14px;
+      font-size: 13px;
     }
-  }
-
-  .bottom-bg {
-    height: 150px;
   }
 }
 
@@ -280,17 +273,17 @@ export default {
   }
 
   .download-btn {
-    width: 95%;
-    height: 48px;
-    padding: 12px 16px;
+    width: 90%;
+    height: 38px;
+    padding: 0 14px;
 
     .btn-icon {
-      width: 24px;
-      height: 24px;
+      width: 18px;
+      height: 18px;
     }
 
     .btn-text {
-      font-size: 13px;
+      font-size: 12px;
     }
   }
 }
