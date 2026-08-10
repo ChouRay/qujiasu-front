@@ -5,7 +5,10 @@
       <div class="hero">
         <div class="rigster-panel">
           <div class="login-form">
-            <h2>账户注册</h2>
+            <div class="form-header">
+              <h2>欢迎注册</h2>
+              <p class="subtitle">趣加速</p>
+            </div>
             <form @submit.prevent="handleRegister">
               <div class="form-group">
                 <input 
@@ -194,11 +197,22 @@ const handleRegister = () => {
   backdrop-filter: blur(10px);
 }
 
-.login-form h2 {
+.login-form .form-header {
   text-align: center;
-  color: #333;
   margin-bottom: 30px;
+}
+
+.login-form h2 {
+  color: #333;
+  margin-bottom: 10px;
   font-size: 28px;
+}
+
+.login-form .subtitle {
+  color: #666;
+  font-size: 16px;
+  margin: 0;
+  font-weight: 500;
 }
 
 .form-group {
