@@ -64,7 +64,7 @@
                     @click.prevent="fgPwd"
                     >忘记密码?</a
                   >
-                </div>                              
+                </div>
               </el-form-item>
             </el-form>
           </div>
@@ -75,32 +75,32 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
-import { User, Lock } from '@element-plus/icons-vue'
+import { ref } from "vue";
+import { useRouter } from "vue-router";
+import { ElMessage } from "element-plus";
+import { User, Lock } from "@element-plus/icons-vue";
 
-const router = useRouter()
+const router = useRouter();
 const loginform = ref({
-  accountnum: '',
-  password: ''
-})
+  accountnum: "",
+  password: "",
+});
 
 const submitForm = (formName: string) => {
-  console.log('提交登录表单', formName)
-}
+  console.log("提交登录表单", formName);
+};
 
 const gotoRegester = () => {
-  console.log('前往注册')
-}
+  console.log("前往注册");
+};
 
 const fgPwd = () => {
-  console.log('忘记密码')
-}
+  console.log("忘记密码");
+};
 
 const wxLogin = () => {
-  console.log('微信登录')
-}
+  console.log("微信登录");
+};
 </script>
 
 <style scoped lang="scss">
@@ -109,6 +109,11 @@ const wxLogin = () => {
   .background-image {
     display: none;
   }
+
+  .hero {
+    box-shadow: none !important;
+  }
+
   .right-panel {
     justify-content: center;
     align-items: center;
@@ -136,13 +141,7 @@ const wxLogin = () => {
   }
 
   .hero {
-    height: auto;
-    min-height: auto;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 40px 20px;
+    display: none;
   }
 
   .background-image {
@@ -180,7 +179,7 @@ const wxLogin = () => {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
   }
 
   .login-title {
@@ -231,7 +230,7 @@ const wxLogin = () => {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background-image: url('@/assets/images/login-bg.jpg');
+  background-image: url("@/assets/images/login-bg.jpg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -247,13 +246,12 @@ const wxLogin = () => {
 
 .hero {
   position: relative;
-  height: 600px;
+  height: 500px;
   min-height: 500px;
-  width: 900px;
+  width: 2811px;
   max-width: 100%;
   border-radius: 20px;
   overflow: hidden;
-  background: #fff;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
   display: flex;
 }
@@ -264,7 +262,7 @@ const wxLogin = () => {
   left: 0;
   width: 100%;
   height: 100%;
-  background-image: url('@/assets/images/bg-login-card.jpg');
+  background-image: url("@/assets/images/bg-login-card.jpg");
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;
@@ -275,9 +273,9 @@ const wxLogin = () => {
 .right-panel {
   position: absolute;
   top: 50%;
-  right: 10%;
+  right: 5%;
   transform: translateY(-50%);
-  width: 40%;
+  width: 32%;
   max-width: 400px;
   border-radius: 16px;
   padding: 40px 30px;
@@ -287,13 +285,13 @@ const wxLogin = () => {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
 }
 
 .bottom-left-text {
   position: absolute;
   left: 40px;
-  bottom: 12%;
+  bottom: 0;
+  transform: translateY(20%);
   max-width: 400px;
   z-index: 2;
   color: #fff;
