@@ -91,7 +91,7 @@ const submitForm = (formName: string) => {
 };
 
 const gotoRegester = () => {
-  console.log("前往注册");
+  router.push('/register');
 };
 
 const fgPwd = () => {
