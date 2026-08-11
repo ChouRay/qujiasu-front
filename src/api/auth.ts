@@ -49,3 +49,11 @@ export const getToken = (): string | null => {
 export const removeToken = (): void => {
   localStorage.removeItem('token');
 };
+
+/**
+ * 将 token 存储到本地
+ * @param token JWT token
+ */
+export const setToken = (token: string): void => {
+  localStorage.setItem('token', token);
+};
