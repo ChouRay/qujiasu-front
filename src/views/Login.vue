@@ -83,7 +83,7 @@ import { ref, reactive } from "vue";
 import { useRouter } from "vue-router";
 import { ElMessage } from "element-plus";
 import { User, Lock } from "@element-plus/icons-vue";
-import { loginApi, setToken } from "@/api/auth";
+import { loginApi } from "@/api/auth";
 
 const router = useRouter();
 const formRef = ref<any>(null);
@@ -108,10 +108,7 @@ const submitForm = async () => {
       const response = await loginApi({
         username: loginForm.username,
         password: loginForm.password,
-      });
-
-      // 存储 token 到本地
-      setToken(response.data.token);
+      });      
 
       ElMessage.success("登录成功");
       
