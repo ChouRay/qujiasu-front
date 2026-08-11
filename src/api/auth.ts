@@ -57,3 +57,15 @@ export const removeToken = (): void => {
 export const setToken = (token: string): void => {
   localStorage.setItem('token', token);
 };
+
+/**
+ * 退出登录
+ * DELETE /api/sessions
+ * @returns Promise<void>
+ */
+export function logout() {
+  return request({
+    url: '/api/sessions',
+    method: 'delete'
+  });
+}
