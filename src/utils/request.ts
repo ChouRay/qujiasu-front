@@ -22,6 +22,11 @@ request.interceptors.request.use(
     config.headers['Content-Type'] = 'application/json;charset=UTF-8';
     // 设置 withCredentials
     config.withCredentials = false;
+    // 自动携带 token
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers['x-auth-token'] = token;
+    }
     return config;
   },
   (error) => {
@@ -35,6 +40,11 @@ request.interceptors.response.use(
     return response.data;
   },
   (error) => {
+    // 处理 401 和 403 错误（未授权或登录过期）
+    if (error.response?.status === 401 || error.response?.status === 403) {
+      localStorage.removeItem('token');
+      window.location.href = '/login';
+    }
     console.error('请求错误:', error);
     return Promise.reject(error);
   }
