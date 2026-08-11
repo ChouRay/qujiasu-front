@@ -17,9 +17,9 @@
               @keyup.enter.native="submitForm('loginform')"
               size="mini"
             >
-              <el-form-item prop="accountnum">
+              <el-form-item prop="username">
                 <el-input
-                  v-model="loginform.accountnum"
+                  v-model="loginform.username"
                   auto-complete="off"
                   placeholder="请输入手机号或者用户名"
                 >
@@ -79,15 +79,39 @@ import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { ElMessage } from "element-plus";
 import { User, Lock } from "@element-plus/icons-vue";
+import { loginApi } from "@/api/auth";
+import { setToken } from "@/api/auth";
 
 const router = useRouter();
 const loginform = ref({
-  accountnum: "",
+  username: "",
   password: "",
 });
 
-const submitForm = (formName: string) => {
-  console.log("提交登录表单", formName);
+const submitForm = async (formName: string) => {
+  if (!loginform.value.username || !loginform.value.password) {
+    ElMessage.warning("请输入用户名和密码");
+    return;
+  }
+
+  try {
+    const response = await loginApi({
+      username: loginform.value.username,
+      password: loginform.value.password,
+    });
+
+    // 存储 token 到本地
+    setToken(response.data.token);
+
+    ElMessage.success("登录成功");
+    
+    // 登录成功后跳转到首页或之前访问的页面
+    router.push("/");
+  } catch (error: any) {
+    // 处理错误信息
+    const errorMsg = error.response?.data?.msg || "登录失败，请稍后重试";
+    ElMessage.error(errorMsg);
+  }
 };
 
 const gotoRegester = () => {
