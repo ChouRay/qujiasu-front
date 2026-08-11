@@ -36,6 +36,26 @@ const routes = [
     name: 'Register',
     component: () => import('@/views/Register.vue'),
     meta: { title: '注册' }
+  },
+  {
+    path: '/center',
+    name: 'Center',
+    component: () => import('@/views/Center/Index.vue'),
+    meta: { title: '我的中心' },
+    children: [
+      {
+        path: 'orders',
+        name: 'CenterOrders',
+        component: () => import('@/views/Center/Index.vue'),
+        meta: { title: '订单管理' }
+      },
+      {
+        path: 'recharge',
+        name: 'CenterRecharge',
+        component: () => import('@/views/Center/Index.vue'),
+        meta: { title: '账户充值' }
+      }
+    ]
   }
 ]
 

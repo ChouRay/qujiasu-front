@@ -112,8 +112,8 @@ const submitForm = async () => {
 
       ElMessage.success("登录成功");
       
-      // 登录成功后跳转到首页或之前访问的页面
-      router.push("/");
+      // 登录成功后跳转到我的中心
+      router.push("/center");
     } catch (error: any) {
       // 处理错误信息
       ElMessage.error(error);
