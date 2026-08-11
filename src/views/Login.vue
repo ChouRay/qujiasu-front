@@ -116,8 +116,7 @@ const submitForm = async () => {
       router.push("/");
     } catch (error: any) {
       // 处理错误信息
-      const errorMsg = error.response?.data?.msg || "登录失败，请稍后重试";
-      ElMessage.error(errorMsg);
+      ElMessage.error(error);
     }
   });
 };

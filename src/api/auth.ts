@@ -25,19 +25,14 @@ export const loginApi = async (data: LoginRequest): Promise<LoginResponse> => {
       const errorData: ApiError = error.response.data;
       
       // 使用 errorMessage.ts 中的 getErrorMessage 来获取错误消息
-      const errorMsg = getErrorMessage(errorData.code, errorData.msg);
-      
+      const errorMsg = getErrorMessage(errorData.msg);
       if (status === 400) {
-        // 业务错误：无效凭证
-        console.error('登录失败:', errorMsg);
-        throw new Error(errorMsg || '用户名或密码错误');
+        throw errorMsg;
       } else if (status === 404) {
-        // 业务错误：用户不存在
-        console.error('用户不存在:', errorMsg);
-        throw new Error(errorMsg || '用户不存在');
+        throw errorMsg;
       }
     }
-    throw error;
+    throw "登录失败：" + error.response;
   }
 };
 
