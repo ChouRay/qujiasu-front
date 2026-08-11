@@ -10,16 +10,17 @@
           <div>
             <div class="login-title">账户登录</div>
             <el-form
-              :model="loginform"
-              ref="loginform"
+              :model="loginForm"
+              :rules="rules"
+              ref="formRef"
               class="input1"
               @submit.prevent
-              @keyup.enter="submitForm('loginform')"
+              @keyup.enter="submitForm"
               size="small"
             >
               <el-form-item prop="username">
                 <el-input
-                  v-model="loginform.username"
+                  v-model="loginForm.username"
                   auto-complete="off"
                   placeholder="请输入手机号或者用户名"
                   clearable
@@ -32,7 +33,7 @@
               <el-form-item prop="password">
                 <el-input
                   type="password"
-                  v-model="loginform.password"
+                  v-model="loginForm.password"
                   auto-complete="off"
                   placeholder="请输入密码"
                   clearable
@@ -47,7 +48,7 @@
               <el-form-item class="mt-4">
                 <button
                   type="primary"
-                  @click="submitForm('loginform')"
+                  @click="submitForm"
                   style="width: 100%; letter-spacing: 0.2rem"
                   class="submit-btn"
                   >登录</button
@@ -78,43 +79,50 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, reactive } from "vue";
 import { useRouter } from "vue-router";
 import { ElMessage } from "element-plus";
 import { User, Lock } from "@element-plus/icons-vue";
-import { loginApi } from "@/api/auth";
-import { setToken } from "@/api/auth";
+import { loginApi, setToken } from "@/api/auth";
 
 const router = useRouter();
-const loginform = ref({
+const formRef = ref<any>(null);
+
+const loginForm = reactive({
   username: "",
   password: "",
 });
 
-const submitForm = async (formName: string) => {
-  if (!loginform.value.username || !loginform.value.password) {
-    ElMessage.warning("请输入用户名和密码");
-    return;
-  }
+const rules = reactive({
+  username: [{ required: true, message: "请输入用户名", trigger: "blur" }],
+  password: [{ required: true, message: "请输入密码", trigger: "blur" }],
+});
 
-  try {
-    const response = await loginApi({
-      username: loginform.value.username,
-      password: loginform.value.password,
-    });
+const submitForm = async () => {
+  if (!formRef.value) return;
+  
+  await formRef.value.validate(async (valid: boolean) => {
+    if (!valid) return;
 
-    // 存储 token 到本地
-    setToken(response.data.token);
+    try {
+      const response = await loginApi({
+        username: loginForm.username,
+        password: loginForm.password,
+      });
 
-    ElMessage.success("登录成功");
-    
-    // 登录成功后跳转到首页或之前访问的页面
-    router.push("/");
-  } catch (error: any) {
-    // 处理错误信息
-    const errorMsg = error.response?.data?.msg || "登录失败，请稍后重试";
-    ElMessage.error(errorMsg);
-  }
+      // 存储 token 到本地
+      setToken(response.data.token);
+
+      ElMessage.success("登录成功");
+      
+      // 登录成功后跳转到首页或之前访问的页面
+      router.push("/");
+    } catch (error: any) {
+      // 处理错误信息
+      const errorMsg = error.response?.data?.msg || "登录失败，请稍后重试";
+      ElMessage.error(errorMsg);
+    }
+  });
 };
 
 const gotoRegester = () => {
