@@ -40,19 +40,25 @@ const routes = [
   {
     path: '/center',
     name: 'Center',
-    component: () => import('@/views/Center/Index.vue'),
+    component: () => import('@/views/Center/Layout.vue'),
     meta: { title: '我的中心' },
     children: [
       {
+        path: '',
+        name: 'CenterIndex',
+        component: () => import('@/views/Center/Index.vue'),
+        meta: { title: '我的中心' }
+      },
+      {
         path: 'orders',
         name: 'CenterOrders',
-        component: () => import('@/views/Center/Index.vue'),
+        component: () => import('@/views/Center/Orders.vue'),
         meta: { title: '订单管理' }
       },
       {
         path: 'recharge',
         name: 'CenterRecharge',
-        component: () => import('@/views/Center/Index.vue'),
+        component: () => import('@/views/Center/Recharge.vue'),
         meta: { title: '账户充值' }
       }
     ]

@@ -1,113 +1,120 @@
 <template>
-  <div class="app-container">
-    <!-- 顶部导航栏 -->
-    <header class="header">
-      <div class="header-content">
-        <!-- 移动端汉堡菜单按钮 -->
-        <div class="mobile-menu-btn" @click="drawerVisible = true">
-          <el-icon :size="24" color="#fff"><Menu /></el-icon>
-        </div>
-        
-        <div class="logo" @click="handleLogoClick">
-          <img src="@/assets/images/logo.png" alt="趣加速 logo" class="logo-img" />
-          <h1>趣加速</h1>
-        </div>
-        
-        <!-- 桌面端导航菜单 -->
-        <nav class="nav-menu">
-          <el-menu
-            mode="horizontal"
-            :ellipsis="false"
-            :default-active="activeTab"
-            class="nav-menu-inner"
-            @select="handleMenuSelect"
-          >
-            <el-menu-item index="/" key="home">首页</el-menu-item>
-            <el-menu-item index="/package" key="package">套餐购买</el-menu-item>
-            <el-menu-item index="/download" key="download">软件下载</el-menu-item>
-            <el-menu-item index="/agent" key="agent">代理加盟</el-menu-item>
-          </el-menu>
-        </nav>
-        
-        <div class="auth-buttons">
-          <el-button type="primary" variant="outline" @click="handleRegister">注册</el-button>
-          <el-button type="primary" @click="handleLogin">登录</el-button>
-        </div>
-      </div>
-    </header>
+  <!-- 判断是否为用户中心页面，如果是则不显示 header 和 footer -->
+  <template v-if="isCenterPage">
+    <router-view />
+  </template>
+  
+  <template v-else>
+    <div class="app-container">
+      <!-- 顶部导航栏 -->
+      <header class="header">
+        <div class="header-content">
+          <!-- 移动端汉堡菜单按钮 -->
+          <div class="mobile-menu-btn" @click="drawerVisible = true">
+            <el-icon :size="24" color="#fff"><Menu /></el-icon>
+          </div>
 
-    <!-- 移动端侧边抽屉导航 -->
-    <el-drawer
-      v-model="drawerVisible"
-      direction="ltr"
-      size="280px"
-      class="mobile-drawer"
-      :show-close="true"
-    >
-      <template #header>
-        <div class="drawer-header">
-          <img src="@/assets/images/logo.png" alt="趣加速 logo" class="drawer-logo" />
-          <span class="drawer-title">趣加速</span>
-        </div>
-      </template>
-      
-      <el-menu
-        :default-active="activeTab"
-        mode="vertical"
-        @select="handleDrawerMenuSelect"
-        class="drawer-menu"
-      >
-        <el-menu-item index="/" key="drawer-home">
-          <el-icon><HomeFilled /></el-icon>
-          <span>首页</span>
-        </el-menu-item>
-        <el-menu-item index="/package" key="drawer-package">
-          <el-icon><ShoppingCart /></el-icon>
-          <span>套餐购买</span>
-        </el-menu-item>
-        <el-menu-item index="/doawload" key="drawer-download">
-          <el-icon><Download /></el-icon>
-          <span>软件下载</span>
-        </el-menu-item>
-        <el-menu-item index="/agent" key="drawer-agent">
-          <el-icon><UserFilled /></el-icon>
-          <span>代理加盟</span>
-        </el-menu-item>
-      </el-menu>
-    </el-drawer>
+          <div class="logo" @click="handleLogoClick">
+            <img src="@/assets/images/logo.png" alt="趣加速 logo" class="logo-img" />
+            <h1>趣加速</h1>
+          </div>
 
-    <!-- 中间内容区域 -->
-    <main class="main-content">
-      <router-view />
-    </main>
+          <!-- 桌面端导航菜单 -->
+          <nav class="nav-menu">
+            <el-menu
+              mode="horizontal"
+              :ellipsis="false"
+              :default-active="activeTab"
+              class="nav-menu-inner"
+              @select="handleMenuSelect"
+            >
+              <el-menu-item index="/" key="home">首页</el-menu-item>
+              <el-menu-item index="/package" key="package">套餐购买</el-menu-item>
+              <el-menu-item index="/download" key="download">软件下载</el-menu-item>
+              <el-menu-item index="/agent" key="agent">代理加盟</el-menu-item>
+            </el-menu>
+          </nav>
 
-    <!-- 底部信息栏 -->
-    <footer class="footer">
-      <div class="footer-content">
-        <div class="footer-section">
-          <h3>联系方式</h3>
-          <p>联系电话：135xxxxx1234</p>
-          <p>商务合作 QQ: 232332</p>
-          <p>售后 QQ: 2112212</p>
-        </div>
-        <div class="footer-section">
-          <h3>官方微信公众号</h3>
-          <div class="qrcode-content">
-            <div class="qrcode-box">
-              <img width='100%' :src="imgWXOpenQR"/>
-            </div>
+          <div class="auth-buttons">
+            <el-button type="primary" variant="outline" @click="handleRegister">注册</el-button>
+            <el-button type="primary" @click="handleLogin">登录</el-button>
           </div>
         </div>
-        <div class="footer-section full-width">
-          <p class="copyright">
-            Copyright© 趣加速 (qujiasu.com) 版权所有. 
-            湘 ICP 备 20251xxx482 号 -1, 
-            湘公网安备 43011xxx002354 号
-          </p>
+      </header>
+
+      <!-- 移动端侧边抽屉导航 -->
+      <el-drawer
+        v-model="drawerVisible"
+        direction="ltr"
+        size="280px"
+        class="mobile-drawer"
+        :show-close="true"
+      >
+        <template #header>
+          <div class="drawer-header">
+            <img src="@/assets/images/logo.png" alt="趣加速 logo" class="drawer-logo" />
+            <span class="drawer-title">趣加速</span>
+          </div>
+        </template>
+        
+        <el-menu
+          :default-active="activeTab"
+          mode="vertical"
+          @select="handleDrawerMenuSelect"
+          class="drawer-menu"
+        >
+          <el-menu-item index="/" key="drawer-home">
+            <el-icon><HomeFilled /></el-icon>
+            <span>首页</span>
+          </el-menu-item>
+          <el-menu-item index="/package" key="drawer-package">
+            <el-icon><ShoppingCart /></el-icon>
+            <span>套餐购买</span>
+          </el-menu-item>
+          <el-menu-item index="/doawload" key="drawer-download">
+            <el-icon><Download /></el-icon>
+            <span>软件下载</span>
+          </el-menu-item>
+          <el-menu-item index="/agent" key="drawer-agent">
+            <el-icon><UserFilled /></el-icon>
+            <span>代理加盟</span>
+          </el-menu-item>
+        </el-menu>
+      </el-drawer>
+
+      <!-- 中间内容区域 -->
+      <main class="main-content">
+        <router-view />
+      </main>
+
+      <!-- 底部信息栏 -->
+      <footer class="footer">
+        <div class="footer-content">
+          <div class="footer-section">
+            <h3>联系方式</h3>
+            <p>联系电话：135xxxxx1234</p>
+            <p>商务合作 QQ: 232332</p>
+            <p>售后 QQ: 2112212</p>
+          </div>
+          <div class="footer-section">
+            <h3>官方微信公众号</h3>
+            <div class="qrcode-content">
+              <div class="qrcode-box">
+                <img width='100%' :src="imgWXOpenQR"/>
+              </div>
+            </div>
+          </div>
+          <div class="footer-section full-width">
+            <p class="copyright">
+              Copyright© 趣加速 (qujiasu.com) 版权所有。
+              湘 ICP 备 20251xxx482 号 -1, 
+              湘公网安备 43011xxx002354 号
+            </p>
+          </div>
         </div>
-      </div>
-    </footer>
-  </div>
+      </footer>
+    </div>
+  </template>
 </template>
 
 <script setup lang="ts">
@@ -119,6 +126,11 @@ import imgWXOpenQR from '@/assets/images/wx-open-qr.jpg'
 const route = useRoute()
 const router = useRouter()
 const drawerVisible = ref(false)
+
+// 判断是否为中心页面（/center 及其子路由）
+const isCenterPage = computed(() => {
+  return route.path.startsWith('/center')
+})
 
 const activeTab = computed(() => {
   return route.path
