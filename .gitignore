@@ -64,3 +64,4 @@ cypress/downloads/
 
 # 可选：如果你使用 Storybook
 storybook-static/
+.gitignore
