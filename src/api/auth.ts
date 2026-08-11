@@ -6,7 +6,7 @@ import type { LoginRequest, LoginResponse, ApiError } from '@/types/auth';
  * @param data 登录信息
  * @returns Promise<LoginResponse>
  */
-export const login = async (data: LoginRequest): Promise<LoginResponse> => {
+export const loginApi = async (data: LoginRequest): Promise<LoginResponse> => {
   try {
     const response = await request.post<LoginResponse>('/api/auth/user/login', data);
     
