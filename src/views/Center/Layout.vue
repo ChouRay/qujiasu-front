@@ -55,6 +55,8 @@ import { useRoute, useRouter } from 'vue-router'
 import { User, List, Wallet, SwitchButton } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getUserInfo } from '@/api/user'
+import { logout } from '@/api/auth'
+import { clearUserInfo } from '@/store/user'
 import type { UserInfo } from '@/types/user'
 
 const route = useRoute()
@@ -104,15 +106,20 @@ const handleLogout = async () => {
       type: 'warning'
     })
     
-    // TODO: 调用退出登录 API，清除 token 等信息
-    // await logoutApi()
-    // localStorage.removeItem('token')
-    // sessionStorage.removeItem('token')
+    // 调用退出登录 API
+    await logout()
+  } catch (error) {
+    // 用户取消退出或 API 调用失败，但仍需清理本地状态
+    if ((error as any) !== 'cancel') {
+      console.error('退出登录 API 调用失败:', error)
+    }
+  } finally {
+    // 无论 API 是否成功，都清除本地 token 和用户信息
+    localStorage.removeItem('token')
+    clearUserInfo()
     
     ElMessage.success('已退出登录')
     router.push('/login')
-  } catch (error) {
-    // 用户取消退出
   }
 }
 </script>
