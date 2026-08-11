@@ -256,7 +256,7 @@ const handleApply = (level: string) => {
 .content {
   display: flex;
   flex-direction: column;
-  gap: 60px;
+  gap: 10px;
 }
 
 .section-title {
@@ -266,7 +266,7 @@ const handleApply = (level: string) => {
   font-weight: 600;
   margin: 0 0 30px 0;
   position: relative;
-  padding-bottom: 15px;
+  padding-bottom: 5px;
 }
 
 .section-title::after {
