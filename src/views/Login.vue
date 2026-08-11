@@ -13,15 +13,16 @@
               :model="loginform"
               ref="loginform"
               class="input1"
-              @submit.native.prevent
-              @keyup.enter.native="submitForm('loginform')"
-              size="mini"
+              @submit.prevent
+              @keyup.enter="submitForm('loginform')"
+              size="small"
             >
               <el-form-item prop="username">
                 <el-input
                   v-model="loginform.username"
                   auto-complete="off"
                   placeholder="请输入手机号或者用户名"
+                  clearable
                 >
                   <template #prefix>
                     <el-icon><User /></el-icon>
@@ -34,6 +35,8 @@
                   v-model="loginform.password"
                   auto-complete="off"
                   placeholder="请输入密码"
+                  clearable
+                  show-password
                 >
                   <template #prefix>
                     <el-icon><Lock /></el-icon>
