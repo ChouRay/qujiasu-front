@@ -50,13 +50,34 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { User, List, Wallet, SwitchButton } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { getUserInfo } from '@/api/user'
+import type { UserInfo } from '@/types/user'
 
 const route = useRoute()
 const router = useRouter()
+
+const userInfo = ref<UserInfo | null>(null)
+
+// 加载用户信息
+const loadUserInfo = async () => {
+  try {
+    const res = await getUserInfo()
+    userInfo.value = res
+    console.log('用户信息加载成功:', res)
+  } catch (error) {
+    console.error('获取用户信息失败:', error)
+    ElMessage.error('获取用户信息失败，请重新登录')
+    router.push('/login')
+  }
+}
+
+onMounted(() => {
+  loadUserInfo()
+})
 
 const activeMenu = computed(() => {
   return route.path
