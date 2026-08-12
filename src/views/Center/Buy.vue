@@ -41,11 +41,6 @@
 
       <!-- 当前选中的分类详情 -->
       <div v-if="currentCatalog" class="catalog-detail">
-        <!-- 目录标题 -->
-        <div class="catalog-header" :style="{ backgroundColor: currentCatalog.uiConfig?.primaryColor }">
-          <h2>{{ currentCatalog.name }}</h2>
-        </div>
-
         <!-- 产品列表加载状态 -->
         <div v-if="productsLoading" class="products-loading">
           <div class="loading-spinner"></div>
@@ -214,8 +209,7 @@ onMounted(() => {
 <style scoped>
 .package-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  padding: 40px 20px;
+  padding: 30px 20px;
 }
 
 .page-header {
@@ -334,16 +328,6 @@ onMounted(() => {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.catalog-header {
-  padding: 20px;
-  color: white;
-  text-align: center;
-}
-
-.catalog-header h2 {
-  font-size: 24px;
-  margin: 0;
-}
 
 /* 产品网格 */
 .products-grid {
@@ -470,6 +454,7 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-left: 240px;
   padding: 20px 40px;
   background: white;
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);

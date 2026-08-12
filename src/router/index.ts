@@ -50,6 +50,12 @@ const routes = [
         meta: { title: '我的中心' }
       },
       {
+        path: 'buy',
+        name: 'Buy',
+        component: () => import('@/views/Center/Buy.vue'),
+        meta: { title: '套餐购买' }
+      },
+      {
         path: 'orders',
         name: 'CenterOrders',
         component: () => import('@/views/Center/Orders.vue'),

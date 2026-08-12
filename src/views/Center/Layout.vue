@@ -16,6 +16,10 @@
             <el-icon><User /></el-icon>
             <span>我的中心</span>
           </el-menu-item>
+          <el-menu-item index="/center/buy">
+            <el-icon><ShoppingTrolley /></el-icon>
+            <span>套餐购买</span>
+          </el-menu-item>
           <el-menu-item index="/center/orders">
             <el-icon><List /></el-icon>
             <span>订单管理</span>
@@ -52,7 +56,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { User, List, Wallet, SwitchButton } from '@element-plus/icons-vue'
+import { User, List, Wallet, SwitchButton ,ShoppingTrolley} from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getUserInfo } from '@/api/user'
 import { logout } from '@/api/auth'
@@ -88,6 +92,7 @@ const activeMenu = computed(() => {
 const currentPageTitle = computed(() => {
   const titleMap: Record<string, string> = {
     '/center': '我的中心',
+    '/center/buy': '套餐购买',
     '/center/orders': '订单管理',
     '/center/recharge': '账户充值'
   }
@@ -233,6 +238,7 @@ const handleLogout = async () => {
 .content-body {
   flex: 1;
   padding: 30px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
 }
 
 /* 响应式设计 */
