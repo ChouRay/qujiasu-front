@@ -13,7 +13,7 @@ export function getUserInfo() {
     method: 'get'
   }).then(res => {
     // 将返回的数据合并到响应式对象中
-    setUserInfo(res)
-    return res
+    setUserInfo(res as any)
+    return res as any
   })
 }
