@@ -5,7 +5,7 @@ export interface ProductMetadataUiConfigVO {
 }
 
 // 产品目录项
-export interface ProductCatalogItem {
+export interface ProductMetadataItem {
   id?: number; // 产品 ID
   name?: string; // 产品名称
   description?: string; // 产品描述

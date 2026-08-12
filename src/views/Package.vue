@@ -33,7 +33,7 @@
         <!-- 产品列表 -->
         <div class="products-grid">
           <div 
-            v-for="product in getProductsByCatalog(catalog.id!)" 
+            v-for="product in getProductsByMetadataId(catalog.id!)" 
             :key="product.id"
             class="product-card"
             :class="{ selected: selectedProduct?.id === product.id }"
@@ -88,7 +88,7 @@
           </div>
 
           <!-- 空状态 -->
-          <div v-if="getProductsByCatalog(catalog.id!).length === 0" class="empty-products">
+          <div v-if="getProductsByMetadataId(catalog.id!).length === 0" class="empty-products">
             <p>该分类暂无可用套餐</p>
           </div>
         </div>
@@ -109,13 +109,13 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
-import { getProductCatalog, getProductsByMetadataId } from '@/api/product'
-import type { ProductCatalogItem, ProductItem } from '@/types/product'
+import { getProductMetadata, getProductsByMetadataId } from '@/api/product'
+import type { ProductMetadataItem, ProductItem } from '@/types/product'
 
 // 状态
 const loading = ref(false)
 const error = ref<string>('')
-const catalogList = ref<ProductCatalogItem[]>([])
+const catalogList = ref<ProductMetadataItem[]>([])
 const productsMap = ref<Map<number, ProductItem[]>>(new Map())
 const selectedProduct = ref<ProductItem | null>(null)
 
@@ -125,7 +125,7 @@ const fetchCatalog = async () => {
   error.value = ''
   
   try {
-    const catalogs = await getProductCatalog()
+    const catalogs = await getProductMetadata()
     catalogList.value = catalogs
     
     // 并行获取每个目录下的产品

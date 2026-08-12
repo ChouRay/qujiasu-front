@@ -1,10 +1,10 @@
 import request from '@/utils/request'
-import type { ProductCatalogItem, ProductItem } from '@/types/product'
+import type { ProductMetadataItem, ProductItem } from '@/types/product'
 
 // 获取产品目录
-export function getProductCatalog() {
-  return request<any, ProductCatalogItem[]>({
-    url: '/api/product-catalog',
+export function getProductMetadata() {
+  return request<any, ProductMetadataItem[]>({
+    url: '/api/product-metadata',
     method: 'GET'
   })
 }
