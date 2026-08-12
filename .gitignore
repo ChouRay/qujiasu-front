@@ -6,6 +6,7 @@ node_modules/
 dist/
 build/
 *.d.ts
+!src/vite-env.d.ts
 
 # Logs and temp files
 *.log
