@@ -96,16 +96,16 @@
               </p>
             </div>
 
-            <!-- 选择按钮 -->
+            <!-- 立即购买按钮 -->
             <button 
-              class="select-btn"
+              class="buy-now-btn"
               :style="{ 
-                backgroundColor: selectedProduct?.id === product.id ? currentCatalog.uiConfig?.primaryColor : 'transparent',
-                borderColor: currentCatalog.uiConfig?.primaryColor,
-                color: selectedProduct?.id === product.id ? '#fff' : currentCatalog.uiConfig?.primaryColor
+                backgroundColor: currentCatalog.uiConfig?.primaryColor,
+                borderColor: currentCatalog.uiConfig?.primaryColor
               }"
+              @click.stop="handleBuy(product)"
             >
-              {{ selectedProduct?.id === product.id ? '已选择' : '选择' }}
+              立即购买
             </button>
           </div>
 
@@ -116,23 +116,16 @@
         </div>
       </div>
     </div>
-
-    <!-- 底部购买栏 -->
-    <div v-if="selectedProduct" class="purchase-bar">
-      <div class="purchase-info">
-        <span class="selected-name">{{ selectedProduct.name }}</span>
-        <span class="selected-duration">{{ selectedProduct.duration }}天</span>
-        <span class="selected-price">¥{{ selectedProduct.price?.toFixed(2) }}</span>
-      </div>
-      <button class="buy-btn" @click="handleBuy">立即购买</button>
-    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { getProductMetadata, getProductsByMetadataId } from '@/api/product'
 import type { ProductMetadataItem, ProductItem } from '@/types/product'
+
+const router = useRouter()
 
 // 状态
 const loading = ref(false)
@@ -141,7 +134,6 @@ const error = ref<string>('')
 const productMetadataList = ref<ProductMetadataItem[]>([])
 const selectedCatalogId = ref<number | null>(null)
 const currentProducts = ref<ProductItem[]>([])
-const selectedProduct = ref<ProductItem | null>(null)
 
 // 当前选中的分类
 const currentCatalog = computed(() => {
@@ -174,7 +166,6 @@ const selectCategory = async (catalog: ProductMetadataItem) => {
   if (!catalog.id) return
   
   selectedCatalogId.value = catalog.id
-  selectedProduct.value = null // 重置选中的产品
   productsLoading.value = true
   
   try {
@@ -188,21 +179,24 @@ const selectCategory = async (catalog: ProductMetadataItem) => {
   }
 }
 
-// 选择产品
-const selectProduct = (product: ProductItem) => {
-  if (selectedProduct.value?.id === product.id) {
-    selectedProduct.value = null
-  } else {
-    selectedProduct.value = product
+// 购买处理 - 检查登录状态并跳转
+const handleBuy = (product: ProductItem) => {
+  const token = localStorage.getItem('token')
+  
+  if (!token) {
+    // 未登录，跳转登录页
+    router.push('/login')
+    return
   }
-}
 
-// 购买处理
-const handleBuy = () => {
-  if (selectedProduct.value) {
-    alert(`您选择了：${selectedProduct.value.name} - ¥${selectedProduct.value.price?.toFixed(2)}`)
-    // TODO: 实现购买逻辑
-  }
+  // 已登录，跳转购买页，传递 metadataId 和 productId
+  router.push({
+    path: '/center/buy',
+    query: {
+      metadataId: product.metadataId,
+      productId: product.id
+    }
+  })
 }
 
 // 生命周期
@@ -436,8 +430,8 @@ onMounted(() => {
   margin-bottom: 20px;
 }
 
-/* 选择按钮 */
-.select-btn {
+/* 立即购买按钮 */
+.buy-now-btn {
   width: 100%;
   padding: 12px;
   border: 2px solid;
@@ -446,11 +440,13 @@ onMounted(() => {
   font-weight: bold;
   cursor: pointer;
   transition: all 0.3s ease;
-  background: transparent;
+  color: white;
 }
 
-.select-btn:hover {
+.buy-now-btn:hover {
   opacity: 0.8;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 /* 空状态 */
@@ -459,60 +455,6 @@ onMounted(() => {
   text-align: center;
   padding: 40px;
   color: #95a5a6;
-}
-
-/* 底部购买栏 */
-.purchase-bar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px 40px;
-  background: white;
-  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
-  z-index: 100;
-}
-
-.purchase-info {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  font-size: 18px;
-}
-
-.selected-name {
-  font-weight: bold;
-  color: #2c3e50;
-}
-
-.selected-duration {
-  color: #7f8c8d;
-}
-
-.selected-price {
-  font-size: 24px;
-  font-weight: bold;
-  color: #e74c3c;
-}
-
-.buy-btn {
-  padding: 15px 50px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border: none;
-  border-radius: 30px;
-  font-size: 18px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.buy-btn:hover {
-  transform: scale(1.05);
-  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
 }
 
 /* 响应式设计 */
@@ -535,21 +477,6 @@ onMounted(() => {
 
   .products-grid {
     grid-template-columns: 1fr;
-  }
-
-  .purchase-bar {
-    flex-direction: column;
-    gap: 15px;
-    padding: 15px 20px;
-  }
-
-  .purchase-info {
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-
-  .buy-btn {
-    width: 100%;
   }
 }
 </style>
