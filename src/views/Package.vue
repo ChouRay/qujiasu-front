@@ -32,7 +32,7 @@
           }"
           @click="selectCategory(catalog)"
         >
-          <h3 :style="{ color: selectedCatalogId === catalog.id ? catalog.uiConfig?.primaryColor : '#2c3e50' }">
+          <h3 :style="{ color: catalog.uiConfig?.primaryColor || '#2c3e50' }">
             {{ catalog.name }}
           </h3>
           <p>{{ catalog.description }}</p>
@@ -44,7 +44,6 @@
         <!-- 目录标题 -->
         <div class="catalog-header" :style="{ backgroundColor: currentCatalog.uiConfig?.primaryColor }">
           <h2>{{ currentCatalog.name }}</h2>
-          <p>{{ currentCatalog.description }}</p>
         </div>
 
         <!-- 产品列表加载状态 -->
@@ -336,19 +335,14 @@ onMounted(() => {
 }
 
 .catalog-header {
-  padding: 30px;
+  padding: 20px;
   color: white;
   text-align: center;
 }
 
 .catalog-header h2 {
-  font-size: 28px;
-  margin-bottom: 10px;
-}
-
-.catalog-header p {
-  font-size: 14px;
-  opacity: 0.9;
+  font-size: 24px;
+  margin-bottom: 0;
 }
 
 /* 产品网格 */
