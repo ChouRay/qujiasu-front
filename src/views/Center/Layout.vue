@@ -68,7 +68,7 @@ const userInfo = ref<UserInfo | null>(null)
 const loadUserInfo = async () => {
   try {
     const res = await getUserInfo()
-    userInfo.value = res
+    userInfo.value = res as UserInfo
     console.log('用户信息加载成功:', res)
   } catch (error) {
     console.error('获取用户信息失败:', error)

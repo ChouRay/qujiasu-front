@@ -10,7 +10,7 @@ import { getErrorMessage } from '@/utils/errorMessage';
 export const loginApi = async (data: LoginRequest): Promise<LoginResponse> => {
   try {
     // request 拦截器已经返回 response.data，所以这里直接就是后端返回的 JSON 数据
-    const response = await request.post<LoginResponse>('/api/auth/user/login', data);
+    const response = await request.post<any, LoginResponse>('/api/auth/user/login', data);
     
     // 登录成功后将 token 存储到 localStorage
     if (response && response.token) {

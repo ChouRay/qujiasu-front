@@ -68,7 +68,6 @@
         <el-input
           v-model="customAmount"
           placeholder="请输入自定义充值金额"
-          prefix-icon="Money"
           style="max-width: 300px;"
         >
           <template #append>元</template>
@@ -106,9 +105,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
-import { Money } from '@element-plus/icons-vue'
 
 const balance = ref(1299.50)
 const showRechargeDialog = ref(false)

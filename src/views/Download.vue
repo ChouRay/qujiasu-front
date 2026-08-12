@@ -35,11 +35,8 @@
   </div>
 </template>
 
-<script>
+<script setup lang="ts">
 
-export default {
-  name: 'Download',
-}
 </script>
 
 <style lang="scss" scoped>
