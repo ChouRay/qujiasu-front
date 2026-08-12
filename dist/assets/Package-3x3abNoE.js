@@ -1,0 +1,1 @@
+import{_ as a,o,c as s,a as t}from"./index-DGQ1hk_2.js";const c={},n={class:"page-container"};function r(_,e){return o(),s("div",n,[...e[0]||(e[0]=[t("h1",null,"套餐购买",-1)])])}const f=a(c,[["render",r],["__scopeId","data-v-3b1a6f2f"]]);export{f as default};
