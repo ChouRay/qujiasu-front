@@ -14,26 +14,49 @@
     <!-- 错误状态 -->
     <div v-else-if="error" class="error-container">
       <p>{{ error }}</p>
-      <button @click="fetchProducts" class="retry-btn">重试</button>
+      <button @click="fetchProductMetadata" class="retry-btn">重试</button>
     </div>
 
     <!-- 产品目录 -->
     <div v-else class="catalog-container">
-      <div 
-        v-for="catalog in productMetadataList" 
-        :key="catalog.id" 
-        class="catalog-section"
-      >
-        <!-- 目录标题 -->
-        <div class="catalog-header" :style="{ backgroundColor: catalog.uiConfig?.primaryColor }">
-          <h2>{{ catalog.name }}</h2>
+      <!-- 分类列表 -->
+      <div class="category-tabs">
+        <div 
+          v-for="catalog in productMetadataList" 
+          :key="catalog.id"
+          class="category-tab"
+          :class="{ active: selectedCatalogId === catalog.id }"
+          :style="{ 
+            borderColor: selectedCatalogId === catalog.id ? catalog.uiConfig?.primaryColor : 'transparent',
+            backgroundColor: selectedCatalogId === catalog.id ? catalog.uiConfig?.primaryColor + '15' : '#f5f7fa'
+          }"
+          @click="selectCategory(catalog)"
+        >
+          <h3 :style="{ color: selectedCatalogId === catalog.id ? catalog.uiConfig?.primaryColor : '#2c3e50' }">
+            {{ catalog.name }}
+          </h3>
           <p>{{ catalog.description }}</p>
+        </div>
+      </div>
+
+      <!-- 当前选中的分类详情 -->
+      <div v-if="currentCatalog" class="catalog-detail">
+        <!-- 目录标题 -->
+        <div class="catalog-header" :style="{ backgroundColor: currentCatalog.uiConfig?.primaryColor }">
+          <h2>{{ currentCatalog.name }}</h2>
+          <p>{{ currentCatalog.description }}</p>
+        </div>
+
+        <!-- 产品列表加载状态 -->
+        <div v-if="productsLoading" class="products-loading">
+          <div class="loading-spinner"></div>
+          <p>加载产品中...</p>
         </div>
 
         <!-- 产品列表 -->
-        <div class="products-grid">
+        <div v-else class="products-grid">
           <div 
-            v-for="product in getProductDetails(catalog.id!)" 
+            v-for="product in currentProducts" 
             :key="product.id"
             class="product-card"
             :class="{ selected: selectedProduct?.id === product.id }"
@@ -43,7 +66,7 @@
             <div 
               v-if="product.tag" 
               class="product-tag"
-              :style="{ backgroundColor: catalog.uiConfig?.primaryColor }"
+              :style="{ backgroundColor: currentCatalog.uiConfig?.primaryColor }"
             >
               {{ product.tag }}
             </div>
@@ -55,7 +78,7 @@
               
               <!-- 价格 -->
               <div class="price-section">
-                <span class="current-price" :style="{ color: catalog.uiConfig?.primaryColor }">
+                <span class="current-price" :style="{ color: currentCatalog.uiConfig?.primaryColor }">
                   ¥{{ product.price?.toFixed(2) }}
                 </span>
                 <span v-if="product.fullPrice" class="original-price">
@@ -69,7 +92,7 @@
               </div>
 
               <!-- 底部提示 -->
-              <p v-if="product.btips" class="product-btips" :style="{ color: catalog.uiConfig?.secondaryColor }">
+              <p v-if="product.btips" class="product-btips" :style="{ color: currentCatalog.uiConfig?.secondaryColor }">
                 {{ product.btips }}
               </p>
             </div>
@@ -78,9 +101,9 @@
             <button 
               class="select-btn"
               :style="{ 
-                backgroundColor: selectedProduct?.id === product.id ? catalog.uiConfig?.primaryColor : 'transparent',
-                borderColor: catalog.uiConfig?.primaryColor,
-                color: selectedProduct?.id === product.id ? '#fff' : catalog.uiConfig?.primaryColor
+                backgroundColor: selectedProduct?.id === product.id ? currentCatalog.uiConfig?.primaryColor : 'transparent',
+                borderColor: currentCatalog.uiConfig?.primaryColor,
+                color: selectedProduct?.id === product.id ? '#fff' : currentCatalog.uiConfig?.primaryColor
               }"
             >
               {{ selectedProduct?.id === product.id ? '已选择' : '选择' }}
@@ -88,7 +111,7 @@
           </div>
 
           <!-- 空状态 -->
-          <div v-if="getProductDetails(catalog.id!).length === 0" class="empty-products">
+          <div v-if="currentProducts.length === 0" class="empty-products">
             <p>该分类暂无可用套餐</p>
           </div>
         </div>
@@ -114,13 +137,20 @@ import type { ProductMetadataItem, ProductItem } from '@/types/product'
 
 // 状态
 const loading = ref(false)
+const productsLoading = ref(false)
 const error = ref<string>('')
 const productMetadataList = ref<ProductMetadataItem[]>([])
-const productsMap = ref<Map<number, ProductItem[]>>(new Map())
+const selectedCatalogId = ref<number | null>(null)
+const currentProducts = ref<ProductItem[]>([])
 const selectedProduct = ref<ProductItem | null>(null)
 
+// 当前选中的分类
+const currentCatalog = computed(() => {
+  return productMetadataList.value.find(c => c.id === selectedCatalogId.value) || null
+})
+
 // 获取产品目录
-const fetchProducts = async () => {
+const fetchProductMetadata = async () => {
   loading.value = true
   error.value = ''
   
@@ -128,15 +158,10 @@ const fetchProducts = async () => {
     const productMetadata = await getProductMetadata()
     productMetadataList.value = productMetadata
     
-    // 并行获取每个目录下的产品
-    const promises = productMetadata.map(async (catalog) => {
-      if (catalog.id) {
-        const products = await getProductsByMetadataId(catalog.id)
-        productsMap.value.set(catalog.id, products)
-      }
-    })
-    
-    await Promise.all(promises)
+    // 默认选中第一个分类
+    if (productMetadata.length > 0 && productMetadata[0].id) {
+      await selectCategory(productMetadata[0])
+    }
   } catch (err) {
     error.value = '获取产品列表失败，请稍后重试'
     console.error('Failed to fetch catalog:', err)
@@ -145,9 +170,23 @@ const fetchProducts = async () => {
   }
 }
 
-// 根据 ID 获取产品详情
-const getProductDetails = (id: number) => {
-  return productsMap.value.get(id) || []
+// 选择分类并加载产品
+const selectCategory = async (catalog: ProductMetadataItem) => {
+  if (!catalog.id) return
+  
+  selectedCatalogId.value = catalog.id
+  selectedProduct.value = null // 重置选中的产品
+  productsLoading.value = true
+  
+  try {
+    const products = await getProductsByMetadataId(catalog.id)
+    currentProducts.value = products
+  } catch (err) {
+    console.error('Failed to fetch products for catalog:', catalog.id, err)
+    currentProducts.value = []
+  } finally {
+    productsLoading.value = false
+  }
 }
 
 // 选择产品
@@ -169,7 +208,7 @@ const handleBuy = () => {
 
 // 生命周期
 onMounted(() => {
-  fetchProducts()
+  fetchProductMetadata()
 })
 </script>
 
@@ -197,7 +236,8 @@ onMounted(() => {
 }
 
 /* 加载状态 */
-.loading-container {
+.loading-container,
+.products-loading {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -246,13 +286,57 @@ onMounted(() => {
   margin: 0 auto;
 }
 
-.catalog-section {
-  margin-bottom: 50px;
+/* 分类标签页 */
+.category-tabs {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 30px;
+  overflow-x: auto;
+  padding: 10px 0;
+}
+
+.category-tab {
+  flex: 1;
+  min-width: 200px;
+  padding: 20px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-left: 4px solid transparent;
+  text-align: center;
+}
+
+.category-tab:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.category-tab.active {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.category-tab h3 {
+  font-size: 18px;
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
+.category-tab p {
+  font-size: 13px;
+  color: #7f8c8d;
+}
+
+/* 目录详情 */
+.catalog-detail {
+  background: white;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .catalog-header {
   padding: 30px;
-  border-radius: 15px 15px 0 0;
   color: white;
   text-align: center;
 }
@@ -273,9 +357,6 @@ onMounted(() => {
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 20px;
   padding: 20px;
-  background: white;
-  border-radius: 0 0 15px 15px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 /* 产品卡片 */
@@ -448,6 +529,14 @@ onMounted(() => {
 
   .page-header h1 {
     font-size: 28px;
+  }
+
+  .category-tabs {
+    flex-direction: column;
+  }
+
+  .category-tab {
+    min-width: 100%;
   }
 
   .products-grid {
