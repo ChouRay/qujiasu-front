@@ -36,8 +36,13 @@
           </nav>
 
           <div class="auth-buttons">
-            <el-button type="primary" variant="outline" @click="handleRegister">注册</el-button>
-            <el-button type="primary" @click="handleLogin">登录</el-button>
+            <template v-if="isLoggedIn">
+              <el-button type="primary" @click="handleUserCenter">用户中心</el-button>
+            </template>
+            <template v-else>
+              <el-button type="primary" variant="outline" @click="handleRegister">注册</el-button>
+              <el-button type="primary" @click="handleLogin">登录</el-button>
+            </template>
           </div>
         </div>
       </header>
@@ -118,7 +123,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { Menu, HomeFilled, ShoppingCart, Download, UserFilled } from '@element-plus/icons-vue'
 import imgWXOpenQR from '@/assets/images/wx-open-qr.jpg'
@@ -126,6 +131,27 @@ import imgWXOpenQR from '@/assets/images/wx-open-qr.jpg'
 const route = useRoute()
 const router = useRouter()
 const drawerVisible = ref(false)
+
+// 登录状态
+const isLoggedIn = ref(false)
+
+// 检查登录状态
+const checkLoginStatus = () => {
+  const token = localStorage.getItem('token')
+  isLoggedIn.value = !!token
+}
+
+// 监听存储变化（用于登录后更新状态）
+const handleStorageChange = (e: StorageEvent) => {
+  if (e.key === 'token') {
+    checkLoginStatus()
+  }
+}
+
+onMounted(() => {
+  checkLoginStatus()
+  window.addEventListener('storage', handleStorageChange)
+})
 
 // 判断是否为中心页面（/center 及其子路由）
 const isCenterPage = computed(() => {
@@ -151,6 +177,10 @@ const handleLogin = () => {
 
 const handleRegister = () => {
   router.push('/register')
+}
+
+const handleUserCenter = () => {
+  router.push('/center')
 }
 
 const handleLogoClick = () => {

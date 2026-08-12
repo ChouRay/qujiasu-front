@@ -105,18 +105,18 @@ const submitForm = async () => {
     if (!valid) return;
 
     try {
-      await loginApi({
+      const response = await loginApi({
         username: loginForm.username,
         password: loginForm.password,
-      });      
+      });
 
       ElMessage.success("登录成功");
       
-      // 登录成功后跳转到我的中心
+      // 登录成功后跳转到用户中心
       router.push("/center");
     } catch (error: any) {
       // 处理错误信息
-      ElMessage.error(error);
+      ElMessage.error(error.message || error);
     }
   });
 };
