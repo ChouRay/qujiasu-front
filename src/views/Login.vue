@@ -79,13 +79,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from "vue";
-import { useRouter } from "vue-router";
+import { ref, reactive, onMounted } from "vue";
+import { useRouter, useRoute } from "vue-router";
 import { ElMessage } from "element-plus";
 import { User, Lock } from "@element-plus/icons-vue";
 import { loginApi } from "@/api/auth";
 
 const router = useRouter();
+const route = useRoute();
 const formRef = ref<any>(null);
 
 const loginForm = reactive({
@@ -112,8 +113,15 @@ const submitForm = async () => {
 
       ElMessage.success("登录成功");
       
-      // 登录成功后跳转到用户中心
-      router.push("/center");
+      // 登录成功后检查是否有 redirect 参数
+      const redirect = route.query.redirect as string;
+      if (redirect) {
+        // 有 redirect 参数，跳转回原页面
+        router.push(redirect);
+      } else {
+        // 没有 redirect 参数，跳转到用户中心
+        router.push("/center");
+      }
     } catch (error: any) {
       // 处理错误信息
       ElMessage.error(error.message || error);

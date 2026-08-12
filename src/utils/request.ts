@@ -43,7 +43,12 @@ request.interceptors.response.use(
     // 处理 401 和 403 错误（未授权或登录过期）
     if (error.response?.status === 401 || error.response?.status === 403) {
       localStorage.removeItem('token');
-      window.location.href = '/login';
+      
+      // 获取当前页面路径，作为跳转来源
+      const currentPath = window.location.pathname + window.location.search;
+      
+      // 跳转到登录页，携带 redirect 参数
+      window.location.href = `/login?redirect=${encodeURIComponent(currentPath)}`;
     }
     console.error('请求错误:', error);
     return Promise.reject(error);

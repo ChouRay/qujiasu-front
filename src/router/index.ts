@@ -76,11 +76,27 @@ const router = createRouter({
   routes
 })
 
+// 需要登录才能访问的路由
+const requireAuthPaths = ['/center']
+
 router.beforeEach((to, _from, next) => {
   if (to.meta.title) {
     document.title = `${to.meta.title} - 趣加速`
   }
-  next()
+  
+  // 检查是否需要登录
+  const token = localStorage.getItem('token')
+  const isAuthRequired = requireAuthPaths.some(path => to.path.startsWith(path))
+  
+  if (isAuthRequired && !token) {
+    // 未登录，跳转到登录页，携带原路径
+    next({
+      name: 'Login',
+      query: { redirect: to.fullPath }
+    })
+  } else {
+    next()
+  }
 })
 
 export default router
