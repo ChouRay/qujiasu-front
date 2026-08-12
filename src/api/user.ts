@@ -8,7 +8,7 @@ import { setUserInfo } from '@/store/user'
  * @returns Promise<UserInfo>
  */
 export function getUserInfo() {
-  return request<UserInfo>({
+  return request<any, UserInfo>({
     url: '/api/user',
     method: 'get'
   }).then(res => {

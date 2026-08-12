@@ -86,7 +86,6 @@
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import bannerImg from '@/assets/images/banner.png'
 import iconSafe from '@/assets/images/icon-safe.png'
 import iconAnonymous from '@/assets/images/icon-anonymous.png'
 import iconRocket from '@/assets/images/icon-rocket.png'

@@ -47,7 +47,7 @@
 
               <el-form-item class="mt-4">
                 <button
-                  type="primary"
+                  type="button"
                   @click="submitForm"
                   style="width: 100%; letter-spacing: 0.2rem"
                   class="submit-btn"
@@ -105,7 +105,7 @@ const submitForm = async () => {
     if (!valid) return;
 
     try {
-      const response = await loginApi({
+      await loginApi({
         username: loginForm.username,
         password: loginForm.password,
       });      
@@ -127,10 +127,6 @@ const gotoRegester = () => {
 
 const fgPwd = () => {
   console.log("忘记密码");
-};
-
-const wxLogin = () => {
-  console.log("微信登录");
 };
 </script>
 
