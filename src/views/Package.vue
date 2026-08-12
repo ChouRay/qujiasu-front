@@ -14,13 +14,13 @@
     <!-- 错误状态 -->
     <div v-else-if="error" class="error-container">
       <p>{{ error }}</p>
-      <button @click="fetchCatalog" class="retry-btn">重试</button>
+      <button @click="fetchProducts" class="retry-btn">重试</button>
     </div>
 
     <!-- 产品目录 -->
     <div v-else class="catalog-container">
       <div 
-        v-for="catalog in catalogList" 
+        v-for="catalog in productMetadataList" 
         :key="catalog.id" 
         class="catalog-section"
       >
@@ -33,7 +33,7 @@
         <!-- 产品列表 -->
         <div class="products-grid">
           <div 
-            v-for="product in getProductsByMetadataId(catalog.id!)" 
+            v-for="product in getProductDetails(catalog.id!)" 
             :key="product.id"
             class="product-card"
             :class="{ selected: selectedProduct?.id === product.id }"
@@ -88,7 +88,7 @@
           </div>
 
           <!-- 空状态 -->
-          <div v-if="getProductsByMetadataId(catalog.id!).length === 0" class="empty-products">
+          <div v-if="getProductDetails(catalog.id!).length === 0" class="empty-products">
             <p>该分类暂无可用套餐</p>
           </div>
         </div>
@@ -115,21 +115,21 @@ import type { ProductMetadataItem, ProductItem } from '@/types/product'
 // 状态
 const loading = ref(false)
 const error = ref<string>('')
-const catalogList = ref<ProductMetadataItem[]>([])
+const productMetadataList = ref<ProductMetadataItem[]>([])
 const productsMap = ref<Map<number, ProductItem[]>>(new Map())
 const selectedProduct = ref<ProductItem | null>(null)
 
 // 获取产品目录
-const fetchCatalog = async () => {
+const fetchProducts = async () => {
   loading.value = true
   error.value = ''
   
   try {
-    const catalogs = await getProductMetadata()
-    catalogList.value = catalogs
+    const productMetadata = await getProductMetadata()
+    productMetadataList.value = productMetadata
     
     // 并行获取每个目录下的产品
-    const promises = catalogs.map(async (catalog) => {
+    const promises = productMetadata.map(async (catalog) => {
       if (catalog.id) {
         const products = await getProductsByMetadataId(catalog.id)
         productsMap.value.set(catalog.id, products)
@@ -145,9 +145,9 @@ const fetchCatalog = async () => {
   }
 }
 
-// 根据目录 ID 获取产品
-const getProductsByCatalog = (catalogId: number) => {
-  return productsMap.value.get(catalogId) || []
+// 根据 ID 获取产品详情
+const getProductDetails = (id: number) => {
+  return productsMap.value.get(id) || []
 }
 
 // 选择产品
@@ -169,7 +169,7 @@ const handleBuy = () => {
 
 // 生命周期
 onMounted(() => {
-  fetchCatalog()
+  fetchProducts()
 })
 </script>
 
