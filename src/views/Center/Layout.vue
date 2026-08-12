@@ -28,6 +28,10 @@
             <el-icon><Wallet /></el-icon>
             <span>账户充值</span>
           </el-menu-item>
+          <el-menu-item index="/">
+            <el-icon><HomeFilled /></el-icon>
+            <span>回到首页</span>
+          </el-menu-item>
         </el-menu>
       </nav>
     </aside>
@@ -56,7 +60,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { User, List, Wallet, SwitchButton ,ShoppingTrolley} from '@element-plus/icons-vue'
+import { User, List, Wallet, SwitchButton ,ShoppingTrolley,HomeFilled} from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getUserInfo } from '@/api/user'
 import { logout } from '@/api/auth'

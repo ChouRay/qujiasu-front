@@ -37,7 +37,7 @@
 
           <div class="auth-buttons">
             <template v-if="isLoggedIn">
-              <el-button type="primary" @click="handleUserCenter">用户中心</el-button>
+              <el-button type="primary" @click="handleUserCenter">会员中心</el-button>
             </template>
             <template v-else>
               <el-button type="primary" variant="outline" @click="handleRegister">注册</el-button>
