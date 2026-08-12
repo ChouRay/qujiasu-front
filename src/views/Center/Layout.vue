@@ -127,6 +127,12 @@ const handleLogout = async () => {
     localStorage.removeItem('token')
     clearUserInfo()
     
+      // 【关键修复】手动触发 storage 事件，通知 App.vue 更新状态
+      // 因为 storage 事件只在不同标签页间自动触发，同页面需手动派发
+      window.dispatchEvent(new StorageEvent('storage', { 
+        key: 'token', 
+        newValue: null 
+      }))
     ElMessage.success('已退出登录')
     router.push('/')
   }
