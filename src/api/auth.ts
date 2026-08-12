@@ -15,6 +15,11 @@ export const loginApi = async (data: LoginRequest): Promise<LoginResponse> => {
     // 登录成功后将 token 存储到 localStorage
     if (response && response.token) {
       localStorage.setItem('token', response.token);
+      // 手动触发 storage 事件，通知 App.vue 更新状态
+      window.dispatchEvent(new StorageEvent('storage', { 
+        key: 'token', 
+        newValue: null 
+      }))
     }
     
     return response;
