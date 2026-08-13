@@ -273,6 +273,7 @@ const handleLogout = async () => {
     :deep(&.el-menu--collapse) {
       .el-menu-item {
         padding: 0 !important;
+        padding-left: 0 !important;
         justify-content: center !important;
         
         .el-icon {
@@ -282,6 +283,15 @@ const handleLogout = async () => {
         span {
           display: none !important;
         }
+      }
+    }
+    
+    /* 移动端收起状态下图标左移调整 */
+    :deep(.sidebar-collapsed .el-menu-item) {
+      padding-left: 0 !important;
+      
+      .el-icon {
+        margin-right: 0 !important;
       }
     }
   }
