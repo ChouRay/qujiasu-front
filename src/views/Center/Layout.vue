@@ -340,21 +340,25 @@ const userLevelData = computed(() => {
   .sidebar-header {
     padding: 15px 10px;
     flex-direction: column;
-    order: 1;
+    align-items: stretch;
     
     h2 {
       font-size: 16px;
+      text-align: center;
+      margin: 8px 0;
       order: 2;
     }
     
     .menu-toggle {
       order: 1;
       align-self: flex-end;
+      margin-bottom: 8px;
     }
     
     .user-level-info {
       order: 3;
-      margin-top: 4px;
+      margin-top: 8px;
+      justify-content: center;
     }
   }
 }
