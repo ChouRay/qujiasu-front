@@ -96,16 +96,18 @@
               </p>
             </div>
 
-            <!-- 立即购买按钮 -->
+            <!-- 选择按钮 -->
             <button 
-              class="buy-now-btn"
+              class="select-btn"
+              :class="{ selected: selectedProduct?.id === product.id }"
               :style="{ 
-                backgroundColor: currentCatalog.uiConfig?.primaryColor,
-                borderColor: currentCatalog.uiConfig?.primaryColor
+                borderColor: currentCatalog.uiConfig?.primaryColor,
+                color: selectedProduct?.id === product.id ? 'white' : currentCatalog.uiConfig?.primaryColor,
+                backgroundColor: selectedProduct?.id === product.id ? currentCatalog.uiConfig?.primaryColor : 'white'
               }"
-              @click.stop="handleConfirmPay(product)"
+              @click.stop="selectProduct(product)"
             >
-              立即支付
+              {{ selectedProduct?.id === product.id ? '已选择' : '选择' }}
             </button>
           </div>
 
@@ -114,6 +116,31 @@
             <p>该分类暂无可用套餐</p>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- 底部固定购买栏 -->
+    <div v-if="selectedProduct" class="fixed-buy-bar">
+      <div class="bar-content">
+        <div class="product-info">
+          <h4>{{ selectedProduct.name }}</h4>
+          <p>
+            <span class="price" :style="{ color: currentCatalog?.uiConfig?.primaryColor }">
+              ¥{{ selectedProduct.price?.toFixed(2) }}
+            </span>
+            <span v-if="selectedProduct.fullPrice" class="original-price">
+              ¥{{ selectedProduct.fullPrice.toFixed(2) }}
+            </span>
+            <span class="duration">| {{ selectedProduct.duration }}天</span>
+          </p>
+        </div>
+        <button 
+          class="confirm-pay-btn"
+          :style="{ backgroundColor: currentCatalog?.uiConfig?.primaryColor }"
+          @click="handleConfirmPay(selectedProduct)"
+        >
+          确认支付
+        </button>
       </div>
     </div>
   </div>
@@ -445,8 +472,8 @@ onMounted(() => {
   margin-bottom: 20px;
 }
 
-/* 立即购买按钮 */
-.buy-now-btn {
+/* 选择按钮 */
+.select-btn {
   width: 100%;
   padding: 12px;
   border: 2px solid;
@@ -455,10 +482,82 @@ onMounted(() => {
   font-weight: bold;
   cursor: pointer;
   transition: all 0.3s ease;
+  background: white;
+}
+
+.select-btn:hover {
+  opacity: 0.8;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.select-btn.selected {
   color: white;
 }
 
-.buy-now-btn:hover {
+/* 底部固定购买栏 */
+.fixed-buy-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  z-index: 1000;
+}
+
+.bar-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+
+.bar-content .product-info h4 {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  color: #2c3e50;
+}
+
+.bar-content .product-info p {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.bar-content .price {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.bar-content .original-price {
+  font-size: 14px;
+  color: #95a5a6;
+  text-decoration: line-through;
+}
+
+.bar-content .duration {
+  font-size: 14px;
+  color: #7f8c8d;
+}
+
+.confirm-pay-btn {
+  padding: 15px 40px;
+  border: none;
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: bold;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.confirm-pay-btn:hover {
   opacity: 0.8;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
@@ -476,6 +575,8 @@ onMounted(() => {
 @media (max-width: 768px) {
   .buy-container {
     padding: 20px 15px;
+    /* 为底部固定栏留出空间 */
+    padding-bottom: 100px;
   }
 
   .buy-header h2 {
@@ -492,6 +593,31 @@ onMounted(() => {
 
   .products-grid {
     grid-template-columns: 1fr;
+  }
+
+  /* 移动端底部购买栏样式 */
+  .fixed-buy-bar {
+    padding: 15px;
+  }
+
+  .bar-content {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .bar-content .product-info {
+    text-align: center;
+  }
+
+  .bar-content .product-info p {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .confirm-pay-btn {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
   }
 }
 </style>
