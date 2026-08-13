@@ -96,18 +96,16 @@
               </p>
             </div>
 
-            <!-- 选择按钮 -->
+            <!-- 立即购买按钮 -->
             <button 
-              class="select-btn"
-              :class="{ selected: selectedProduct?.id === product.id }"
+              class="buy-btn"
               :style="{ 
-                borderColor: currentCatalog.uiConfig?.primaryColor,
-                color: selectedProduct?.id === product.id ? 'white' : currentCatalog.uiConfig?.primaryColor,
-                backgroundColor: selectedProduct?.id === product.id ? currentCatalog.uiConfig?.primaryColor : 'white'
+                backgroundColor: currentCatalog.uiConfig?.primaryColor,
+                color: 'white'
               }"
-              @click.stop="selectProduct(product)"
+              @click.stop="handleBuy(product)"
             >
-              {{ selectedProduct?.id === product.id ? '已选择' : '选择' }}
+              立即购买
             </button>
           </div>
 
@@ -119,30 +117,51 @@
       </div>
     </div>
 
-    <!-- 底部固定购买栏 -->
-    <div v-if="selectedProduct" class="fixed-buy-bar">
-      <div class="bar-content">
-        <div class="product-info">
-          <h4>{{ selectedProduct.name }}</h4>
-          <p>
-            <span class="price" :style="{ color: currentCatalog?.uiConfig?.primaryColor }">
-              ¥{{ selectedProduct.price?.toFixed(2) }}
-            </span>
-            <span v-if="selectedProduct.fullPrice" class="original-price">
-              ¥{{ selectedProduct.fullPrice.toFixed(2) }}
-            </span>
-            <span class="duration">| {{ selectedProduct.duration }}天</span>
+    <!-- 购买详情弹窗 -->
+    <el-dialog 
+      v-model="showPaymentDialog" 
+      title="确认订单"
+      width="90%"
+      :max-width="'500px'"
+      destroy-on-close
+    >
+      <div v-if="selectedProduct" class="dialog-content">
+        <div class="product-summary">
+          <h3>{{ selectedProduct.name }}</h3>
+          <p class="product-duration">{{ selectedProduct.duration }}天</p>
+          
+          <div class="price-info">
+            <div class="current-price-row">
+              <span class="label">应付金额：</span>
+              <span class="current-price" :style="{ color: currentCatalog?.uiConfig?.primaryColor }">
+                ¥{{ selectedProduct.price?.toFixed(2) }}
+              </span>
+            </div>
+            <div v-if="selectedProduct.fullPrice" class="original-price-row">
+              <span class="label">原价：</span>
+              <span class="original-price">¥{{ selectedProduct.fullPrice.toFixed(2) }}</span>
+            </div>
+          </div>
+          
+          <p v-if="selectedProduct.btips" class="tips" :style="{ color: currentCatalog?.uiConfig?.secondaryColor }">
+            {{ selectedProduct.btips }}
           </p>
         </div>
-        <button 
-          class="confirm-pay-btn"
-          :style="{ backgroundColor: currentCatalog?.uiConfig?.primaryColor }"
-          @click="handleConfirmPay(selectedProduct)"
-        >
-          确认支付
-        </button>
       </div>
-    </div>
+      
+      <template #footer>
+        <div class="dialog-footer">
+          <button @click="showPaymentDialog = false" class="cancel-btn">取消</button>
+          <button 
+            @click="handleConfirmPayment" 
+            class="confirm-btn"
+            :style="{ backgroundColor: currentCatalog?.uiConfig?.primaryColor }"
+          >
+            确认支付
+          </button>
+        </div>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -163,6 +182,7 @@ const productMetadataList = ref<ProductMetadataItem[]>([])
 const selectedCatalogId = ref<number | null>(null)
 const currentProducts = ref<ProductItem[]>([])
 const selectedProduct = ref<ProductItem | null>(null)
+const showPaymentDialog = ref(false)
 
 // 当前选中的分类
 const currentCatalog = computed(() => {
@@ -222,22 +242,30 @@ const selectCategory = async (catalog: ProductMetadataItem) => {
   }
 }
 
-// 选择产品
+// 选择产品（用于弹窗展示）
 const selectProduct = (product: ProductItem) => {
   selectedProduct.value = product
 }
 
+// 立即购买
+const handleBuy = (product: ProductItem) => {
+  selectedProduct.value = product
+  showPaymentDialog.value = true
+}
+
 // 确认支付
-const handleConfirmPay = (product: ProductItem) => {
+const handleConfirmPayment = () => {
+  if (!selectedProduct.value) return
+  
   // TODO: 调用支付接口
   console.log('发起支付', {
-    productId: product.id,
-    metadataId: product.metadataId,
-    price: product.price
+    productId: selectedProduct.value.id,
+    metadataId: selectedProduct.value.metadataId,
+    price: selectedProduct.value.price
   })
   
-  // 这里可以添加支付逻辑
-  alert(`正在发起支付：${product.name}`)
+  alert(`正在发起支付：${selectedProduct.value.name}`)
+  showPaymentDialog.value = false
 }
 
 // 生命周期
@@ -472,92 +500,120 @@ onMounted(() => {
   margin-bottom: 20px;
 }
 
-/* 选择按钮 */
-.select-btn {
+/* 立即购买按钮 */
+.buy-btn {
   width: 100%;
   padding: 12px;
-  border: 2px solid;
+  border: none;
   border-radius: 8px;
   font-size: 16px;
   font-weight: bold;
   cursor: pointer;
   transition: all 0.3s ease;
-  background: white;
 }
 
-.select-btn:hover {
+.buy-btn:hover {
   opacity: 0.8;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-.select-btn.selected {
-  color: white;
+/* 购买详情弹窗 */
+.dialog-content {
+  padding: 10px 0;
 }
 
-/* 底部固定购买栏 */
-.fixed-buy-bar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: white;
-  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
-  padding: 20px;
-  z-index: 1000;
+.product-summary h3 {
+  font-size: 20px;
+  color: #2c3e50;
+  margin-bottom: 10px;
 }
 
-.bar-content {
-  max-width: 1200px;
-  margin: 0 auto;
+.product-duration {
+  font-size: 14px;
+  color: #7f8c8d;
+  margin-bottom: 20px;
+}
+
+.price-info {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+}
+
+.current-price-row,
+.original-price-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 20px;
+  margin-bottom: 8px;
 }
 
-.bar-content .product-info h4 {
-  margin: 0 0 8px 0;
-  font-size: 16px;
-  color: #2c3e50;
+.current-price-row:last-child,
+.original-price-row:last-child {
+  margin-bottom: 0;
 }
 
-.bar-content .product-info p {
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.bar-content .price {
-  font-size: 24px;
-  font-weight: bold;
-}
-
-.bar-content .original-price {
-  font-size: 14px;
-  color: #95a5a6;
-  text-decoration: line-through;
-}
-
-.bar-content .duration {
+.label {
   font-size: 14px;
   color: #7f8c8d;
 }
 
-.confirm-pay-btn {
-  padding: 15px 40px;
+.current-price {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.original-price {
+  font-size: 16px;
+  color: #95a5a6;
+  text-decoration: line-through;
+}
+
+.tips {
+  font-size: 13px;
+  color: #e67e22;
+  margin-top: 15px;
+  padding: 10px;
+  background: #fff3cd;
+  border-radius: 6px;
+}
+
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.cancel-btn {
+  padding: 10px 24px;
+  border: 1px solid #dcdfe6;
+  border-radius: 6px;
+  background: white;
+  color: #606266;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.cancel-btn:hover {
+  border-color: #c0c4cc;
+  color: #303133;
+}
+
+.confirm-btn {
+  padding: 10px 24px;
   border: none;
-  border-radius: 8px;
-  font-size: 18px;
+  border-radius: 6px;
+  font-size: 14px;
   font-weight: bold;
   color: white;
   cursor: pointer;
   transition: all 0.3s ease;
-  white-space: nowrap;
 }
 
-.confirm-pay-btn:hover {
+.confirm-btn:hover {
   opacity: 0.8;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
@@ -575,8 +631,6 @@ onMounted(() => {
 @media (max-width: 768px) {
   .buy-container {
     padding: 20px 15px;
-    /* 为底部固定栏留出空间 */
-    padding-bottom: 100px;
   }
 
   .buy-header h2 {
@@ -594,30 +648,15 @@ onMounted(() => {
   .products-grid {
     grid-template-columns: 1fr;
   }
-
-  /* 移动端底部购买栏样式 */
-  .fixed-buy-bar {
-    padding: 15px;
-  }
-
-  .bar-content {
+  
+  /* 移动端弹窗样式 */
+  .dialog-footer {
     flex-direction: column;
-    gap: 15px;
   }
-
-  .bar-content .product-info {
-    text-align: center;
-  }
-
-  .bar-content .product-info p {
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-
-  .confirm-pay-btn {
+  
+  .cancel-btn,
+  .confirm-btn {
     width: 100%;
-    padding: 12px;
-    font-size: 16px;
   }
 }
 </style>
