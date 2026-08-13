@@ -333,9 +333,9 @@ const handleRecharge = () => {
   pointer-events: none;
 }
 
-/* 微信二维码区域 */
+/* 二维码区域 */
 .qr-code-section {
-  margin-top: 15%;
+  margin-top: 39%;
   pointer-events: auto;
 }
 
@@ -350,9 +350,13 @@ const handleRecharge = () => {
 
 /* 品牌名称区域 */
 .brand-name-section {
-  margin-top: auto;
-  margin-bottom: 60px;
-  pointer-events: auto;
+  position: absolute;
+  top: 64.5%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  font-size: 20px;
+  color: #000000;
 }
 
 .brand-name {
