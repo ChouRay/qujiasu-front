@@ -1,7 +1,10 @@
 <template>
   <div class="center-layout">
     <!-- 左侧导航栏 -->
-    <aside :class="['sidebar', { 'sidebar-collapsed': isMobile && !isMenuOpen }]">
+    <aside 
+      :class="['sidebar', { 'sidebar-collapsed': isMobile && !isMenuOpen }]"
+      :style="{ width: isMobile ? (isMenuOpen ? '240px' : '64px') : '240px' }"
+    >
       <div class="sidebar-header">
         <!-- 移动端切换按钮 -->
         <button v-if="isMobile" class="menu-toggle" @click="toggleMenu">
