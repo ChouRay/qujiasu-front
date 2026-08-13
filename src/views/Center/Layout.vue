@@ -275,14 +275,14 @@ const userLevelData = computed(() => {
 }
 
 .sidebar-header {
-  padding: 30px 20px;
+  padding: 20px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.2);
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 12px;
   position: relative;
-  flex-wrap: wrap;
-  gap: 10px;
   
   h2 {
     margin: 0;
@@ -299,7 +299,6 @@ const userLevelData = computed(() => {
     background: rgba(255, 255, 255, 0.15);
     padding: 6px 12px;
     border-radius: 20px;
-    margin-top: 10px;
     
     .level-icon {
       width: 24px;
@@ -315,12 +314,8 @@ const userLevelData = computed(() => {
   }
 }
 
-/* 移动端菜单切换按钮 */
+/* 菜单切换按钮 */
 .menu-toggle {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
   background: transparent;
   border: none;
   color: #fff;
@@ -337,6 +332,30 @@ const userLevelData = computed(() => {
   
   .el-icon {
     font-size: 20px;
+  }
+}
+
+/* 移动端特殊样式 */
+@media (max-width: 768px) {
+  .sidebar-header {
+    padding: 15px 10px;
+    flex-direction: column;
+    order: 1;
+    
+    h2 {
+      font-size: 16px;
+      order: 2;
+    }
+    
+    .menu-toggle {
+      order: 1;
+      align-self: flex-end;
+    }
+    
+    .user-level-info {
+      order: 3;
+      margin-top: 4px;
+    }
   }
 }
 
