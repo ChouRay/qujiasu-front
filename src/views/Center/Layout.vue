@@ -41,11 +41,8 @@
       </nav>
     </aside>
 
-    <!-- 移动端遮罩层 -->
-    <div v-if="isMobile && isMenuOpen" class="overlay" @click="closeMenu"></div>
-
     <!-- 右侧内容区 -->
-    <main class="main-content">
+    <main class="main-content" :style="{ marginLeft: isMobile ? (isMenuOpen ? '240px' : '64px') : '240px' }">
       <!-- 顶部退出按钮 -->
       <header class="content-header">
         <div class="header-title">
@@ -87,17 +84,14 @@ const checkMobile = () => {
   isMobile.value = window.innerWidth <= 768
   if (!isMobile.value) {
     isMenuOpen.value = true
+  } else {
+    isMenuOpen.value = false
   }
 }
 
 // 切换菜单展开/收起
 const toggleMenu = () => {
   isMenuOpen.value = !isMenuOpen.value
-}
-
-// 关闭菜单
-const closeMenu = () => {
-  isMenuOpen.value = false
 }
 
 // 加载用户信息
@@ -290,25 +284,14 @@ const handleLogout = async () => {
   }
 }
 
-/* 遮罩层 */
-.overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 99;
-}
+/* 遮罩层已移除，不再需要 */
 
 /* 右侧内容区 */
 .main-content {
   flex: 1;
-  margin-left: 240px;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  transition: margin-left 0.3s ease;
 }
 
 .content-header {
@@ -358,9 +341,7 @@ const handleLogout = async () => {
     }
   }
   
-  .main-content {
-    margin-left: 64px;
-  }
+  /* 移动端内容区域 margin-left 由内联样式动态控制 */
   
   .sidebar-header {
     padding: 20px 10px;
