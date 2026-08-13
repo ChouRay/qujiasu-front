@@ -11,6 +11,12 @@
           <el-icon><Fold v-if="isMenuOpen" /><Expand v-else /></el-icon>
         </button>
         <h2 v-show="!isMobile || isMenuOpen">用户中心</h2>
+        
+        <!-- 用户等级展示模块 -->
+        <div v-if="userInfo" class="user-level-info" :title="userLevelData.name">
+          <img :src="userLevelData.icon" :alt="userLevelData.name" class="level-icon" />
+          <span v-show="!isMobile || isMenuOpen" class="level-name">{{ userLevelData.name }}</span>
+        </div>
       </div>
       <nav class="sidebar-nav">
         <el-menu
@@ -74,6 +80,12 @@ import { getUserInfo } from '@/api/user'
 import { logout } from '@/api/auth'
 import { clearUserInfo } from '@/store/user'
 import type { UserInfo } from '@/types/user'
+
+// 引入等级图标
+import iconNomalMember from '@/assets/images/icon-nomal-member.png'
+import iconBronzeMedal from '@/assets/images/icon-bronze-medal.png'
+import iconSilverMedal from '@/assets/images/icon-silver-medal.png'
+import iconGoldMedal from '@/assets/images/icon-gold-medal.png'
 
 const route = useRoute()
 const router = useRouter()
@@ -167,6 +179,72 @@ const handleLogout = async () => {
     router.push('/')
   }
 }
+
+// 计算用户等级数据
+const userLevelData = computed(() => {
+  const defaultLevel = {
+    icon: iconNomalMember,
+    name: '普通会员'
+  }
+
+  if (!userInfo.value) {
+    return defaultLevel
+  }
+
+  const { isAgent, agentLevel, isVip, vipInfo } = userInfo.value
+
+  // 如果既不是代理商也不是会员，返回普通会员
+  if ((!isAgent || isAgent <= 0) && (!isVip || isVip <= 0)) {
+    return defaultLevel
+  }
+
+  // 将 VIP 等级转换为数值：NONE=0, VIP_LEVEL_1=1, VIP_LEVEL_2=2, VIP_LEVEL_3=3
+  let vipLevelNum = 0
+  if (isVip && isVip > 0 && vipInfo?.level) {
+    if (vipInfo.level === 'VIP_LEVEL_1') vipLevelNum = 1
+    else if (vipInfo.level === 'VIP_LEVEL_2') vipLevelNum = 2
+    else if (vipInfo.level === 'VIP_LEVEL_3') vipLevelNum = 3
+  }
+
+  const agentLevelNum = (isAgent && isAgent > 0 && agentLevel) ? agentLevel : 0
+
+  // 如果只有代理商身份
+  if (agentLevelNum > 0 && vipLevelNum === 0) {
+    const levelMap: Record<number, { icon: string; name: string }> = {
+      1: { icon: iconBronzeMedal, name: '铜牌代理商' },
+      2: { icon: iconSilverMedal, name: '银牌代理商' },
+      3: { icon: iconGoldMedal, name: '金牌代理商' }
+    }
+    return levelMap[agentLevelNum] || defaultLevel
+  }
+
+  // 如果只有会员身份
+  if (vipLevelNum > 0 && agentLevelNum === 0) {
+    const levelMap: Record<number, { icon: string; name: string }> = {
+      1: { icon: iconBronzeMedal, name: 'VIP Level 1 会员' },
+      2: { icon: iconSilverMedal, name: 'VIP Level 2 会员' },
+      3: { icon: iconGoldMedal, name: 'VIP Level 3 会员' }
+    }
+    return levelMap[vipLevelNum] || defaultLevel
+  }
+
+  // 如果同时有代理商和会员身份，比较等级大小，显示高的那个
+  if (agentLevelNum >= vipLevelNum) {
+    const levelMap: Record<number, { icon: string; name: string }> = {
+      1: { icon: iconBronzeMedal, name: '铜牌代理商' },
+      2: { icon: iconSilverMedal, name: '银牌代理商' },
+      3: { icon: iconGoldMedal, name: '金牌代理商' }
+    }
+    return levelMap[agentLevelNum] || defaultLevel
+  } else {
+    const levelMap: Record<number, { icon: string; name: string }> = {
+      1: { icon: iconBronzeMedal, name: 'VIP Level 1 会员' },
+      2: { icon: iconSilverMedal, name: 'VIP Level 2 会员' },
+      3: { icon: iconGoldMedal, name: 'VIP Level 3 会员' }
+    }
+    return levelMap[vipLevelNum] || defaultLevel
+  }
+})
 </script>
 
 <style scoped lang="scss">
@@ -203,6 +281,8 @@ const handleLogout = async () => {
   align-items: center;
   justify-content: center;
   position: relative;
+  flex-wrap: wrap;
+  gap: 10px;
   
   h2 {
     margin: 0;
@@ -210,6 +290,28 @@ const handleLogout = async () => {
     font-weight: 600;
     text-align: center;
     white-space: nowrap;
+  }
+  
+  .user-level-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.15);
+    padding: 6px 12px;
+    border-radius: 20px;
+    margin-top: 10px;
+    
+    .level-icon {
+      width: 24px;
+      height: 24px;
+      object-fit: contain;
+    }
+    
+    .level-name {
+      font-size: 12px;
+      color: #fff;
+      white-space: nowrap;
+    }
   }
 }
 
