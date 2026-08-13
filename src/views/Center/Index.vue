@@ -333,7 +333,7 @@ const handleRecharge = () => {
 /* 二维码区域：使用 flex-grow 和 margin 来定位在正中间偏上 */
 .qr-code-section {
   flex: 0 0 auto;
-  margin-top: 35%; /* 从顶部开始 35% 的位置 */
+  margin-top: 39%;
   margin-bottom: auto;
   pointer-events: auto;
   display: flex;
@@ -341,8 +341,6 @@ const handleRecharge = () => {
 }
 
 .qr-code-image {
-  width: 12vw; /* 使用视口宽度单位，随屏幕缩放 */
-  height: 12vw;
   max-width: 140px;
   max-height: 140px;
   object-fit: cover;
@@ -354,7 +352,7 @@ const handleRecharge = () => {
 /* 品牌名称区域：使用绝对定位的百分比 */
 .brand-name-section {
   position: absolute;
-  top: 75%; /* 四分之三位置 */
+  top: 66%;
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 2;
@@ -362,7 +360,7 @@ const handleRecharge = () => {
 }
 
 .brand-name {
-  font-size: 2.5vw; /* 使用视口宽度单位 */
+  font-size: 1.6vw; /* 使用视口宽度单位 */
   max-font-size: 32px;
   min-font-size: 20px;
   font-weight: bold;
@@ -376,12 +374,7 @@ const handleRecharge = () => {
 /* 底部推广链接区域：固定在底部 */
 .promo-link-section {
   margin-top: auto; /* 推到底部 */
-  margin-bottom: 5%; /* 距离底部 5% */
-  background: rgba(255, 255, 255, 0.95);
-  padding: 1.5vw 2.5vw; /* 使用相对单位 */
-  border-radius: 8px;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 10%; /* 距离底部 5% */
   pointer-events: auto;
   text-align: center;
   width: 80%;
@@ -395,6 +388,10 @@ const handleRecharge = () => {
   max-font-size: 12px;
   color: #666;
   margin-bottom: 0.8vw;
+  background: #f2f2f2;
+  border-radius: 10px;
+  border: 0px solid #000000;
+  padding: 8px 16px;
   word-break: break-all;
   font-family: monospace;
 }
@@ -402,8 +399,22 @@ const handleRecharge = () => {
 .copy-link-btn {
   width: 100%;
   font-weight: bold;
-  font-size: 1vw;
+  font-size: 13px;
   min-font-size: 11px;
   padding: 0.5vw 1vw;
+}
+
+@media (max-width: 768px) {
+  .brand-name {
+    font-size: 3.6vw; /* 使用视口宽度单位 */
+  }
+  .promo-link-text {
+    font-size: 3vw; /* 使用相对单位 */
+  }
+
+  .copy-link-btn {
+    width: 100%;
+    font-size: 3vw;
+  }
 }
 </style>
