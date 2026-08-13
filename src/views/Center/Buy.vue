@@ -191,8 +191,13 @@ const currentCatalog = computed(() => {
 
 // 获取 URL 参数
 const urlProductId = computed(() => {
-  const pid = route.query.productId
+  const pid = route.query.pid
   return pid ? Number(pid) : null
+})
+
+const urlMetadataId = computed(() => {
+  const mid = route.query.mid
+  return mid ? Number(mid) : null
 })
 
 // 获取产品目录
@@ -203,9 +208,14 @@ const fetchProductMetadata = async () => {
   try {
     const productMetadata = await getProductMetadata()
     productMetadataList.value = productMetadata
-    
-    // 默认选中第一个分类
-    if (productMetadata.length > 0 && productMetadata[0].id) {
+      // 如果存在url参数
+    if (urlMetadataId.value) {      
+      const found = productMetadataList.value.find(p => p.id === urlMetadataId.value);
+      if (found) {
+        await selectCategory(found);
+      }
+    } else if (productMetadata.length > 0 && productMetadata[0].id) {
+      // 默认选中第一个分类
       await selectCategory(productMetadata[0])
     }
   } catch (err) {

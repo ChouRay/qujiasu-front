@@ -193,8 +193,8 @@ const handleBuy = (product: ProductItem) => {
   router.push({
     path: '/center/buy',
     query: {
-      metadataId: product.metadataId,
-      productId: product.id
+      mid: product.metadataId,
+      pid: product.id
     }
   })
 }

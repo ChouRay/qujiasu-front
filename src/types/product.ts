@@ -6,8 +6,8 @@ export interface ProductMetadataUiConfigVO {
 
 // 产品目录项
 export interface ProductMetadataItem {
-  id?: number; // 产品 ID
-  name?: string; // 产品名称
+  id?: number; // 产品元数据  ID
+  name?: string; // 产品元名称
   description?: string; // 产品描述
   abilityTips?: string; // 能力提示
   status?: number; // 状态 0-禁用 1-启用
