@@ -104,6 +104,37 @@
               alt="推广海报" 
               class="poster-image"
             />
+            <!-- 海报叠加层 -->
+            <div class="poster-overlay">
+              <!-- 微信二维码：正中间偏上 -->
+              <div class="qr-code-section">
+                <img
+                  src="@/assets/images/wx-open-qr.jpg"
+                  alt="微信二维码"
+                  class="qr-code-image"
+                />
+              </div>
+              
+              <!-- 品牌名称：四分之三位置 -->
+              <div class="brand-name-section">
+                <span class="brand-name">趣加速</span>
+              </div>
+              
+              <!-- 底部推广链接 -->
+              <div class="promo-link-section">
+                <div class="promo-link-text">
+                  {{ promoLink }}
+                </div>
+                <el-button
+                  type="primary"
+                  size="small"
+                  class="copy-link-btn"
+                  @click="copyLink"
+                >
+                  专属推广链接
+                </el-button>
+              </div>
+            </div>
           </div>
         </el-card>
       </el-col>
@@ -126,14 +157,31 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { userInfo } from '@/store/user'
+import { ElMessage } from 'element-plus'
 
 const router = useRouter()
 
 // 弹窗控制
 const showPasswordDialog = ref(false)
+
+// 计算推广链接
+const promoLink = computed(() => {
+  const code = userInfo.invitationCode || ''
+  return `www.qujiasu.com?c=${code}`
+})
+
+// 复制到剪贴板
+const copyLink = () => {
+  const link = promoLink.value
+  navigator.clipboard.writeText(link).then(() => {
+    ElMessage.success('推广链接已复制到剪贴板')
+  }).catch(() => {
+    ElMessage.error('复制失败，请手动复制')
+  })
+}
 
 // 格式化数字（保留两位小数）
 const formatNumber = (num: any) => {
@@ -259,6 +307,7 @@ const handleRecharge = () => {
   display: flex;
   justify-content: center;
   align-items: center;
+  position: relative;
 }
 
 .poster-image {
@@ -269,34 +318,97 @@ const handleRecharge = () => {
   border-radius: 8px;
 }
 
+/* 海报叠加层 */
+.poster-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  pointer-events: none;
+}
+
+/* 微信二维码区域 */
+.qr-code-section {
+  margin-top: 15%;
+  pointer-events: auto;
+}
+
+.qr-code-image {
+  width: 140px;
+  height: 140px;
+  object-fit: cover;
+  border: 4px solid white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* 品牌名称区域 */
+.brand-name-section {
+  margin-top: auto;
+  margin-bottom: 60px;
+  pointer-events: auto;
+}
+
+.brand-name {
+  font-size: 32px;
+  font-weight: bold;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* 底部推广链接区域 */
+.promo-link-section {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 12px 20px;
+  border-radius: 8px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  pointer-events: auto;
+  text-align: center;
+  width: 100%;
+  max-width: 280px;
+}
+
+.promo-link-text {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 8px;
+  word-break: break-all;
+  font-family: monospace;
+}
+
+.copy-link-btn {
+  width: 100%;
+  font-weight: bold;
+}
+
 /* 移动端适配 */
 @media (max-width: 768px) {
-  .user-center-index {
-    padding: 12px;
+  .qr-code-image {
+    width: 100px;
+    height: 100px;
   }
 
-  .stats-grid {
-    grid-template-columns: 1fr;
+  .brand-name {
+    font-size: 24px;
   }
 
-  .info-row {
-    flex-wrap: wrap;
+  .promo-link-section {
+    max-width: 100%;
+    padding: 10px 16px;
   }
 
-  .info-row .label {
-    width: 100%;
-    margin-bottom: 4px;
-  }
-
-  .highlight-row {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .action-btn,
-  .recharge-btn {
-    margin-left: 0;
-    margin-top: 8px;
+  .promo-link-text {
+    font-size: 11px;
   }
 }
 </style>
