@@ -22,7 +22,7 @@ export interface UserInfo {
   imgUrl: string
   gmtCreate: string
   userBalance: number
-  userReward: number
+  userReward: number  //抵用余额
   totalAgentIncome: number
   userPoint: number
   invitationCode: string
@@ -40,6 +40,6 @@ export interface UserInfo {
   totalInviteCount: number
   onWithdraw: number
   totalCost: number
-  dividendRatio: number
+  dividendRatio: number // 折扣或返佣比率
   vipInfo: VipInfo
 }
