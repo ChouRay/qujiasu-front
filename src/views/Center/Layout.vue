@@ -269,26 +269,9 @@ const handleLogout = async () => {
       }
     }
     
-    /* 收起模式下只显示图标 */
-    :deep(&.el-menu--collapse) {
-      .el-menu-item {
-        padding: 0 !important;
-        padding-left: 0 !important;
-        justify-content: center !important;
-        
-        .el-icon {
-          margin-right: 0 !important;
-        }
-        
-        span {
-          display: none !important;
-        }
-      }
-    }
-    
     /* 移动端收起状态下图标左移调整 */
     :deep(.sidebar-collapsed .el-menu-item) {
-      padding-left: 0 !important;
+      padding-left: 62px !important;
       
       .el-icon {
         margin-right: 0 !important;
@@ -352,6 +335,44 @@ const handleLogout = async () => {
     &.sidebar-collapsed {
       width: 64px;
     }
+
+    .nav-menu {
+    background: transparent !important;
+    border-right: none !important;
+    
+    :deep(.el-menu-item) {
+      .el-icon {
+        font-size: 18px;
+        transform: translateX(-12px);
+      }
+    }
+    
+    /* 收起模式下只显示图标 */
+    :deep(&.el-menu--collapse) {
+      .el-menu-item {
+        padding: 0 !important;
+        padding-right: 32px !important;
+        justify-content: center !important;
+        
+        .el-icon {
+          margin-right:52px !important;
+        }
+        
+        span {
+          display: none !important;
+        }
+      }
+    }
+    
+    /* 移动端收起状态下图标左移调整 */
+    :deep(.sidebar-collapsed .el-menu-item) {
+      padding-left: 62px !important;
+      
+      .el-icon {
+        margin-right: 0 !important;
+      }
+    }
+  }
   }
   
   /* 移动端内容区域 margin-left 由内联样式动态控制 */
