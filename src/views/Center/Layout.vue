@@ -1,14 +1,19 @@
 <template>
   <div class="center-layout">
     <!-- 左侧导航栏 -->
-    <aside class="sidebar">
+    <aside :class="['sidebar', { 'sidebar-collapsed': isMobile && !isMenuOpen }]">
       <div class="sidebar-header">
-        <h2>用户中心</h2>
+        <!-- 移动端切换按钮 -->
+        <button v-if="isMobile" class="menu-toggle" @click="toggleMenu">
+          <el-icon><Fold v-if="isMenuOpen" /><Expand v-else /></el-icon>
+        </button>
+        <h2 v-show="!isMobile || isMenuOpen">用户中心</h2>
       </div>
       <nav class="sidebar-nav">
         <el-menu
           :default-active="activeMenu"
-          mode="vertical"
+          :mode="isMobile && !isMenuOpen ? 'vertical' : 'vertical'"
+          :collapse="isMobile && !isMenuOpen"
           @select="handleMenuSelect"
           class="nav-menu"
         >
@@ -34,6 +39,8 @@
           </el-menu-item>
         </el-menu>
       </nav>
+      <!-- 移动端遮罩层 -->
+      <div v-if="isMobile && isMenuOpen" class="overlay" @click="closeMenu"></div>
     </aside>
 
     <!-- 右侧内容区 -->
@@ -45,7 +52,7 @@
         </div>
         <el-button type="danger" @click="handleLogout" class="logout-btn">
           <el-icon><SwitchButton /></el-icon>
-          退出登录
+          <span v-show="!isMobile">退出登录</span>
         </el-button>
       </header>
 
@@ -58,9 +65,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { User, List, Wallet, SwitchButton ,ShoppingTrolley,HomeFilled} from '@element-plus/icons-vue'
+import { User, List, Wallet, SwitchButton ,ShoppingTrolley,HomeFilled, Fold, Expand} from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getUserInfo } from '@/api/user'
 import { logout } from '@/api/auth'
@@ -71,6 +78,26 @@ const route = useRoute()
 const router = useRouter()
 
 const userInfo = ref<UserInfo | null>(null)
+const isMobile = ref(false)
+const isMenuOpen = ref(false)
+
+// 检测屏幕宽度
+const checkMobile = () => {
+  isMobile.value = window.innerWidth <= 768
+  if (!isMobile.value) {
+    isMenuOpen.value = true
+  }
+}
+
+// 切换菜单展开/收起
+const toggleMenu = () => {
+  isMenuOpen.value = !isMenuOpen.value
+}
+
+// 关闭菜单
+const closeMenu = () => {
+  isMenuOpen.value = false
+}
 
 // 加载用户信息
 const loadUserInfo = async () => {
@@ -87,6 +114,12 @@ const loadUserInfo = async () => {
 
 onMounted(() => {
   loadUserInfo()
+  checkMobile()
+  window.addEventListener('resize', checkMobile)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', checkMobile)
 })
 
 const activeMenu = computed(() => {
@@ -157,17 +190,53 @@ const handleLogout = async () => {
   top: 0;
   bottom: 0;
   z-index: 100;
+  transition: width 0.3s ease;
+}
+
+/* 移动端收起状态 */
+.sidebar-collapsed {
+  width: 64px !important;
 }
 
 .sidebar-header {
   padding: 30px 20px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
   
   h2 {
     margin: 0;
     font-size: 22px;
     font-weight: 600;
     text-align: center;
+    white-space: nowrap;
+  }
+}
+
+/* 移动端菜单切换按钮 */
+.menu-toggle {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+  
+  .el-icon {
+    font-size: 20px;
   }
 }
 
@@ -201,7 +270,34 @@ const handleLogout = async () => {
         font-size: 18px;
       }
     }
+    
+    /* 收起模式下只显示图标 */
+    :deep(&.el-menu--collapse) {
+      .el-menu-item {
+        padding: 0 !important;
+        justify-content: center !important;
+        
+        .el-icon {
+          margin-right: 0 !important;
+        }
+        
+        span {
+          display: none !important;
+        }
+      }
+    }
   }
+}
+
+/* 遮罩层 */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 99;
 }
 
 /* 右侧内容区 */
@@ -211,6 +307,7 @@ const handleLogout = async () => {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  transition: margin-left 0.3s ease;
 }
 
 .content-header {
@@ -253,11 +350,23 @@ const handleLogout = async () => {
 /* 响应式设计 */
 @media (max-width: 768px) {
   .sidebar {
-    width: 200px;
+    width: 64px;
+    
+    &.sidebar-collapsed {
+      width: 64px;
+    }
   }
   
   .main-content {
-    margin-left: 200px;
+    margin-left: 64px;
+  }
+  
+  .sidebar-header {
+    padding: 20px 10px;
+    
+    h2 {
+      font-size: 16px;
+    }
   }
   
   .content-header {
@@ -266,6 +375,12 @@ const handleLogout = async () => {
   
   .content-body {
     padding: 20px 15px;
+  }
+  
+  .logout-btn {
+    span {
+      display: none;
+    }
   }
 }
 </style>
