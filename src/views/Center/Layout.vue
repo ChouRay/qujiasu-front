@@ -12,7 +12,7 @@
       <nav class="sidebar-nav">
         <el-menu
           :default-active="activeMenu"
-          :mode="isMobile && !isMenuOpen ? 'vertical' : 'vertical'"
+          :mode="'vertical'"
           :collapse="isMobile && !isMenuOpen"
           @select="handleMenuSelect"
           class="nav-menu"
@@ -39,9 +39,10 @@
           </el-menu-item>
         </el-menu>
       </nav>
-      <!-- 移动端遮罩层 -->
-      <div v-if="isMobile && isMenuOpen" class="overlay" @click="closeMenu"></div>
     </aside>
+
+    <!-- 移动端遮罩层 -->
+    <div v-if="isMobile && isMenuOpen" class="overlay" @click="closeMenu"></div>
 
     <!-- 右侧内容区 -->
     <main class="main-content">
