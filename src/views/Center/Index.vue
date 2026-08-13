@@ -323,44 +323,48 @@ const handleRecharge = () => {
   position: absolute;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
+  width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px;
   pointer-events: none;
 }
 
-/* 二维码区域 */
+/* 二维码区域：使用 flex-grow 和 margin 来定位在正中间偏上 */
 .qr-code-section {
-  margin-top: 39%;
+  flex: 0 0 auto;
+  margin-top: 35%; /* 从顶部开始 35% 的位置 */
+  margin-bottom: auto;
   pointer-events: auto;
+  display: flex;
+  justify-content: center;
 }
 
 .qr-code-image {
-  width: 140px;
-  height: 140px;
+  width: 12vw; /* 使用视口宽度单位，随屏幕缩放 */
+  height: 12vw;
+  max-width: 140px;
+  max-height: 140px;
   object-fit: cover;
   border: 4px solid white;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-/* 品牌名称区域 */
+/* 品牌名称区域：使用绝对定位的百分比 */
 .brand-name-section {
   position: absolute;
-  top: 64.5%;
+  top: 75%; /* 四分之三位置 */
   left: 50%;
-  transform: translateX(-50%);
+  transform: translate(-50%, -50%);
   z-index: 2;
-  font-size: 20px;
-  color: #000000;
+  pointer-events: none;
 }
 
 .brand-name {
-  font-size: 32px;
+  font-size: 2.5vw; /* 使用视口宽度单位 */
+  max-font-size: 32px;
+  min-font-size: 20px;
   font-weight: bold;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   -webkit-background-clip: text;
@@ -369,23 +373,28 @@ const handleRecharge = () => {
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* 底部推广链接区域 */
+/* 底部推广链接区域：固定在底部 */
 .promo-link-section {
+  margin-top: auto; /* 推到底部 */
+  margin-bottom: 5%; /* 距离底部 5% */
   background: rgba(255, 255, 255, 0.95);
-  padding: 12px 20px;
+  padding: 1.5vw 2.5vw; /* 使用相对单位 */
   border-radius: 8px;
   backdrop-filter: blur(10px);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   pointer-events: auto;
   text-align: center;
-  width: 100%;
+  width: 80%;
   max-width: 280px;
+  align-self: center;
 }
 
 .promo-link-text {
-  font-size: 12px;
+  font-size: 1vw; /* 使用相对单位 */
+  min-font-size: 10px;
+  max-font-size: 12px;
   color: #666;
-  margin-bottom: 8px;
+  margin-bottom: 0.8vw;
   word-break: break-all;
   font-family: monospace;
 }
@@ -393,26 +402,8 @@ const handleRecharge = () => {
 .copy-link-btn {
   width: 100%;
   font-weight: bold;
-}
-
-/* 移动端适配 */
-@media (max-width: 768px) {
-  .qr-code-image {
-    width: 100px;
-    height: 100px;
-  }
-
-  .brand-name {
-    font-size: 24px;
-  }
-
-  .promo-link-section {
-    max-width: 100%;
-    padding: 10px 16px;
-  }
-
-  .promo-link-text {
-    font-size: 11px;
-  }
+  font-size: 1vw;
+  min-font-size: 11px;
+  padding: 0.5vw 1vw;
 }
 </style>
