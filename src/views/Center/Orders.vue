@@ -83,8 +83,8 @@
                 <el-table-column label="操作" fixed="right" width="150">
                   <template #default>
                     <div class="action-buttons">
-                      <el-button type="primary" size="small" link>续费</el-button>
-                      <el-button type="success" size="small" link>增减</el-button>
+                      <el-button type="primary" size="small">续费</el-button>
+                      <el-button type="success" size="small">增减</el-button>
                     </div>
                   </template>
                 </el-table-column>
