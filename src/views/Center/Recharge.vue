@@ -1,271 +1,630 @@
 <template>
-  <div class="recharge-page">
-    <el-row :gutter="20">
-      <!-- 账户余额卡片 -->
-      <el-col :span="24" :md="12">
-        <el-card class="balance-card">
-          <div class="balance-info">
-            <div class="balance-label">账户余额</div>
-            <div class="balance-amount">¥{{ balance }}</div>
-            <el-button type="primary" @click="showRechargeDialog = true" class="recharge-btn">
-              立即充值
-            </el-button>
-          </div>
-        </el-card>
-      </el-col>
-
-      <!-- 充值记录 -->
-      <el-col :span="24" :md="12">
-        <el-card class="record-card">
-          <template #header>
-            <div class="card-header">
-              <span>最近充值记录</span>
-              <el-button type="primary" link @click="viewAllRecords">查看全部</el-button>
-            </div>
-          </template>
-          <el-table :data="recentRecords" style="width: 100%" :show-header="false">
-            <el-table-column prop="time" label="时间" />
-            <el-table-column prop="amount" label="金额">
-              <template #default="{ row }">
-                ¥{{ row.amount }}
-              </template>
-            </el-table-column>
-            <el-table-column prop="status" label="状态">
-              <template #default="{ row }">
-                <el-tag :type="row.status === 1 ? 'success' : 'info'">
-                  {{ row.status === 1 ? '成功' : '处理中' }}
-                </el-tag>
-              </template>
-            </el-table-column>
-          </el-table>
-        </el-card>
-      </el-col>
-    </el-row>
-
-    <!-- 充值套餐选择 -->
-    <el-card class="packages-card" style="margin-top: 20px;">
-      <template #header>
-        <div class="card-header">
-          <span>选择充值金额</span>
-        </div>
-      </template>
-      <el-row :gutter="20">
-        <el-col :span="8" :xs="24" v-for="pkg in rechargePackages" :key="pkg.amount">
-          <el-card 
-            class="package-item" 
-            :class="{ active: selectedPackage === pkg.amount }"
-            @click="selectedPackage = pkg.amount"
-          >
-            <div class="package-amount">¥{{ pkg.amount }}</div>
-            <div class="package-desc">{{ pkg.desc }}</div>
-            <div class="package-bonus" v-if="pkg.bonus">
-              <el-tag type="danger" size="small">赠送{{ pkg.bonus }}元</el-tag>
-            </div>
-          </el-card>
-        </el-col>
-      </el-row>
-      <div class="custom-amount" style="margin-top: 20px;">
-        <el-input
-          v-model="customAmount"
-          placeholder="请输入自定义充值金额"
-          style="max-width: 300px;"
-        >
-          <template #append>元</template>
-        </el-input>
-        <el-button type="primary" @click="handleCustomRecharge" style="margin-left: 10px;">
-          确认充值
-        </el-button>
-      </div>
+  <div class="recharge-container">
+    <!-- 账户余额卡片 -->
+    <el-card class="balance-card" shadow="hover">
+      <div class="balance-label">账户余额</div>
+      <div class="balance-amount">¥ {{ userStore.userBalance?.toFixed(2) || '0.00' }}</div>
     </el-card>
 
-    <!-- 充值对话框 -->
-    <el-dialog
-      v-model="showRechargeDialog"
-      title="账户充值"
-      width="500px"
-      :close-on-click-modal="false"
-    >
-      <div class="recharge-form">
-        <p>充值金额：<strong>¥{{ selectedPackage || customAmount }}</strong></p>
-        <p class="tips">请选择支付方式：</p>
-        <el-radio-group v-model="paymentMethod" style="width: 100%;">
-          <el-radio value="wechat">微信支付</el-radio>
-          <el-radio value="alipay">支付宝</el-radio>
-          <el-radio value="bank">银行卡</el-radio>
-        </el-radio-group>
+    <!-- 快捷充值 -->
+    <div class="section-title">快捷充值</div>
+    <div class="quick-amounts">
+      <!-- 普通面额 -->
+      <div 
+        v-for="amount in normalAmounts" 
+        :key="amount"
+        class="amount-item"
+        :class="{ active: selectedAmount === amount }"
+        @click="selectAmount(amount)"
+      >
+        <span class="amount-value">¥{{ amount }}</span>
       </div>
-      <template #footer>
-        <span class="dialog-footer">
-          <el-button @click="showRechargeDialog = false">取消</el-button>
-          <el-button type="primary" @click="confirmRecharge">确认支付</el-button>
-        </span>
-      </template>
-    </el-dialog>
+
+      <!-- VIP 面额 -->
+      <div 
+        v-for="vip in vipPlans" 
+        :key="vip.amount"
+        class="vip-item"
+        :class="{ active: selectedAmount === vip.amount }"
+        @click="selectAmount(vip.amount)"
+      >
+        <div class="vip-header">
+          <img :src="vip.icon" :alt="vip.level" class="vip-icon" />
+          <div class="vip-info">
+            <div class="vip-title">{{ vip.title }}</div>
+            <div class="vip-desc">{{ vip.desc }}</div>
+          </div>
+        </div>
+        <div class="vip-benefits">
+          <span class="benefit-tag">推荐佣金{{ vip.commission }}</span>
+          <span class="benefit-tag">自用{{ vip.discount }}</span>
+        </div>
+        <div class="vip-note">注：需实名认证，有效期 90 天，活动产品除外</div>
+      </div>
+    </div>
+
+    <!-- 其它充值金额 -->
+    <div class="section-title">其它充值金额</div>
+    <div class="custom-amount-wrapper">
+      <el-input
+        v-model="customAmount"
+        type="number"
+        placeholder="请输入充值金额"
+        prefix-icon="Money"
+        class="custom-amount-input"
+        @input="handleCustomInput"
+      >
+        <template #append>元</template>
+      </el-input>
+    </div>
+
+    <!-- 充值方式 -->
+    <div class="section-title">充值方式</div>
+    <div class="payment-methods">
+      <div 
+        class="method-item"
+        :class="{ active: payMethod === 'ALI_PAY' }"
+        @click="payMethod = 'ALI_PAY'"
+      >
+        <img src="@/assets/images/alipay-ico.png" alt="支付宝" class="method-icon" />
+        <span class="method-name">支付宝充值</span>
+        <el-icon v-if="payMethod === 'ALI_PAY'" class="check-icon"><CircleCheckFilled /></el-icon>
+      </div>
+
+      <div 
+        class="method-item"
+        :class="{ active: payMethod === 'WECHAT_PAY' }"
+        @click="payMethod = 'WECHAT_PAY'"
+      >
+        <img src="@/assets/images/wxpay-ico.png" alt="微信" class="method-icon" />
+        <span class="method-name">微信充值</span>
+        <el-icon v-if="payMethod === 'WECHAT_PAY'" class="check-icon"><CircleCheckFilled /></el-icon>
+      </div>
+    </div>
+
+    <!-- 确认支付按钮 -->
+    <div class="action-footer">
+      <el-button type="primary" size="large" class="submit-btn" @click="handleSubmit" :loading="loading">
+        确认支付
+      </el-button>
+    </div>
+
+    <!-- 最近充值记录 -->
+    <div class="section-title">最近充值记录</div>
+    <div class="record-table-wrapper">
+      <el-table 
+        :data="rechargeList" 
+        style="width: 100%" 
+        v-loading="listLoading"
+        :header-cell-style="{ background: '#f5f7fa', color: '#606266' }"
+      >
+        <el-table-column prop="id" label="编号" width="80" />
+        <el-table-column prop="totalAmount" label="充值金额 (元)" width="100">
+          <template #default="scope">
+            <span class="amount-text">¥{{ scope.row.totalAmount }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="paySource" label="支付渠道" width="100">
+          <template #default="scope">
+            {{ formatPaySource(scope.row.paySource) }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="status" label="支付状态" width="100">
+          <template #default="scope">
+            <el-tag :type="getStatusType(scope.row.status)">
+              {{ formatPayStatus(scope.row.status) }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="tradeNo" label="订单编号" min-width="150" show-overflow-tooltip />
+        <el-table-column prop="payNo" label="支付编号" min-width="150" show-overflow-tooltip />
+        <el-table-column prop="gmtCreate" label="创建时间" width="160">
+          <template #default="scope">
+            {{ formatDateTime(scope.row.gmtCreate) }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="gmtModified" label="完成时间" width="160">
+          <template #default="scope">
+            {{ formatDateTime(scope.row.gmtModified) }}
+          </template>
+        </el-table-column>
+      </el-table>
+      
+      <!-- 分页 -->
+      <div class="pagination-wrapper">
+        <el-pagination
+          v-model:current-page="pageNum"
+          v-model:page-size="pageSize"
+          :page-sizes="[10, 20, 50]"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="totalNum"
+          @size-change="fetchRechargeList"
+          @current-change="fetchRechargeList"
+        />
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { ElMessage } from 'element-plus'
+import { ref, onMounted } from 'vue';
+import { ElMessage } from 'element-plus';
+import { CircleCheckFilled, Money } from '@element-plus/icons-vue';
+import { getRechargeList } from '@/api/user';
+import { useUserStore } from '@/store/user';
+import { formatDateTime } from '@/utils/times';
+import { formatPayStatus } from '@/utils/apiEnums'; 
 
-const balance = ref(1299.50)
-const showRechargeDialog = ref(false)
-const selectedPackage = ref<number | null>(null)
-const customAmount = ref('')
-const paymentMethod = ref('wechat')
+import iconBronze from '@/assets/images/icon-bronze-medal.png';
+import iconSilver from '@/assets/images/icon-silver-medal.png';
+import iconGold from '@/assets/images/icon-gold-medal.png';
 
-const rechargePackages = ref([
-  { amount: 50, desc: '基础充值', bonus: 0 },
-  { amount: 100, desc: '常用充值', bonus: 5 },
-  { amount: 200, desc: '超值充值', bonus: 15 },
-  { amount: 500, desc: '大额充值', bonus: 50 },
-  { amount: 1000, desc: '至尊充值', bonus: 150 }
-])
+const userStore = useUserStore();
 
-const recentRecords = ref([
-  { time: '2025-01-03 10:30:00', amount: 100, status: 1 },
-  { time: '2025-01-01 15:20:00', amount: 50, status: 1 },
-  { time: '2024-12-28 09:15:00', amount: 200, status: 2 }
-])
+// 状态定义
+const loading = ref(false);
+const listLoading = ref(false);
+const selectedAmount = ref<number | null>(null);
+const customAmount = ref<string>('');
+const payMethod = ref<'ALI_PAY' | 'WECHAT_PAY'>('ALI_PAY');
 
-const viewAllRecords = () => {
-  ElMessage.info('查看完整的充值记录')
-  // TODO: 跳转到充值记录页面或打开弹窗
-}
+// 列表相关
+const pageNum = ref(1);
+const pageSize = ref(10);
+const totalNum = ref(0);
+const rechargeList = ref<any[]>([]);
 
-const handleCustomRecharge = () => {
-  if (!customAmount.value || isNaN(Number(customAmount.value)) || Number(customAmount.value) <= 0) {
-    ElMessage.warning('请输入有效的充值金额')
-    return
+// 配置数据
+const normalAmounts = [50, 100, 200, 500];
+
+const vipPlans = [
+  {
+    amount: 1000,
+    level: '铜牌 VIP',
+    title: '升级为铜牌 VIP',
+    desc: '点我充值',
+    icon: iconBronze,
+    commission: '20%',
+    discount: '八折'
+  },
+  {
+    amount: 2000,
+    level: '银牌 VIP',
+    title: '升级为银牌 VIP',
+    desc: '点我充值',
+    icon: iconSilver,
+    commission: '28%',
+    discount: '七二折'
+  },
+  {
+    amount: 5000,
+    level: '金牌 VIP',
+    title: '升级为金牌 VIP',
+    desc: '点我充值',
+    icon: iconGold,
+    commission: '36%',
+    discount: '六四折'
   }
-  selectedPackage.value = null
-  showRechargeDialog.value = true
-}
+];
 
-const confirmRecharge = () => {
-  const amount = selectedPackage.value || Number(customAmount.value)
-  if (!amount || amount <= 0) {
-    ElMessage.warning('请选择或输入充值金额')
-    return
-  }
+// 方法
+const selectAmount = (amount: number) => {
+  selectedAmount.value = amount;
+  customAmount.value = '';
+};
+
+const handleCustomInput = () => {
+  selectedAmount.value = null;
+};
+
+const formatPaySource = (source: string) => {
+  const map: Record<string, string> = {
+    'WECHAT_PAY': '微信',
+    'ALI_PAY': '支付宝',
+    'BALANCE_PAY': '余额支付',
+    'APPLE_PAY': 'Apple Pay'
+  };
+  return map[source] || source;
+};
+
+const getStatusType = (status: string) => {
+  const typeMap: Record<string, any> = {
+    'SUCCESS': 'success',
+    'PAY_SUCCESS': 'success',
+    'CREDITING': 'warning',
+    'CREATED': 'info',
+    'PAYING': 'warning',
+    'FAILED': 'danger',
+    'REFUNDING': 'warning',
+    'REFUNDED': 'info',
+    'EXCEPTION': 'danger'
+  };
+  return typeMap[status] || 'info';
+};
+
+const handleSubmit = async () => {
+  const amount = selectedAmount.value || (customAmount.value ? parseFloat(customAmount.value) : null);
   
-  // TODO: 调用充值 API
-  ElMessage.success(`充值请求已提交，金额：¥${amount}`)
-  showRechargeDialog.value = false
-}
+  if (!amount || amount <= 0) {
+    ElMessage.warning('请输入有效的充值金额');
+    return;
+  }
+
+  loading.value = true;
+  try {
+    setTimeout(() => {
+      ElMessage.success(`发起支付：¥${amount}，方式：${formatPaySource(payMethod.value)}`);
+      loading.value = false;
+    }, 1000);
+  } catch (error) {
+    loading.value = false;
+    ElMessage.error('发起支付失败');
+  }
+};
+
+const fetchRechargeList = async () => {
+  listLoading.value = true;
+  try {
+    const res = await getRechargeList({
+      pageNum: pageNum.value,
+      pageSize: pageSize.value
+    });
+    
+    if (res.code === 200 || res.code === '200') {
+      rechargeList.value = res.data?.data || [];
+      totalNum.value = res.data?.totalNum || 0;
+    } else {
+      ElMessage.error(res.msg || '获取记录失败');
+    }
+  } catch (error) {
+    ElMessage.error('获取记录失败');
+  } finally {
+    listLoading.value = false;
+  }
+};
 
 onMounted(() => {
-  // TODO: 加载账户余额和充值记录
-})
+  fetchRechargeList();
+});
 </script>
 
 <style scoped lang="scss">
-.recharge-page {
-  .balance-card {
-    border-radius: 12px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: #fff;
+.recharge-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #303133;
+  margin: 24px 0 16px;
+  display: flex;
+  align-items: center;
+  
+  &::before {
+    content: '';
+    display: inline-block;
+    width: 4px;
+    height: 16px;
+    background-color: #409EFF;
+    margin-right: 8px;
+    border-radius: 2px;
+  }
+}
+
+.balance-card {
+  background: linear-gradient(135deg, #409EFF 0%, #66b1ff 100%);
+  color: white;
+  border: none;
+  
+  :deep(.el-card__body) {
+    padding: 24px;
+    text-align: center;
+  }
+
+  .balance-label {
+    font-size: 14px;
+    opacity: 0.9;
+    margin-bottom: 8px;
+  }
+
+  .balance-amount {
+    font-size: 32px;
+    font-weight: bold;
+    font-family: 'DIN Alternate', 'Arial', sans-serif;
+  }
+}
+
+.quick-amounts {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 16px;
+}
+
+.amount-item {
+  background: #fff;
+  border: 1px solid #e4e7ed;
+  border-radius: 8px;
+  padding: 20px 10px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s;
+  
+  &:hover {
+    border-color: #409EFF;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(64, 158, 255, 0.15);
+  }
+
+  &.active {
+    border-color: #409EFF;
+    background-color: #ecf5ff;
+    color: #409EFF;
+    font-weight: bold;
+  }
+
+  .amount-value {
+    font-size: 18px;
+    font-weight: 600;
+  }
+}
+
+.vip-item {
+  grid-column: span 1;
+  background: #fff;
+  border: 1px solid #e4e7ed;
+  border-radius: 12px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+
+  @media (min-width: 768px) {
+    grid-column: span 2;
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+  }
+
+  &.active {
+    border-color: #E6A23C;
+    background: linear-gradient(to bottom right, #fffdf5, #fff);
+    box-shadow: 0 0 0 1px #E6A23C inset;
     
-    .balance-info {
-      padding: 20px;
-      text-align: center;
-      
-      .balance-label {
-        font-size: 14px;
-        opacity: 0.9;
-        margin-bottom: 10px;
-      }
-      
-      .balance-amount {
-        font-size: 36px;
-        font-weight: bold;
-        margin-bottom: 20px;
-      }
-      
-      .recharge-btn {
-        background: rgba(255, 255, 255, 0.2);
-        border-color: rgba(255, 255, 255, 0.5);
-        color: #fff;
-        
-        &:hover {
-          background: rgba(255, 255, 255, 0.3);
-        }
-      }
+    .vip-title {
+      color: #D69020;
     }
   }
-  
-  .record-card {
-    border-radius: 12px;
-    
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-weight: 600;
-    }
-  }
-  
-  .packages-card {
-    border-radius: 12px;
-    
-    .card-header {
-      font-weight: 600;
-    }
-    
-    .package-item {
-      cursor: pointer;
-      transition: all 0.3s;
-      border: 2px solid transparent;
-      margin-bottom: 15px;
-      
-      &:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 4px 16px rgba(102, 126, 234, 0.2);
-      }
-      
-      &.active {
-        border-color: #667eea;
-        background-color: rgba(102, 126, 234, 0.05);
-      }
-      
-      .package-amount {
-        font-size: 24px;
-        font-weight: bold;
-        color: #667eea;
-        margin-bottom: 8px;
-      }
-      
-      .package-desc {
-        font-size: 13px;
-        color: #666;
-        margin-bottom: 8px;
-      }
-      
-      .package-bonus {
-        margin-top: 8px;
-      }
-    }
-  }
-  
-  .custom-amount {
+
+  .vip-header {
     display: flex;
     align-items: center;
+    margin-bottom: 12px;
   }
+
+  .vip-icon {
+    width: 48px;
+    height: 48px;
+    margin-right: 12px;
+    object-fit: contain;
+  }
+
+  .vip-info {
+    flex: 1;
+  }
+
+  .vip-title {
+    font-size: 15px;
+    font-weight: bold;
+    color: #303133;
+    margin-bottom: 4px;
+  }
+
+  .vip-desc {
+    font-size: 12px;
+    color: #909399;
+  }
+
+  .vip-benefits {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+  }
+
+  .benefit-tag {
+    font-size: 12px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background-color: #fdf6ec;
+    color: #E6A23C;
+    border: 1px solid #faecd8;
+  }
+
+  .vip-note {
+    font-size: 11px;
+    color: #C0C4CC;
+    line-height: 1.4;
+    border-top: 1px dashed #ebeef5;
+    padding-top: 8px;
+  }
+}
+
+.custom-amount-wrapper {
+  max-width: 400px;
+}
+
+.custom-amount-input {
+  :deep(.el-input__wrapper) {
+    box-shadow: 0 0 0 1px #e4e7ed inset;
+  }
+}
+
+.payment-methods {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.method-item {
+  flex: 1;
+  min-width: 200px;
+  max-width: 300px;
+  border: 1px solid #e4e7ed;
+  border-radius: 8px;
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.3s;
+  position: relative;
+
+  &:hover {
+    border-color: #409EFF;
+    background-color: #f5f7fa;
+  }
+
+  &.active {
+    border-color: #409EFF;
+    background-color: #ecf5ff;
+    
+    .check-icon {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .method-icon {
+    width: 32px;
+    height: 32px;
+    margin-right: 12px;
+    object-fit: contain;
+  }
+
+  .method-name {
+    font-size: 15px;
+    font-weight: 500;
+    color: #606266;
+  }
+
+  .check-icon {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%) scale(0);
+    color: #409EFF;
+    font-size: 24px;
+    transition: all 0.3s;
+    opacity: 0;
+  }
+}
+
+.action-footer {
+  margin-top: 32px;
+  text-align: center;
   
-  .recharge-form {
-    p {
-      margin: 10px 0;
-      
-      strong {
-        font-size: 20px;
-        color: #667eea;
-      }
+  .submit-btn {
+    width: 100%;
+    max-width: 400px;
+    height: 50px;
+    font-size: 18px;
+    font-weight: bold;
+    letter-spacing: 2px;
+  }
+}
+
+.record-table-wrapper {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #e4e7ed;
+  overflow-x: auto;
+
+  .amount-text {
+    color: #F56C6C;
+    font-weight: bold;
+  }
+
+  .pagination-wrapper {
+    margin-top: 20px;
+    display: flex;
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 768px) {
+  .recharge-container {
+    padding: 12px;
+  }
+
+  .balance-card :deep(.el-card__body) {
+    padding: 16px;
+  }
+
+  .balance-amount {
+    font-size: 24px !important;
+  }
+
+  .quick-amounts {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .vip-item {
+    grid-column: span 2 !important;
+    padding: 12px;
+    
+    .vip-icon {
+      width: 36px;
+      height: 36px;
     }
     
-    .tips {
-      margin-top: 20px !important;
-      margin-bottom: 15px !important;
-      color: #666;
+    .vip-title {
+      font-size: 14px;
+    }
+    
+    .benefit-tag {
+      font-size: 10px;
+      padding: 1px 6px;
+    }
+  }
+
+  .payment-methods {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .method-item {
+    max-width: 100%;
+    padding: 12px 16px;
+  }
+
+  .record-table-wrapper {
+    padding: 10px;
+    
+    :deep(.el-table) {
+      font-size: 12px;
+    }
+    
+    :deep(.el-table th) {
+      padding: 8px 0;
+    }
+    
+    :deep(.el-table td) {
+      padding: 8px 0;
+    }
+    
+    .pagination-wrapper {
+      justify-content: center;
+      flex-wrap: wrap;
     }
   }
 }
