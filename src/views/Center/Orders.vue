@@ -224,6 +224,11 @@ onMounted(() => {
   padding: 20px;
 }
 
+/* 确保 el-card 内容区域可以横向溢出 */
+:deep(.el-card__body) {
+  overflow-x: visible; /* 允许内容溢出卡片 body */
+}
+
 /* 表格容器：支持横向滚动 */
 .table-wrapper {
   width: 100%;
