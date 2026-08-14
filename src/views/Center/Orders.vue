@@ -241,7 +241,8 @@ onMounted(() => {
 }
 
 .table-wrapper :deep(.el-table) {
-  width: max-content; /* 关键：让表格宽度自适应内容，超出容器时触发滚动 */
+  width: 100%; /* 默认填满容器 */
+  min-width: max-content; /* 当内容超过容器时，允许撑开以触发滚动 */
 }
 
 /* 过期行样式 */
