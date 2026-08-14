@@ -142,6 +142,7 @@ const getDeadlineColor = (row: SubscriptionVO) => {
   const status = getDeadlineStatus(row.dateOffline)
   if (status === 'urgent') return '#F56C6C' // 红色
   if (status === 'warning') return '#E6A23C' // 黄色
+  if (status === 'normal') return '#67C23A' // 绿色（超过3天）
   return ''
 }
 
