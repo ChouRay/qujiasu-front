@@ -27,9 +27,8 @@
         v-loading="loading" 
         style="width: 100%"
         :row-class-name="getRowClass"
-        max-height="calc(100vh - 280px)"
       >
-        <el-table-column type="index" label="自动编号" width="80" fixed="left" />
+        <el-table-column type="index" label="自动编号" width="80" />
 
         <el-table-column prop="username" label="套餐账号" min-width="120" />
 
