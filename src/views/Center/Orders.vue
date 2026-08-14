@@ -1,6 +1,8 @@
 <template>
   <div class="order-page">
-    <el-card>
+    <el-row>
+      <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="24">
+        <el-card>
       <!-- 搜索区域 -->
       <div class="search-box" style="margin-bottom: 20px; display: flex; gap: 10px;">
         <el-input
@@ -93,7 +95,9 @@
         :total="pagination.totalNum"
         style="margin-top: 20px; text-align: right"
       />
-    </el-card>
+        </el-card>
+      </el-col>
+    </el-row>
   </div>
 </template>
 
