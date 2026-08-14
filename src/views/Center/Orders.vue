@@ -27,14 +27,15 @@
         v-loading="loading" 
         style="width: 100%"
         :row-class-name="getRowClass"
+        max-height="calc(100vh - 280px)"
       >
-        <el-table-column type="index" label="自动编号" width="80" />
+        <el-table-column type="index" label="自动编号" width="80" fixed="left" />
 
-        <el-table-column prop="username" label="套餐账号" width="150" />
+        <el-table-column prop="username" label="套餐账号" min-width="120" />
 
-        <el-table-column prop="password" label="密码" width="120" />
+        <el-table-column prop="password" label="密码" min-width="100" />
 
-        <el-table-column label="用量" width="120">
+        <el-table-column label="用量" min-width="100">
           <template #default="{ row }">
             <span :style="{ color: getUsageColor(row), fontWeight: row.usingCount > 0 ? 'bold' : 'normal' }">
               {{ formatUsage(row) }}
@@ -42,9 +43,9 @@
           </template>
         </el-table-column>
 
-        <el-table-column prop="name" label="版本" width="120" />
+        <el-table-column prop="name" label="版本" min-width="100" />
 
-        <el-table-column label="绑定项目" width="180">
+        <el-table-column label="绑定项目" min-width="120">
           <template #default="{ row }">
             <el-button
               v-if="row.config && row.config.gameInfo"
@@ -58,13 +59,13 @@
           </template>
         </el-table-column>
 
-        <el-table-column label="开户时间" width="160">
+        <el-table-column label="开户时间" min-width="140">
           <template #default="{ row }">
             {{ formatDateTime(row.gmt_create) }}
           </template>
         </el-table-column>
 
-        <el-table-column label="到期时间" width="160">
+        <el-table-column label="到期时间" min-width="140">
           <template #default="{ row }">
             <span :style="{ color: getDeadlineColor(row) }">
               {{ formatDateTime(row.dateOffline) }}
@@ -72,7 +73,7 @@
           </template>
         </el-table-column>
 
-        <el-table-column label="操作" width="150" fixed="right">
+        <el-table-column label="操作" width="160" fixed="right">
           <template #default>
             <el-button type="primary" size="small">续费</el-button>
             <el-button type="success" size="small">增减</el-button>
