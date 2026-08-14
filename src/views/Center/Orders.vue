@@ -22,63 +22,66 @@
         </el-button>
       </div>
 
-      <el-table 
-        :data="tableData" 
-        v-loading="loading" 
-        style="width: 100%"
-        :row-class-name="getRowClass"
-      >
-        <el-table-column type="index" label="自动编号" width="80" />
+      <!-- 表格容器：支持横向滚动 -->
+      <div class="table-wrapper">
+        <el-table 
+          :data="tableData" 
+          v-loading="loading" 
+          style="width: 100%"
+          :row-class-name="getRowClass"
+        >
+          <el-table-column type="index" label="自动编号" width="80" />
 
-        <el-table-column prop="username" label="套餐账号" min-width="120" />
+          <el-table-column prop="username" label="套餐账号" min-width="120" />
 
-        <el-table-column prop="password" label="密码" min-width="100" />
+          <el-table-column prop="password" label="密码" min-width="100" />
 
-        <el-table-column label="用量" min-width="100">
-          <template #default="{ row }">
-            <span :style="{ color: getUsageColor(row), fontWeight: row.usingCount > 0 ? 'bold' : 'normal' }">
-              {{ formatUsage(row) }}
-            </span>
-          </template>
-        </el-table-column>
+          <el-table-column label="用量" min-width="100">
+            <template #default="{ row }">
+              <span :style="{ color: getUsageColor(row), fontWeight: row.usingCount > 0 ? 'bold' : 'normal' }">
+                {{ formatUsage(row) }}
+              </span>
+            </template>
+          </el-table-column>
 
-        <el-table-column prop="name" label="版本" min-width="100" />
+          <el-table-column prop="name" label="版本" min-width="100" />
 
-        <el-table-column label="绑定项目" min-width="120">
-          <template #default="{ row }">
-            <el-button
-              v-if="row.config && row.config.gameInfo"
-              type="primary"
-              size="small"
-              plain
-            >
-              {{ row.config.gameInfo.name }}
-            </el-button>
-            <el-tag v-else size="small" type="info">未绑定</el-tag>
-          </template>
-        </el-table-column>
+          <el-table-column label="绑定项目" min-width="120">
+            <template #default="{ row }">
+              <el-button
+                v-if="row.config && row.config.gameInfo"
+                type="primary"
+                size="small"
+                plain
+              >
+                {{ row.config.gameInfo.name }}
+              </el-button>
+              <el-tag v-else size="small" type="info">未绑定</el-tag>
+            </template>
+          </el-table-column>
 
-        <el-table-column label="开户时间" min-width="140">
-          <template #default="{ row }">
-            {{ formatDateTime(row.gmt_create) }}
-          </template>
-        </el-table-column>
+          <el-table-column label="开户时间" min-width="140">
+            <template #default="{ row }">
+              {{ formatDateTime(row.gmt_create) }}
+            </template>
+          </el-table-column>
 
-        <el-table-column label="到期时间" min-width="140">
-          <template #default="{ row }">
-            <span :style="{ color: getDeadlineColor(row) }">
-              {{ formatDateTime(row.dateOffline) }}
-            </span>
-          </template>
-        </el-table-column>
+          <el-table-column label="到期时间" min-width="140">
+            <template #default="{ row }">
+              <span :style="{ color: getDeadlineColor(row) }">
+                {{ formatDateTime(row.dateOffline) }}
+              </span>
+            </template>
+          </el-table-column>
 
-        <el-table-column label="操作" width="160" fixed="right">
-          <template #default>
-            <el-button type="primary" size="small">续费</el-button>
-            <el-button type="success" size="small">增减</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
+          <el-table-column label="操作" width="160" fixed="right">
+            <template #default>
+              <el-button type="primary" size="small">续费</el-button>
+              <el-button type="success" size="small">增减</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
 
       <el-pagination
         @size-change="handleSizeChange"
@@ -219,6 +222,17 @@ onMounted(() => {
 <style scoped>
 .order-page {
   padding: 20px;
+}
+
+/* 表格容器：支持横向滚动 */
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch; /* 移动端平滑滚动 */
+}
+
+.table-wrapper :deep(.el-table) {
+  width: max-content; /* 关键：让表格宽度自适应内容，超出容器时触发滚动 */
 }
 
 /* 过期行样式 */
