@@ -3,7 +3,7 @@
     <!-- 账户余额卡片 -->
     <el-card class="balance-card" shadow="hover">
       <div class="balance-label">账户余额</div>
-      <div class="balance-amount">¥ {{ userStore.userBalance?.toFixed(2) || '0.00' }}</div>
+      <div class="balance-amount">¥ {{ userInfo.balance?.toFixed(2) || '0.00' }}</div>
     </el-card>
 
     <!-- 快捷充值 -->
@@ -151,7 +151,7 @@ import { ref, onMounted } from 'vue';
 import { ElMessage } from 'element-plus';
 import { CircleCheckFilled, Money } from '@element-plus/icons-vue';
 import { getRechargeList } from '@/api/user';
-import { useUserStore } from '@/store/user';
+import { userInfo } from '@/store/user';
 import { formatDateTime } from '@/utils/times';
 import { formatPayStatus } from '@/utils/apiEnums'; 
 
@@ -159,7 +159,6 @@ import iconBronze from '@/assets/images/icon-bronze-medal.png';
 import iconSilver from '@/assets/images/icon-silver-medal.png';
 import iconGold from '@/assets/images/icon-gold-medal.png';
 
-const userStore = useUserStore();
 
 // 状态定义
 const loading = ref(false);
