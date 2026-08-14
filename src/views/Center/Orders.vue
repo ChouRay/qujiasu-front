@@ -1,6 +1,27 @@
 <template>
   <div class="order-page">
     <el-card>
+      <!-- 搜索区域 -->
+      <div class="search-box" style="margin-bottom: 20px; display: flex; gap: 10px;">
+        <el-input
+          v-model="searchUsername"
+          placeholder="请输入套餐账号 username"
+          style="width: 300px;"
+          clearable
+          @keyup.enter="handleSearch"
+        >
+          <template #prefix>
+            <el-icon><Search /></el-icon>
+          </template>
+        </el-input>
+        <el-button type="primary" @click="handleSearch" :loading="loading">
+          查询
+        </el-button>
+        <el-button @click="resetSearch">
+          重置
+        </el-button>
+      </div>
+
       <el-table 
         :data="tableData" 
         v-loading="loading" 
@@ -75,13 +96,16 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { getPackagesList } from '@/api/packages'
+import { getPackagesList, getPackagesByUsername } from '@/api/packages'
 import { formatDateTime } from '@/utils/times'
 import type { PackagesResponse, SubscriptionVO } from '@/types/packages'
+import { Search } from '@element-plus/icons-vue'
 
 // 数据定义
 const tableData = ref<SubscriptionVO[]>([])
 const loading = ref(false)
+const searchUsername = ref('')
+const isSearchMode = ref(false)
 
 // 分页参数
 const pagination = ref({
@@ -99,7 +123,15 @@ const fetchData = async () => {
       pageSize: pagination.value.pageSize
     }
 
-    const res: PackagesResponse = await getPackagesList(params)
+    let res: PackagesResponse
+    if (isSearchMode.value && searchUsername.value) {
+      // 搜索模式：按用户名查询
+      res = await getPackagesByUsername(searchUsername.value, params)
+    } else {
+      // 普通模式：获取全部列表
+      res = await getPackagesList(params)
+    }
+    
     tableData.value = res.data || []
     pagination.value.totalNum = res.totalNum || 0
   } catch (error) {
@@ -107,6 +139,21 @@ const fetchData = async () => {
   } finally {
     loading.value = false
   }
+}
+
+// 搜索功能
+const handleSearch = () => {
+  isSearchMode.value = true
+  pagination.value.pageNum = 1
+  fetchData()
+}
+
+// 重置搜索
+const resetSearch = () => {
+  searchUsername.value = ''
+  isSearchMode.value = false
+  pagination.value.pageNum = 1
+  fetchData()
 }
 
 // 格式化用量显示
