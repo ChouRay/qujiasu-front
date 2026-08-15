@@ -8,8 +8,9 @@
 
     <!-- 快捷充值 -->
     <div class="section-title">快捷充值</div>
-    <div class="quick-amounts">
-      <!-- VIP 面额 (铜牌、银牌、金牌) - 放在最前面 -->
+    
+    <!-- VIP 套餐区域 -->
+    <div class="vip-plans-container">
       <div 
         v-for="vip in vipPlans" 
         :key="vip.amount"
@@ -31,8 +32,10 @@
         </div>
         <div class="vip-note">注：需实名认证，有效期 90 天，活动产品除外</div>
       </div>
+    </div>
 
-      <!-- 普通面额 - 放在后面 -->
+    <!-- 普通面额区域 -->
+    <div class="normal-amounts-container">
       <div 
         v-for="amount in normalAmounts" 
         :key="amount"
@@ -57,6 +60,12 @@
       >
         <template #append>元</template>
       </el-input>
+    </div>
+
+    <!-- 总计金额显示 -->
+    <div v-if="currentAmount > 0" class="total-amount-display">
+      <span class="total-label">您需要支付：</span>
+      <span class="total-value">¥{{ currentAmount.toFixed(2) }}</span>
     </div>
 
     <!-- 充值方式 -->
@@ -148,7 +157,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { ElMessage } from 'element-plus';
 import { CircleCheckFilled, Money } from '@element-plus/icons-vue';
 import { getRechargeList } from '@/api/user';
@@ -206,6 +215,18 @@ const vipPlans = [
     discount: '六四折'
   }
 ];
+
+// 计算当前选中金额
+const currentAmount = computed(() => {
+  if (selectedAmount.value) {
+    return selectedAmount.value;
+  }
+  if (customAmount.value) {
+    const val = parseFloat(customAmount.value);
+    return isNaN(val) ? 0 : val;
+  }
+  return 0;
+});
 
 // 方法
 const selectAmount = (amount: number) => {
@@ -337,7 +358,14 @@ onMounted(() => {
   }
 }
 
-.quick-amounts {
+.vip-plans-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.normal-amounts-container {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   gap: 16px;
@@ -372,6 +400,27 @@ onMounted(() => {
   .amount-value {
     font-size: 16px;
     font-weight: 600;
+  }
+}
+
+.total-amount-display {
+  margin: 20px 0;
+  padding: 16px;
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  border-radius: 8px;
+  text-align: center;
+  border: 1px solid #bae6fd;
+  
+  .total-label {
+    font-size: 14px;
+    color: #606266;
+    margin-right: 8px;
+  }
+  
+  .total-value {
+    font-size: 24px;
+    font-weight: bold;
+    color: #F56C6C;
   }
 }
 
