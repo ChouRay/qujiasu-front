@@ -268,9 +268,9 @@ const fetchRechargeList = async () => {
       pageNum: pageNum.value,
       pageSize: pageSize.value
     });
-    
-    if (res.code === 200 || res.code === '200') {
-      rechargeList.value = res.data?.data || [];
+    console.log('data=>',res.data)
+    if (res?.data) {
+      rechargeList.value = res?.data || [];
       totalNum.value = res.data?.totalNum || 0;
     } else {
       ElMessage.error(res.msg || '获取记录失败');
