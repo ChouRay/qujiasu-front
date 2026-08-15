@@ -9,18 +9,7 @@
     <!-- 快捷充值 -->
     <div class="section-title">快捷充值</div>
     <div class="quick-amounts">
-      <!-- 普通面额 -->
-      <div 
-        v-for="amount in normalAmounts" 
-        :key="amount"
-        class="amount-item"
-        :class="{ active: selectedAmount === amount }"
-        @click="selectAmount(amount)"
-      >
-        <span class="amount-value">¥{{ amount }}</span>
-      </div>
-
-      <!-- VIP 面额 -->
+      <!-- VIP 面额 (铜牌、银牌、金牌) - 放在最前面 -->
       <div 
         v-for="vip in vipPlans" 
         :key="vip.amount"
@@ -34,12 +23,24 @@
             <div class="vip-title">{{ vip.title }}</div>
             <div class="vip-desc">{{ vip.desc }}</div>
           </div>
+          <div class="vip-price">¥{{ vip.amount }}</div>
         </div>
         <div class="vip-benefits">
           <span class="benefit-tag">推荐佣金{{ vip.commission }}</span>
           <span class="benefit-tag">自用{{ vip.discount }}</span>
         </div>
         <div class="vip-note">注：需实名认证，有效期 90 天，活动产品除外</div>
+      </div>
+
+      <!-- 普通面额 - 放在后面 -->
+      <div 
+        v-for="amount in normalAmounts" 
+        :key="amount"
+        class="amount-item"
+        :class="{ active: selectedAmount === amount }"
+        @click="selectAmount(amount)"
+      >
+        <span class="amount-value">¥{{ amount }}</span>
       </div>
     </div>
 
@@ -346,10 +347,14 @@ onMounted(() => {
   background: #fff;
   border: 1px solid #e4e7ed;
   border-radius: 8px;
-  padding: 20px 10px;
+  padding: 12px 10px;
   text-align: center;
   cursor: pointer;
   transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60px;
   
   &:hover {
     border-color: #409EFF;
@@ -365,7 +370,7 @@ onMounted(() => {
   }
 
   .amount-value {
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 600;
   }
 }
@@ -375,7 +380,7 @@ onMounted(() => {
   background: #fff;
   border: 1px solid #e4e7ed;
   border-radius: 12px;
-  padding: 16px;
+  padding: 14px;
   cursor: pointer;
   transition: all 0.3s;
   display: flex;
@@ -410,8 +415,8 @@ onMounted(() => {
   }
 
   .vip-icon {
-    width: 48px;
-    height: 48px;
+    width: 25px;
+    height: 32px;
     margin-right: 12px;
     object-fit: contain;
   }
@@ -430,6 +435,13 @@ onMounted(() => {
   .vip-desc {
     font-size: 12px;
     color: #909399;
+  }
+
+  .vip-price {
+    font-size: 18px;
+    font-weight: bold;
+    color: #E6A23C;
+    margin-left: 8px;
   }
 
   .vip-benefits {
@@ -582,8 +594,8 @@ onMounted(() => {
     padding: 12px;
     
     .vip-icon {
-      width: 36px;
-      height: 36px;
+      width: 25px;
+      height: 32px;
     }
     
     .vip-title {
@@ -593,6 +605,10 @@ onMounted(() => {
     .benefit-tag {
       font-size: 10px;
       padding: 1px 6px;
+    }
+    
+    .vip-price {
+      font-size: 16px;
     }
   }
 
