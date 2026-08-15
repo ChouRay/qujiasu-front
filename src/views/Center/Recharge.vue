@@ -735,6 +735,7 @@ onMounted(() => {
 
   .record-table-wrapper {
     padding: 10px;
+    max-width: 420px;
     
     :deep(.el-table) {
       font-size: 12px;
