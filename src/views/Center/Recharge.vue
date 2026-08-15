@@ -633,22 +633,36 @@ onMounted(() => {
     font-size: 24px !important;
   }
 
-  .quick-amounts {
+  .section-title {
+    font-size: 14px;
+    margin: 16px 0 12px;
+  }
+
+  .vip-plans-container {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .normal-amounts-container {
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
   }
 
   .vip-item {
-    grid-column: span 2 !important;
+    grid-column: span 1 !important;
     padding: 12px;
     
     .vip-icon {
-      width: 25px;
-      height: 32px;
+      width: 20px;
+      height: 26px;
     }
     
     .vip-title {
-      font-size: 14px;
+      font-size: 13px;
+    }
+    
+    .vip-desc {
+      font-size: 11px;
     }
     
     .benefit-tag {
@@ -657,7 +671,37 @@ onMounted(() => {
     }
     
     .vip-price {
-      font-size: 16px;
+      font-size: 14px;
+    }
+    
+    .vip-note {
+      font-size: 10px;
+    }
+  }
+
+  .amount-item {
+    min-height: 50px;
+    padding: 10px 8px;
+    
+    .amount-value {
+      font-size: 14px;
+    }
+  }
+
+  .custom-amount-wrapper {
+    max-width: 100%;
+  }
+
+  .total-amount-display {
+    margin: 16px 0;
+    padding: 12px;
+    
+    .total-label {
+      font-size: 13px;
+    }
+    
+    .total-value {
+      font-size: 20px;
     }
   }
 
@@ -669,6 +713,24 @@ onMounted(() => {
   .method-item {
     max-width: 100%;
     padding: 12px 16px;
+    
+    .method-icon {
+      width: 28px;
+      height: 28px;
+    }
+    
+    .method-name {
+      font-size: 14px;
+    }
+  }
+
+  .action-footer {
+    margin-top: 24px;
+    
+    .submit-btn {
+      height: 44px;
+      font-size: 16px;
+    }
   }
 
   .record-table-wrapper {
