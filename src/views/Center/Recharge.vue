@@ -161,7 +161,7 @@ import { ref, onMounted, computed } from 'vue';
 import { ElMessage } from 'element-plus';
 import { CircleCheckFilled, Money } from '@element-plus/icons-vue';
 import { getRechargeList } from '@/api/user';
-import { userInfo } from '@/store/user';
+import { userInfo } from '@/reactive/user';
 import { formatDateTime } from '@/utils/times';
 import { formatPayStatus } from '@/utils/apiEnums'; 
 

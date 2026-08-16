@@ -5,7 +5,7 @@ const getBaseUrl = (): string => {
   if (process.env.NODE_ENV === 'production') {
     return 'https://api.qujiasu.com';
   } else {
-    return 'https://api.qujiasu.com';
+    return 'https://test.qujiasu.com';
   }
 };
 

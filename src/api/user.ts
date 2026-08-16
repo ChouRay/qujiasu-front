@@ -1,7 +1,7 @@
 import request from '@/utils/request'
 import type { UserInfo } from '@/types/user'
 import type { RechargeListResponse, RechargeListParams } from '@/types/recharge'
-import { setUserInfo } from '@/store/user'
+import { setUserInfo } from '@/reactive/user'
 
 /**
  * 获取用户个人信息

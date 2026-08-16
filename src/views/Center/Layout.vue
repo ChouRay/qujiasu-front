@@ -78,7 +78,7 @@ import { User, List, Wallet, SwitchButton ,ShoppingTrolley,HomeFilled, Fold, Exp
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getUserInfo } from '@/api/user'
 import { logout } from '@/api/auth'
-import { clearUserInfo } from '@/store/user'
+import { clearUserInfo } from '@/reactive/user'
 import type { UserInfo } from '@/types/user'
 
 // 引入等级图标
