@@ -77,25 +77,25 @@ const routes = [
           {
             path: 'manager',
             name: 'AffiliateMgr',
-            component: () => import('@/views/AffiliateMgr.vue'),
+            component: () => import('@/views/Center/AffiliateMgr.vue'),
             meta: { title: '推广管理' }
           },
           {
             path: 'commissions',
             name: 'Commissions',
-            component: () => import('@/views/Commissions.vue'),
+            component: () => import('@/views/Center/Commissions.vue'),
             meta: { title: '佣金记录' }
           },
           {
             path: 'withdrawals',
             name: 'Withdrawals',
-            component: () => import('@/views/Withdrawals.vue'),
+            component: () => import('@/views/Center/Withdrawals.vue'),
             meta: { title: '提现记录' }
           },
           {
             path: 'invited-users',
             name: 'InvitedUsers',
-            component: () => import('@/views/InvitedUsers.vue'),
+            component: () => import('@/views/Center/InvitedUsers.vue'),
             meta: { title: '推广会员' }
           }
         ]
