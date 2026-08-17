@@ -7,32 +7,33 @@
         <div class="info-card">
           <div class="info-item">
             <span class="label">我的等级：</span>
-            <span class="value">{{ user.agentLevel || '普通会员' }}</span>
+            <span class="value">{{ userInfo.agentLevel || '普通会员' }}</span>
           </div>
           <div class="info-item">
             <span class="label">返佣比率：</span>
-            <span class="value">{{ ((user.dividenratio || 0) * 100).toFixed(1) }}%</span>
+            <span class="value">{{ ((userInfo.dividenratio || 0) * 100).toFixed(1) }}%</span>
           </div>
           <div class="info-item">
             <span class="label">我的积分：</span>
-            <span class="value">{{ user.userPoint || 0 }}</span>
+            <span class="value">{{ userInfo.userPoint || 0 }}</span>
           </div>
           <div class="info-item">
             <span class="label">支付宝：</span>
-            <span v-if="user.idAli" class="value">{{ user.idAli }}</span>
+            <span v-if="userInfo.idAli" class="value">{{ userInfo.idAli }}</span>
             <el-button v-else type="primary" size="small" @click="handleBindAlipay">绑定</el-button>
           </div>
           <div class="info-item">
             <span class="label">佣金余额：</span>
-            <span class="value">¥{{ (user.agentIncome || 0).toFixed(2) }}</span>
+            <span class="value">¥{{ (userInfo.agentIncome || 0).toFixed(2) }}</span>
+            <el-button type="primary" size="small" @click="handleWithdraw">提现</el-button>
           </div>
           <div class="info-item">
             <span class="label">推广人数：</span>
-            <span class="value">{{ user.totalInviteCount || 0 }}人</span>
+            <span class="value">{{ userInfo.totalInviteCount || 0 }}人</span>
           </div>
           <div class="info-item">
             <span class="label">加入时间：</span>
-            <span class="value">{{ formatTime(user.gmtCreate) }}</span>
+            <span class="value">{{ formatTime(userInfo.gmtCreate) }}</span>
           </div>
         </div>
       </div>
@@ -81,23 +82,17 @@
 </template>
 
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { userInfo } from '@/reactive/user'
 import { formatTime } from '@/utils/times'
-
-// 模拟用户数据（实际应从 Pinia store 获取）
-const user = reactive({
-  agentLevel: '金牌代理',
-  dividenratio: 0.15,
-  userPoint: 2580,
-  idAli: '', // 设为空字符串测试绑定按钮显示
-  agentIncome: 1268.50,
-  totalInviteCount: 42,
-  gmtCreate: Date.now() - 86400000 * 30 // 30天前
-})
 
 const handleBindAlipay = () => {
   console.log('绑定支付宝')
   // TODO: 实现绑定逻辑
+}
+
+const handleWithdraw = () => {
+  console.log('申请提现')
+  // TODO: 实现提现逻辑
 }
 </script>
 
