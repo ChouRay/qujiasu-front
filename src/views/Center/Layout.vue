@@ -76,7 +76,7 @@
           <h1>{{ currentPageTitle }}</h1>
         </div>
         <div class="header-actions">
-          <el-button type="primary" @click="handleDownload" class="download-btn">
+          <el-button type="primary" plain @click="handleDownload" class="download-btn">
             <el-icon><Download /></el-icon>
             <span v-show="!isMobile">下载软件</span>
           </el-button>
