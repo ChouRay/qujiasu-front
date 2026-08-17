@@ -68,6 +68,39 @@ const routes = [
         meta: { title: '账户充值' }
       }
     ]
+  },
+  {
+    path: '/affiliate',
+    name: 'Affiliate',
+    component: () => import('@/views/AffiliateLayout.vue'),
+    redirect: '/affiliate/manager',
+    meta: { title: '推广管理' },
+    children: [
+      {
+        path: 'manager',
+        name: 'AffiliateMgr',
+        component: () => import('@/views/AffiliateMgr.vue'),
+        meta: { title: '推广管理' }
+      },
+      {
+        path: 'commissions',
+        name: 'Commissions',
+        component: () => import('@/views/Commissions.vue'),
+        meta: { title: '佣金记录' }
+      },
+      {
+        path: 'withdrawals',
+        name: 'Withdrawals',
+        component: () => import('@/views/Withdrawals.vue'),
+        meta: { title: '提现记录' }
+      },
+      {
+        path: 'invited-users',
+        name: 'InvitedUsers',
+        component: () => import('@/views/InvitedUsers.vue'),
+        meta: { title: '推广会员' }
+      }
+    ]
   }
 ]
 
