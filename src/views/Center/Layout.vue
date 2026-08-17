@@ -425,7 +425,7 @@ const userLevelData = computed(() => {
       padding-left: 50px !important;
       font-size: 14px !important;
       margin: 2px 12px !important;
-      background-color: rgba(0, 0, 0, 0.15) !important;
+      background-color: transparent !important;
       
       &:hover {
         background-color: rgba(255, 255, 255, 0.15) !important;
@@ -437,7 +437,15 @@ const userLevelData = computed(() => {
       }
     }
     
-    /* 子菜单展开时的背景色 */
+    /* 子菜单展开时的整体背景色 - 使用加深的渐变色 */
+    :deep(.el-sub-menu.is-opened > .el-menu) {
+      background: linear-gradient(180deg, #5b6fd6 0%, #6a4190 100%) !important;
+      border-radius: 8px;
+      margin: 0 12px;
+      padding: 4px 0;
+    }
+    
+    /* 子菜单父项展开时的背景色 */
     :deep(.el-sub-menu.is-opened > .el-sub-menu__title) {
       background-color: rgba(0, 0, 0, 0.2) !important;
     }
