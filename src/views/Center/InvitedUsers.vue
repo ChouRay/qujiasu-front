@@ -59,7 +59,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { getInvitedUserRecords } from '@/api/agents'
+import { getInvitedUserRecords } from '@/api/agent'
 import { formatDateTime } from '@/utils/times'
 
 const activeTab = ref<number>(0) // 0: 普通会员, 1: 代理商会员
