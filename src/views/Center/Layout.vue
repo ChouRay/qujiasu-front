@@ -425,6 +425,7 @@ const userLevelData = computed(() => {
       padding-left: 50px !important;
       font-size: 14px !important;
       margin: 2px 12px !important;
+      background-color: rgba(0, 0, 0, 0.15) !important;
       
       &:hover {
         background-color: rgba(255, 255, 255, 0.15) !important;
@@ -434,6 +435,11 @@ const userLevelData = computed(() => {
         background-color: rgba(255, 255, 255, 0.25) !important;
         color: #fff !important;
       }
+    }
+    
+    /* 子菜单展开时的背景色 */
+    :deep(.el-sub-menu.is-opened > .el-sub-menu__title) {
+      background-color: rgba(0, 0, 0, 0.2) !important;
     }
     
     /* 移动端收起状态下图标左移调整 */
