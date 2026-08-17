@@ -393,7 +393,9 @@ const userLevelData = computed(() => {
     background: transparent !important;
     border-right: none !important;
     
-    :deep(.el-menu-item) {
+    /* 一级菜单项和子菜单父项统一样式 */
+    :deep(.el-menu-item),
+    :deep(.el-sub-menu__title) {
       color: rgba(255, 255, 255, 0.9) !important;
       font-size: 15px;
       height: 50px;
@@ -413,6 +415,24 @@ const userLevelData = computed(() => {
       .el-icon {
         margin-right: 12px;
         font-size: 18px;
+      }
+    }
+    
+    /* 子菜单内部项样式 */
+    :deep(.el-sub-menu .el-menu-item) {
+      height: 45px !important;
+      line-height: 45px !important;
+      padding-left: 50px !important;
+      font-size: 14px !important;
+      margin: 2px 12px !important;
+      
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.15) !important;
+      }
+      
+      &.is-active {
+        background-color: rgba(255, 255, 255, 0.25) !important;
+        color: #fff !important;
       }
     }
     
