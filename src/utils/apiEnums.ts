@@ -60,8 +60,8 @@ export type DeviceType = typeof DEVICE_TYPE[keyof typeof DEVICE_TYPE];
 
 // 分红来源
 export const DIVIDEND_SOURCE = {
-  PACKAGE_CREATE: 'PACKAGE_CREATE',
-  PACKAGE_RENEW: 'PACKAGE_RENEW',
+  PACKAGE_CREATE: 'PACKAGE_ORDER',
+  PACKAGE_RENEW: 'PACKAGE_RENEW_ORDER',
 } as const;
 
 export type DividendSource = typeof DIVIDEND_SOURCE[keyof typeof DIVIDEND_SOURCE];
@@ -99,7 +99,7 @@ export function formatWithdrawDestination(value: WithdrawDestination): string {
 // 格式化分红来源
 export function formatDividendSource(value: DividendSource): string {
   switch (value) {
-    case DIVIDEND_SOURCE.PACKAGE_CREATE:
+    case DIVIDEND_SOURCE.PACKAGE_ORDER:
       return '购买';
     case DIVIDEND_SOURCE.PACKAGE_RENEW:
       return '续费';
