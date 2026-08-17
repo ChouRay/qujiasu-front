@@ -3,6 +3,7 @@
     <div class="content-wrapper">
       <!-- 左侧信息卡片 -->
       <div class="left-panel">
+        <h2>代理商信息</h2>
         <div class="info-card">
           <div class="info-item">
             <span class="label">我的等级：</span>
@@ -38,6 +39,7 @@
 
       <!-- 右侧内容 -->
       <div class="right-panel">
+        <div style="margin-top:44px;"></div>
         <!-- 右上：说明 -->
         <div class="instruction-card">
           <h3 class="card-title">说明</h3>
@@ -101,7 +103,8 @@ const handleBindAlipay = () => {
 
 <style scoped>
 .affiliate-mgr {
-  padding: 20px;
+  padding-left: 20px;
+  padding-right: 20px;
 }
 
 .content-wrapper {
@@ -113,7 +116,7 @@ const handleBindAlipay = () => {
 /* 左侧面板 */
 .left-panel {
   flex: 1;
-  min-width: 300px;
+  max-width: 630px;
 }
 
 .info-card {
@@ -126,9 +129,8 @@ const handleBindAlipay = () => {
 .info-item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 12px 0;
-  border-bottom: 1px solid #f0f0f0;
+  gap: 16px;
+  padding: 18px 0;
 }
 
 .info-item:last-child {
@@ -149,11 +151,11 @@ const handleBindAlipay = () => {
 
 /* 右侧面板 */
 .right-panel {
-  width: 402px; /* 固定宽度，不铺满全屏 */
+  width: 448px; /* 固定宽度，不铺满全屏 */
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  margin: 0 auto; /* 居中显示 */
+  gap: 30px;
+  margin: 0 52px; /* 居中显示 */
 }
 
 .instruction-card {
@@ -250,13 +252,13 @@ const handleBindAlipay = () => {
 .action-btn-wrapper {
   position: absolute;
   left: 50%;
-  bottom: 20%; /* 约五分之四处 */
-  transform: translateX(-50%);
+  bottom: 5%; /* 约五分之四处 */
+  transform: translateX(-24%);
   width: 80%;
 }
 
 .free-use-btn {
-  width: 100%;
+  width: 50%;
   height: 48px;
   background-color: #009f04 !important;
   color: #fff !important;
@@ -264,12 +266,6 @@ const handleBindAlipay = () => {
   font-weight: 600;
   border: none;
   border-radius: 24px;
-  transition: all 0.3s ease;
-}
-
-.free-use-btn:hover {
-  background-color: #008a03 !important;
-  transform: translateX(-50%) scale(1.05);
 }
 
 /* 响应式 */
@@ -281,6 +277,7 @@ const handleBindAlipay = () => {
   .left-panel,
   .right-panel {
     min-width: 100%;
+    margin: 0 auto !important; /* 居中显示 */
   }
 }
 </style>
