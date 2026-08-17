@@ -1,46 +1,46 @@
 ```
-# TypeScript build artifacts
-*.tsbuildinfo
-
 # Dependencies
 node_modules/
 
-# Environment variables
-.env*
+# Build artifacts
+dist/
+build/
+*.js.map
+*.d.ts
+*.mjs
+*.mjs.map
 
-# Editor files
+# Editor/IDE files
 .vscode/
 .idea/
 *.swp
 *.swo
+*.tmp
 
 # Logs
 *.log
 
-# Temp files
-*.tmp
-
-# Build outputs
-dist/
-build/
-target/
-
-# Python related (if any Python in project)
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-
-# Coverage reports
+# Coverage
 coverage/
 htmlcov/
 .coverage
 
-# Local environment specific settings
+# Environment
+.env
 .env.local
-.env.*
+*.env.*
 
-# OS generated files
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+
+# System files
 .DS_Store
 Thumbs.db
 
@@ -67,4 +67,5 @@ Thumbs.db
 *.tar.bz2
 *.tar.xz
 *.tar.zst
+
 ```

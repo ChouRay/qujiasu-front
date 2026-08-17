@@ -445,10 +445,7 @@ const userLevelData = computed(() => {
       padding: 4px 0;
     }
     
-    /* 子菜单父项展开时的背景色 */
-    :deep(.el-sub-menu.is-opened > .el-sub-menu__title) {
-      background-color: rgba(0, 0, 0, 0.2) !important;
-    }
+    /* 子菜单父项展开时的背景色 - 保持透明，不单独加深 */
     
     /* 移动端收起状态下图标左移调整 */
     :deep(.sidebar-collapsed .el-menu-item) {
