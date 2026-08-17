@@ -42,6 +42,24 @@
             <el-icon><Wallet /></el-icon>
             <span>账户充值</span>
           </el-menu-item>
+          <el-sub-menu index="/center/affiliate">
+            <template #title>
+              <el-icon><Promotion /></el-icon>
+              <span>推广管理</span>
+            </template>
+            <el-menu-item index="/center/affiliate/manager">
+              <span>推广管理</span>
+            </el-menu-item>
+            <el-menu-item index="/center/affiliate/commissions">
+              <span>佣金记录</span>
+            </el-menu-item>
+            <el-menu-item index="/center/affiliate/withdrawals">
+              <span>提现记录</span>
+            </el-menu-item>
+            <el-menu-item index="/center/affiliate/invited-users">
+              <span>推广会员</span>
+            </el-menu-item>
+          </el-sub-menu>
           <el-menu-item index="/">
             <el-icon><HomeFilled /></el-icon>
             <span>回到首页</span>
@@ -74,7 +92,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { User, List, Wallet, SwitchButton ,ShoppingTrolley,HomeFilled, Fold, Expand} from '@element-plus/icons-vue'
+import { User, List, Wallet, SwitchButton ,ShoppingTrolley,HomeFilled, Fold, Expand, Promotion} from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getUserInfo } from '@/api/user'
 import { logout } from '@/api/auth'
@@ -138,10 +156,14 @@ const activeMenu = computed(() => {
 
 const currentPageTitle = computed(() => {
   const titleMap: Record<string, string> = {
-    '/center': '我的中心',
+    '/center/index': '我的中心',
     '/center/buy': '套餐购买',
     '/center/orders': '订单管理',
-    '/center/recharge': '账户充值'
+    '/center/recharge': '账户充值',
+    '/center/affiliate/manager': '推广管理',
+    '/center/affiliate/commissions': '佣金记录',
+    '/center/affiliate/withdrawals': '提现记录',
+    '/center/affiliate/invited-users': '推广会员'
   }
   return titleMap[route.path] || '我的中心'
 })
