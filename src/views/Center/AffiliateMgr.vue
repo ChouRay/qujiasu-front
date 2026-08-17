@@ -28,6 +28,10 @@
             <el-button type="primary" size="small" @click="handleWithdraw">提现</el-button>
           </div>
           <div class="info-item">
+            <span class="label">提现中：</span>
+            <span class="value" style="color: #ff9800;">{{ onWithdraw || 0 }}</span>
+          </div>
+          <div class="info-item">
             <span class="label">推广人数：</span>
             <span class="value">{{ userInfo.totalInviteCount || 0 }}人</span>
           </div>
