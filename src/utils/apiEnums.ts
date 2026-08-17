@@ -77,12 +77,14 @@ export const DIVIDEND_STATUS = {
 export type DividendStatus = typeof DIVIDEND_STATUS[keyof typeof DIVIDEND_STATUS];
 
 // 订阅状态
-export const SUBSCRIPTION_STATUS = {
-  OK: 'OK',
-  FROZEN: 'FROZEN',
+export const WITHDRAWAL_STATUS = {
+  COMPLETED: 'COMPLETED',
+  PENDING: 'PENDING',
+  REFUSED: 'REFUSED',
+  ROLLED_BACK: 'ROLLED_BACK'
 } as const;
 
-export type SubscriptionStatus = typeof SUBSCRIPTION_STATUS[keyof typeof SUBSCRIPTION_STATUS];
+export type WithdrawalStatus = typeof WITHDRAWAL_STATUS[keyof typeof WITHDRAWAL_STATUS];
 
 // 格式化提现目标
 export function formatWithdrawDestination(value: WithdrawDestination): string {
@@ -99,7 +101,7 @@ export function formatWithdrawDestination(value: WithdrawDestination): string {
 // 格式化分红来源
 export function formatDividendSource(value: DividendSource): string {
   switch (value) {
-    case DIVIDEND_SOURCE.PACKAGE_ORDER:
+    case DIVIDEND_SOURCE.PACKAGE_CREATE:
       return '购买';
     case DIVIDEND_SOURCE.PACKAGE_RENEW:
       return '续费';
@@ -130,15 +132,19 @@ export function isUnpaidStatus(value: PayStatus): boolean {
 }
 
 // 格式化订阅状态
-export function formatSubscriptionStatus(value: SubscriptionStatus): string {
+export function formatWithdrawalStatus(value: WithdrawalStatus): string {
   switch (value) {
-    case SUBSCRIPTION_STATUS.OK:
+    case WITHDRAWAL_STATUS.COMPLETED:
       return '正常';
-    case SUBSCRIPTION_STATUS.FROZEN:
-      return '冻结';
+    case WITHDRAWAL_STATUS.REFUSED:
+      return '拒绝';
+    case WITHDRAWAL_STATUS.ROLLED_BACK:
+        return '回退'
+    case WITHDRAWAL_STATUS.PENDING:
+        return '申请中'
     default:
       return '其他';
-  }
+  }  
 }
 
 // 格式化支付状态（参数为通用字符串，因为可能来自外部动态值）
