@@ -75,10 +75,16 @@
         <div class="header-title">
           <h1>{{ currentPageTitle }}</h1>
         </div>
-        <el-button type="danger" @click="handleLogout" class="logout-btn">
-          <el-icon><SwitchButton /></el-icon>
-          <span v-show="!isMobile">退出登录</span>
-        </el-button>
+        <div class="header-actions">
+          <el-button type="primary" @click="handleDownload" class="download-btn">
+            <el-icon><Download /></el-icon>
+            <span v-show="!isMobile">下载软件</span>
+          </el-button>
+          <el-button type="danger" @click="handleLogout" class="logout-btn">
+            <el-icon><SwitchButton /></el-icon>
+            <span v-show="!isMobile">退出登录</span>
+          </el-button>
+        </div>
       </header>
 
       <!-- 页面内容 -->
@@ -92,7 +98,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { User, List, Wallet, SwitchButton ,ShoppingTrolley,HomeFilled, Fold, Expand, Promotion} from '@element-plus/icons-vue'
+import { User, List, Wallet, SwitchButton ,ShoppingTrolley,HomeFilled, Fold, Expand, Promotion, Download} from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getUserInfo } from '@/api/user'
 import { logout } from '@/api/auth'
@@ -170,6 +176,10 @@ const currentPageTitle = computed(() => {
 
 const handleMenuSelect = (index: string) => {
   router.push(index)
+}
+
+const handleDownload = () => {
+  router.push('/download')
 }
 
 const handleLogout = async () => {
@@ -489,6 +499,22 @@ const userLevelData = computed(() => {
   }
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.download-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  
+  .el-icon {
+    font-size: 18px;
+  }
+}
+
 .logout-btn {
   display: flex;
   align-items: center;
@@ -572,12 +598,17 @@ const userLevelData = computed(() => {
   
   .content-header {
     padding: 15px 20px;
+    
+    .header-actions {
+      gap: 8px;
+    }
   }
   
   .content-body {
     padding: 20px 15px;
   }
   
+  .download-btn,
   .logout-btn {
     span {
       display: none;
