@@ -524,6 +524,13 @@ const userLevelData = computed(() => {
         transform: translateX(-12px);
       }
     }
+
+    :deep(.el-sub-menu) {
+      .el-icon {
+        font-size: 18px;
+        transform: translateX(-12px);
+      }
+    }
     
     /* 收起模式下只显示图标 */
     :deep(&.el-menu--collapse) {
