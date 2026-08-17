@@ -125,9 +125,9 @@ const handleBindAlipay = () => {
 
 .info-item {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 16px 0;
+  gap: 8px;
+  padding: 12px 0;
   border-bottom: 1px solid #f0f0f0;
 }
 
@@ -138,6 +138,7 @@ const handleBindAlipay = () => {
 .info-item .label {
   color: #666;
   font-size: 14px;
+  white-space: nowrap;
 }
 
 .info-item .value {
@@ -148,11 +149,11 @@ const handleBindAlipay = () => {
 
 /* 右侧面板 */
 .right-panel {
-  flex: 1.5;
-  min-width: 300px;
+  width: 402px; /* 固定宽度，不铺满全屏 */
   display: flex;
   flex-direction: column;
   gap: 20px;
+  margin: 0 auto; /* 居中显示 */
 }
 
 .instruction-card {
@@ -212,8 +213,8 @@ const handleBindAlipay = () => {
 
 .poster-wrapper {
   position: relative;
-  width: 100%;
-  padding-top: 125%; /* 4:5 比例 */
+  width: 402px;
+  height: 408px;
   overflow: hidden;
   border-radius: 8px;
 }
