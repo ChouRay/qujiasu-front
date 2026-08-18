@@ -75,6 +75,55 @@
         </div>
       </div>
     </div>
+
+    <!-- 修改密码弹出框 -->
+    <el-dialog
+      v-model="resetDialogVisible"
+      title="修改密码"
+      width="400px"
+      :close-on-click-modal="false"
+    >
+      <el-form :model="resetForm" ref="resetFormRef" label-width="80px">
+        <el-form-item label="手机号">
+          <el-input
+            v-model="resetForm.phone"
+            placeholder="请输入手机号"
+            maxlength="11"
+          />
+        </el-form-item>
+        <el-form-item label="新密码">
+          <el-input
+            v-model="resetForm.newPassword"
+            type="password"
+            placeholder="请输入新密码"
+            show-password
+          />
+        </el-form-item>
+        <el-form-item label="验证码">
+          <div style="display: flex; gap: 10px">
+            <el-input
+              v-model="resetForm.code"
+              placeholder="输入短信验证码"
+              maxlength="6"
+              style="flex: 1"
+            />
+            <el-button
+              type="primary"
+              @click="sendCode"
+              :disabled="countdown > 0"
+            >
+              {{ countdown > 0 ? `${countdown}秒后重发` : '发送验证码' }}
+            </el-button>
+          </div>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="resetDialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="confirmReset">确认修改</el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -84,10 +133,12 @@ import { useRouter, useRoute } from "vue-router";
 import { ElMessage } from "element-plus";
 import { User, Lock } from "@element-plus/icons-vue";
 import { loginApi } from "@/api/auth";
+import TcentCaptcha from '@/components/captcha/TcentCaptcha';
 
 const router = useRouter();
 const route = useRoute();
 const formRef = ref<any>(null);
+const resetFormRef = ref<any>(null);
 
 const loginForm = reactive({
   username: "",
@@ -98,6 +149,18 @@ const rules = reactive({
   username: [{ required: true, message: "请输入用户名", trigger: "blur" }],
   password: [{ required: true, message: "请输入密码", trigger: "blur" }],
 });
+
+// 重置密码相关状态
+const resetDialogVisible = ref(false);
+const resetForm = reactive({
+  phone: '',
+  newPassword: '',
+  code: ''
+});
+const countdown = ref(0);
+let timer: any = null;
+const captchaInstance = ref<any>(null);
+const CaptchaAppId = ''; // TODO: 请替换为您的腾讯云 CaptchaAppId
 
 const submitForm = async () => {
   if (!formRef.value) return;
@@ -133,8 +196,148 @@ const gotoRegester = () => {
   router.push('/register');
 };
 
+// 忘记密码
 const fgPwd = () => {
-  console.log("忘记密码");
+  resetDialogVisible.value = true;
+};
+
+// 发送验证码
+const sendCode = () => {
+  if (!resetForm.phone || !/^1[3-9]\d{9}$/.test(resetForm.phone)) {
+    ElMessage.warning('请输入正确的手机号');
+    return;
+  }
+
+  // 调起腾讯图形验证码
+  showCaptcha();
+};
+
+// 显示腾讯验证码
+const showCaptcha = () => {
+  if (captchaInstance.value) {
+    captchaInstance.value.show();
+    return;
+  }
+
+  try {
+    captchaInstance.value = new TcentCaptcha(
+      'captcha-container',
+      CaptchaAppId,
+      captchaCallback,
+      {
+        type: 'popup',
+      }
+    );
+    captchaInstance.value.show();
+  } catch (error) {
+    console.error('captcha error', error);
+    handleCaptchaError();
+  }
+};
+
+// 验证码回调函数
+const captchaCallback = (res: any) => {
+  console.log('captcha result', res);
+  
+  if (res.ret === 0) {
+    if (res.errorCode) {
+      console.warn('验证成功但存在错误:', res.errorMessage);
+      ElMessage.warning(`验证异常：${res.errorMessage}`);
+    } else {
+      // 验证完全成功，调用发送短信验证码
+      sendSmsCode(res.ticket, res.randstr);
+    }
+  } else if (res.ret === 2) {
+    console.log('用户关闭验证码');
+  } else {
+    console.error('验证失败:', res);
+    ElMessage.error(`验证失败：${res.errorMessage || '请重试'}`);
+  }
+};
+
+// 处理验证码错误
+const handleCaptchaError = () => {
+  ElMessage.error('验证码加载失败，请稍后重试');
+};
+
+// 发送短信验证码 API 调用
+const sendSmsCode = async (ticket: string, randstr: string) => {
+  try {
+    // TODO: 调用实际的发送验证码 API
+    // await api.sendSmsCode({
+    //   phone: resetForm.phone,
+    //   ticket,
+    //   randstr
+    // });
+    
+    console.log('发送短信验证码:', {
+      phone: resetForm.phone,
+      ticket,
+      randstr
+    });
+    
+    ElMessage.success('验证码已发送');
+    // 开始倒计时
+    startCountdown();
+  } catch (error) {
+    console.error('发送验证码失败:', error);
+    ElMessage.error('发送验证码失败，请稍后重试');
+  }
+};
+
+// 开始倒计时
+const startCountdown = () => {
+  countdown.value = 60;
+  timer = setInterval(() => {
+    countdown.value--;
+    if (countdown.value <= 0) {
+      clearInterval(timer);
+      timer = null;
+    }
+  }, 1000);
+};
+
+// 确认修改密码
+const confirmReset = async () => {
+  if (!resetForm.phone || !/^1[3-9]\d{9}$/.test(resetForm.phone)) {
+    ElMessage.warning('请输入正确的手机号');
+    return;
+  }
+  
+  if (!resetForm.newPassword || resetForm.newPassword.length < 6) {
+    ElMessage.warning('新密码长度至少为 6 位');
+    return;
+  }
+  
+  if (!resetForm.code) {
+    ElMessage.warning('请输入短信验证码');
+    return;
+  }
+  
+  try {
+    // TODO: 调用实际的重置密码 API
+    // await api.resetPassword({
+    //   phone: resetForm.phone,
+    //   newPassword: resetForm.newPassword,
+    //   code: resetForm.code
+    // });
+    
+    console.log('重置密码:', {
+      phone: resetForm.phone,
+      newPassword: resetForm.newPassword,
+      code: resetForm.code
+    });
+    
+    ElMessage.success('密码修改成功');
+    resetDialogVisible.value = false;
+    // 清空表单
+    resetForm.phone = '';
+    resetForm.newPassword = '';
+    resetForm.code = '';
+  } catch (error: any) {
+    console.error('修改密码失败:', error);
+    ElMessage.error(error.message || '修改密码失败，请稍后重试');
+  }
 };
 </script>
 
