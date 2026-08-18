@@ -33,7 +33,7 @@ export interface LoadErrorCallback {
 // 全局脚本加载状态标记
 let isScriptLoaded = false;
 let isScriptLoading = false;
-const SCRIPT_URL = 'https://ssl.captcha.qq.com/TCaptcha.js';
+const SCRIPT_URL = 'https://turing.captcha.qcloud.com/TJCaptcha.js';
 
 export class TencentCaptcha {
   private elementId: string;
