@@ -81,6 +81,7 @@ import { reactive, ref,onBeforeUnmount  } from 'vue'
 import TcentCaptcha from '@/components/captcha/TcentCaptcha'
 import { getRegisterSmsCode } from '@/api/user'
 import { ElMessage } from 'element-plus'
+import { getErrorMessage } from '@/utils/errorMessage'
 
 const form = reactive({
   phone: '',
@@ -170,7 +171,7 @@ const sendSmsCode = async (ticket: string, randstr: string) => {
     if (response.status === 200) {
       ElMessage.success('发送成功')
     } else if (response.status === 400) {
-      ElMessage.error(`发送失败：${response.msg || '请重试'}`)
+      ElMessage.error(`发送失败：${getErrorMessage(response.msg, '请重试')}`)
     }
   } catch (error) {
     console.error('发送验证码失败:', error)

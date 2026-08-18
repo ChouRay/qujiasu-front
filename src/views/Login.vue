@@ -136,6 +136,7 @@ import { User, Lock } from "@element-plus/icons-vue";
 import { loginApi } from "@/api/auth";
 import TcentCaptcha from '@/components/captcha/TcentCaptcha';
 import { getUpdatePsdSmsCode } from '@/api/user';
+import { getErrorMessage } from '@/utils/errorMessage';
 
 const router = useRouter();
 const route = useRoute();
@@ -276,7 +277,7 @@ const sendSmsCode = async (ticket: string, randstr: string) => {
       // 开始倒计时
       startCountdown();
     } else if (response.status === 400) {
-      ElMessage.error(`发送失败：${response.msg || '请重试'}`);
+      ElMessage.error(`发送失败：${getErrorMessage(response.msg, '请重试')}`);
     }
   } catch (error) {
     console.error('发送验证码失败:', error);
