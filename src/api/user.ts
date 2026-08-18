@@ -31,3 +31,43 @@ export function getRechargeList(params: RechargeListParams) {
     params
   })
 }
+
+/**
+ * 获取注册短信验证码
+ * @param data - 请求参数
+ * @param data.phoneNumber - 手机号
+ * @param data.ticket - 验证码 ticket
+ * @param data.randstr - 验证码 randstr
+ * @returns Promise<any>
+ */
+export function getRegisterSmsCode(data: {
+  phoneNumber: string
+  ticket: string
+  randstr: string
+}) {
+  return request({
+    url: '/api/user/registrations/captchas',
+    method: 'POST',
+    data
+  })
+}
+
+/**
+ * 获取修改密码短信验证码
+ * @param data - 请求参数
+ * @param data.phoneNumber - 手机号
+ * @param data.ticket - 验证码 ticket
+ * @param data.randstr - 验证码 randstr
+ * @returns Promise<any>
+ */
+export function getUpdatePsdSmsCode(data: {
+  phoneNumber: string
+  ticket: string
+  randstr: string
+}) {
+  return request({
+    url: '/api/user/password-resets/captchas',
+    method: 'POST',
+    data
+  })
+}
