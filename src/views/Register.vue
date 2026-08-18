@@ -44,6 +44,7 @@
                   placeholder="输入手机验证码" 
                   required
                 />
+                <div id="captcha-register-container" style="display:none"></div>
                 <button type="button" class="send-code-btn" @click="sendCode">
                   发送验证码
                 </button>
@@ -76,7 +77,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import { reactive, ref,onBeforeUnmount  } from 'vue'
 import TcentCaptcha from '@/components/captcha/TcentCaptcha'
 
 const form = reactive({
@@ -89,7 +90,7 @@ const form = reactive({
 })
 
 const captchaInstance = ref<any>(null)
-const CaptchaAppId = '' // TODO: 请替换为您的腾讯云 CaptchaAppId
+const CaptchaAppId = '191280376' // 请替换为您的腾讯云 CaptchaAppId
 
 // 发送验证码按钮点击处理
 const sendCode = () => {
@@ -111,7 +112,7 @@ const showCaptcha = () => {
 
   try {
     captchaInstance.value = new TcentCaptcha(
-      'captcha-container', // elementId - 由调用者传入
+      'captcha-register-container', // elementId - 由调用者传入
       CaptchaAppId,
       captchaCallback,
       {
@@ -135,7 +136,7 @@ const captchaCallback = (res: any) => {
     if (res.errorCode) {
       // 虽然有票据但是有错误码（容灾票据）
       console.warn('验证成功但存在错误:', res.errorMessage)
-      alert(`验证异常：${res.errorMessage}`)
+      alert(`验证异常：${res.errorCode}-${res.errorMessage}`)
     } else {
       // 验证完全成功，调用发送短信验证码
       sendSmsCode(res.ticket, res.randstr)
@@ -200,6 +201,14 @@ const handleRegister = () => {
   console.log('注册信息:', form)
   alert('注册成功')
 }
+
+onBeforeUnmount(() => {
+  console.log('组件即将卸载');
+  if (captchaInstance.value ) {
+    captchaInstance.value.destroy();
+  }
+});
+
 </script>
 
 <style scoped>
