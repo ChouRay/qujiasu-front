@@ -76,7 +76,8 @@
 </template>
 
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
+import TcentCaptcha from '@/components/captcha/TcentCaptcha'
 
 const form = reactive({
   phone: '',
@@ -87,13 +88,95 @@ const form = reactive({
   agree: false
 })
 
+const captchaInstance = ref<any>(null)
+const CaptchaAppId = '' // TODO: 请替换为您的腾讯云 CaptchaAppId
+
+// 发送验证码按钮点击处理
 const sendCode = () => {
   if (!form.phone || !/^1[3-9]\d{9}$/.test(form.phone)) {
     alert('请输入正确的手机号')
     return
   }
-  // TODO: 实现发送验证码逻辑
-  alert('验证码已发送')
+
+  // 调起腾讯图形验证码
+  showCaptcha()
+}
+
+// 显示腾讯验证码
+const showCaptcha = () => {
+  if (captchaInstance.value) {
+    captchaInstance.value.show()
+    return
+  }
+
+  try {
+    captchaInstance.value = new TcentCaptcha(
+      'captcha-container', // elementId - 由调用者传入
+      CaptchaAppId,
+      captchaCallback,
+      {
+        type: 'popup',
+      }
+    )
+    captchaInstance.value.show()
+  } catch (error) {
+    console.error('captcha error', error)
+    // 处理初始化失败的情况
+    handleCaptchaError()
+  }
+}
+
+// 验证码回调函数
+const captchaCallback = (res: any) => {
+  console.log('captcha result', res)
+  
+  if (res.ret === 0) {
+    // 验证成功
+    if (res.errorCode) {
+      // 虽然有票据但是有错误码（容灾票据）
+      console.warn('验证成功但存在错误:', res.errorMessage)
+      alert(`验证异常：${res.errorMessage}`)
+    } else {
+      // 验证完全成功，调用发送短信验证码
+      sendSmsCode(res.ticket, res.randstr)
+    }
+  } else if (res.ret === 2) {
+    // 用户主动关闭验证码
+    console.log('用户关闭验证码')
+  } else {
+    // 验证失败
+    console.error('验证失败:', res)
+    alert(`验证失败：${res.errorMessage || '请重试'}`)
+  }
+}
+
+// 处理验证码错误
+const handleCaptchaError = () => {
+  alert('验证码加载失败，请稍后重试')
+}
+
+// 发送短信验证码 API 调用
+const sendSmsCode = async (ticket: string, randstr: string) => {
+  try {
+    // TODO: 调用实际的 sendSmsCode API
+    // await api.sendSmsCode({
+    //   phone: form.phone,
+    //   ticket,
+    //   randstr
+    // })
+    
+    console.log('发送短信验证码:', {
+      phone: form.phone,
+      ticket,
+      randstr
+    })
+    
+    alert('验证码已发送')
+    // TODO: 添加倒计时逻辑
+  } catch (error) {
+    console.error('发送验证码失败:', error)
+    alert('发送验证码失败，请稍后重试')
+  }
 }
 
 const handleRegister = () => {
