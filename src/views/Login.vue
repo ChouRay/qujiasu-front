@@ -107,6 +107,7 @@
               maxlength="6"
               style="flex: 1"
             />
+            <div id="captcha-container" style="display:none"></div>
             <el-button
               type="primary"
               @click="sendCode"
