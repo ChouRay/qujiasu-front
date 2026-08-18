@@ -101,6 +101,18 @@ const routes = [
         ]
       }
     ]
+  },
+  {
+    path: '/privacy',
+    name: 'Privacy',
+    component: () => import('@/views/policy/Privacy.vue'),
+    meta: { title: '隐私权政策' }
+  },
+  {
+    path: '/agreement',
+    name: 'Agreement',
+    component: () => import('@/views/policy/Agreement.vue'),
+    meta: { title: '服务协议' }
   }
 ]
 
