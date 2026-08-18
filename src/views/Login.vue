@@ -134,6 +134,7 @@ import { ElMessage } from "element-plus";
 import { User, Lock } from "@element-plus/icons-vue";
 import { loginApi } from "@/api/auth";
 import TcentCaptcha from '@/components/captcha/TcentCaptcha';
+import { getUpdatePsdSmsCode } from '@/api/user';
 
 const router = useRouter();
 const route = useRoute();
@@ -263,22 +264,19 @@ const handleCaptchaError = () => {
 // 发送短信验证码 API 调用
 const sendSmsCode = async (ticket: string, randstr: string) => {
   try {
-    // TODO: 调用实际的发送验证码 API
-    // await api.sendSmsCode({
-    //   phone: resetForm.phone,
-    //   ticket,
-    //   randstr
-    // });
-    
-    console.log('发送短信验证码:', {
-      phone: resetForm.phone,
+    const response = await getUpdatePsdSmsCode({
+      phoneNumber: resetForm.phone,
       ticket,
       randstr
     });
-    
-    ElMessage.success('验证码已发送');
-    // 开始倒计时
-    startCountdown();
+
+    if (response.status === 200) {
+      ElMessage.success('发送成功');
+      // 开始倒计时
+      startCountdown();
+    } else if (response.status === 400) {
+      ElMessage.error(`发送失败：${response.msg || '请重试'}`);
+    }
   } catch (error) {
     console.error('发送验证码失败:', error);
     ElMessage.error('发送验证码失败，请稍后重试');

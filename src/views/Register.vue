@@ -79,6 +79,8 @@
 <script setup lang="ts">
 import { reactive, ref,onBeforeUnmount  } from 'vue'
 import TcentCaptcha from '@/components/captcha/TcentCaptcha'
+import { getRegisterSmsCode } from '@/api/user'
+import { ElMessage } from 'element-plus'
 
 const form = reactive({
   phone: '',
@@ -159,24 +161,20 @@ const handleCaptchaError = () => {
 // 发送短信验证码 API 调用
 const sendSmsCode = async (ticket: string, randstr: string) => {
   try {
-    // TODO: 调用实际的 sendSmsCode API
-    // await api.sendSmsCode({
-    //   phone: form.phone,
-    //   ticket,
-    //   randstr
-    // })
-    
-    console.log('发送短信验证码:', {
-      phone: form.phone,
+    const response = await getRegisterSmsCode({
+      phoneNumber: form.phone,
       ticket,
       randstr
     })
-    
-    alert('验证码已发送')
-    // TODO: 添加倒计时逻辑
+
+    if (response.status === 200) {
+      ElMessage.success('发送成功')
+    } else if (response.status === 400) {
+      ElMessage.error(`发送失败：${response.msg || '请重试'}`)
+    }
   } catch (error) {
     console.error('发送验证码失败:', error)
-    alert('发送验证码失败，请稍后重试')
+    ElMessage.error('发送验证码失败，请稍后重试')
   }
 }
 
