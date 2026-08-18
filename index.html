@@ -1,13 +1,41 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>趣加速 - 专业网络加速服务</title>
-  </head>
-  <body>
-    <div id="app"></div>
-    <script type="module" src="/src/main.ts"></script>
-  </body>
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- 允许全屏 -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <!-- 顶端状态条样式 -->
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <!-- 忽略将数字变为电话号码 -->
+  <meta content="telephone=no" name="format-detection">
+  <!-- uc强制全屏 -->
+  <meta name="full-screen" content="yes">
+  <!-- qq强制全屏 -->
+  <meta name="x5-fullscreen" content="true">
+  <!-- uc应用模式 -->
+  <meta name="browsermode" content="application">
+  <!-- qq应用模式 -->
+  <meta name="x5-page-mode" content="app">
+  <!-- windows phone 点击无高光 -->
+  <meta name="msapplication-tap-highlight" content="no">
+  <meta name="browsermode" content="application">
+  <meta name="renderer" content="webkit" />
+  <meta name="force-rendering" content="webkit" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>趣加速 - 专业网络加速服务</title>
+</head>
+
+<body>
+  <div id="app"></div>
+  <script type="module" src="/src/main.ts"></script>
+    <!-- 动态引入腾讯验证码JS示例 -->
+  <script src="https://turing.captcha.qcloud.com/TJCaptcha.js"></script>
+</body>
+
 </html>

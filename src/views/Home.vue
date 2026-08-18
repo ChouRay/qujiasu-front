@@ -101,7 +101,7 @@ const goToDownload = () => {
 }
 
 const goToPurchase = () => {
-  router.push('/buy')
+  router.push('/package')
 }
 </script>
 
