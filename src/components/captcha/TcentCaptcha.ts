@@ -30,11 +30,6 @@ export interface LoadErrorCallback {
   (): void;
 }
 
-// 全局脚本加载状态标记
-let isScriptLoaded = false;
-let isScriptLoading = false;
-const SCRIPT_URL = 'https://turing.captcha.qcloud.com/TJCaptcha.js';
-
 export class TencentCaptcha {
   private elementId: string;
   private appId: string;
@@ -62,56 +57,6 @@ export class TencentCaptcha {
   }
 
   /**
-   * 加载腾讯验证码 SDK 脚本
-   * @returns Promise<void>
-   */
-  private loadScript(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      // 如果已经加载过，直接返回成功
-      if (isScriptLoaded) {
-        resolve();
-        return;
-      }
-
-      // 如果正在加载中，等待加载完成
-      if (isScriptLoading) {
-        const checkInterval = setInterval(() => {
-          if (isScriptLoaded) {
-            clearInterval(checkInterval);
-            resolve();
-          }
-        }, 100);
-        setTimeout(() => {
-          clearInterval(checkInterval);
-          if (!isScriptLoaded) {
-            reject(new Error('TJCaptcha.js 加载超时'));
-          }
-        }, 10000); // 10 秒超时
-        return;
-      }
-
-      isScriptLoading = true;
-
-      const script = document.createElement('script');
-      script.src = SCRIPT_URL;
-      script.type = 'text/javascript';
-
-      script.onload = () => {
-        isScriptLoaded = true;
-        isScriptLoading = false;
-        resolve();
-      };
-
-      script.onerror = () => {
-        isScriptLoading = false;
-        reject(new Error('TJCaptcha.js 加载错误'));
-      };
-
-      document.head.appendChild(script);
-    });
-  }
-
-  /**
    * 生成容灾票据
    * @param errorCode - 错误码
    * @returns 容灾票据对象
@@ -131,51 +76,39 @@ export class TencentCaptcha {
    * 显示验证码
    */
   public show(): void {
-    this.loadScript()
-      .then(() => {
-        try {
-          // 检查是否存在容器元素（如果是 bind 模式）
-          const element = document.getElementById(this.elementId);
-          
-          // 初始化验证码实例
-          // @ts-ignore - TencentCaptcha 是全局变量，由 SDK 注入
-          if (typeof TencentCaptcha !== 'undefined') {
-            // @ts-ignore
-            this.captchaInstance = new TencentCaptcha(
-              this.appId,
-              (res: TencentCaptchaResult) => {
-                // 处理回调结果
-                this.handleCallback(res);
-              },
-              this.options
-            );
-            
-            // 调用 show 方法显示验证码
-            this.captchaInstance.show();
-          } else {
-            throw new Error('TencentCaptcha 未定义');
-          }
-        } catch (error) {
-          console.error('初始化验证码失败:', error);
-          // 根据错误类型生成容灾票据
-          let errorCode = 1005; // 默认中间 JS 运行错误
-          if (error instanceof Error) {
-            if (error.message.includes('加载错误')) {
-              errorCode = 1001;
-            } else if (error.message.includes('超时')) {
-              errorCode = 1002;
-            }
-          }
-          this.callback(this.generateDisasterTicket(errorCode));
+    try {
+      // 检查是否存在容器元素（如果是 bind 模式）
+      const element = document.getElementById(this.elementId);
+      
+      // 初始化验证码实例
+      // @ts-ignore - TencentCaptcha 是全局变量，由 SDK 注入
+      if (typeof TencentCaptcha !== 'undefined') {
+        // @ts-ignore
+        this.captchaInstance = new TencentCaptcha(
+          this.appId,
+          (res: TencentCaptchaResult) => {
+            // 处理回调结果
+            this.handleCallback(res);
+          },
+          this.options
+        );
+        
+        // 调用 show 方法显示验证码
+        this.captchaInstance.show();
+      } else {
+        throw new Error('TencentCaptcha 未定义');
+      }
+    } catch (error) {
+      console.error('初始化验证码失败:', error);
+      // 根据错误类型生成容灾票据
+      let errorCode = 1005; // 默认中间 JS 运行错误
+      if (error instanceof Error) {
+        if (error.message.includes('未定义')) {
+          errorCode = 1001;
         }
-      })
-      .catch((error) => {
-        console.error('加载验证码 SDK 失败:', error);
-        // 脚本加载错误，生成容灾票据
-        const disasterResult = this.generateDisasterTicket(1001);
-        disasterResult.errorMessage = error.message || 'TJCaptcha.js 加载错误';
-        this.callback(disasterResult);
-      });
+      }
+      this.callback(this.generateDisasterTicket(errorCode));
+    }
   }
 
   /**
