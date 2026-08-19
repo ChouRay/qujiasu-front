@@ -120,44 +120,101 @@
     <!-- 购买详情弹窗 -->
     <el-dialog 
       v-model="showPaymentDialog" 
-      title="确认订单"
+      title="套餐购买"
       width="90%"
-      :max-width="'500px'"
+      :max-width="'600px'"
       destroy-on-close
+      @opened="handleDialogOpen"
     >
       <div v-if="selectedProduct" class="dialog-content">
-        <div class="product-summary">
-          <h3>{{ selectedProduct.name }}</h3>
-          <p class="product-duration">{{ selectedProduct.duration }}天</p>
-          
-          <div class="price-info">
-            <div class="current-price-row">
-              <span class="label">应付金额：</span>
-              <span class="current-price" :style="{ color: currentCatalog?.uiConfig?.primaryColor }">
-                ¥{{ selectedProduct.price?.toFixed(2) }}
-              </span>
+        <el-form :model="formData" label-width="100px" size="default">
+          <!-- 1. 账号 -->
+          <el-form-item label="账号">
+            <div style="display: flex; gap: 10px;">
+              <el-input v-model="formData.username" placeholder="请输入账号" />
+              <el-button @click="generateRandomUsername">随机生成</el-button>
             </div>
-            <div v-if="selectedProduct.fullPrice" class="original-price-row">
-              <span class="label">原价：</span>
-              <span class="original-price">¥{{ selectedProduct.fullPrice.toFixed(2) }}</span>
+          </el-form-item>
+
+          <!-- 2. 密码 -->
+          <el-form-item label="密码">
+            <el-input v-model="formData.password" type="password" placeholder="请输入密码" show-password />
+          </el-form-item>
+
+          <!-- 3. 连接数 -->
+          <el-form-item label="连接数">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <el-input-number v-model="formData.usageCount" :min="1" :max="100" />
+              <el-popover placement="right" :width="200" trigger="hover" content="多开需要多买连接数">
+                <template #reference>
+                  <el-icon style="cursor: pointer; color: #909399;"><Question-Filled /></el-icon>
+                </template>
+              </el-popover>
             </div>
-          </div>
-          
-          <p v-if="selectedProduct.btips" class="tips" :style="{ color: currentCatalog?.uiConfig?.secondaryColor }">
-            {{ selectedProduct.btips }}
-          </p>
-        </div>
+          </el-form-item>
+
+          <!-- 4. 绑定项目 -->
+          <el-form-item label="绑定项目">
+            <el-select
+              v-model="formData.gameId"
+              filterable
+              placeholder="--输入首字母查询---"
+              style="width: 100%;"
+            >
+              <el-option
+                v-for="game in gameList"
+                :key="game.id"
+                :label="game.name"
+                :value="game.id"
+              />
+            </el-select>
+          </el-form-item>
+
+          <!-- 5. 绑定地区 -->
+          <el-form-item label="绑定地区">
+            <el-select
+              v-model="formData.locationIds"
+              multiple
+              placeholder="请选择地区"
+              style="width: 100%;"
+              :value-format="Number"
+            >
+              <el-option-group
+                v-for="province in locationOptions"
+                :key="province.id"
+                :label="province.pname"
+              >
+                <el-option
+                  v-for="city in province.cityList"
+                  :key="city.id"
+                  :label="city.cname"
+                  :value="city.id"
+                />
+              </el-option-group>
+            </el-select>
+            <div v-if="formData.locationIds.length > 0" class="selected-locations">
+              已选择：{{ getLocationDisplay() }}
+            </div>
+          </el-form-item>
+
+          <!-- 6. 账单合计 -->
+          <el-form-item label="账单合计">
+            <span class="total-price" :style="{ color: currentCatalog?.uiConfig?.primaryColor }">
+              ¥{{ selectedProduct.price?.toFixed(2) }}
+            </span>
+          </el-form-item>
+        </el-form>
       </div>
       
       <template #footer>
         <div class="dialog-footer">
           <button @click="showPaymentDialog = false" class="cancel-btn">取消</button>
           <button 
-            @click="handleConfirmPayment" 
+            @click="handleConfirmOrder" 
             class="confirm-btn"
             :style="{ backgroundColor: currentCatalog?.uiConfig?.primaryColor }"
           >
-            确认支付
+            确认
           </button>
         </div>
       </template>
@@ -169,7 +226,9 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { getProductMetadata, getProductsByMetadataId } from '@/api/product'
-import type { ProductMetadataItem, ProductItem } from '@/types/product'
+import { requestGames } from '@/api/packages'
+import type { ProductMetadataItem, ProductItem, GameDTO } from '@/types/product'
+import type { Province, City } from '@/types/region'
 
 const router = useRouter()
 const route = useRoute()
@@ -183,6 +242,20 @@ const selectedCatalogId = ref<number | null>(null)
 const currentProducts = ref<ProductItem[]>([])
 const selectedProduct = ref<ProductItem | null>(null)
 const showPaymentDialog = ref(false)
+
+// 游戏列表和地区数据
+const gameList = ref<GameDTO[]>([])
+const locationOptions = ref<Province[]>([])
+const allCitiesMap = ref<Map<number, City>>(new Map())
+
+// 表单数据
+const formData = ref({
+  username: '',
+  password: '',
+  usageCount: 1,
+  gameId: undefined as number | undefined,
+  locationIds: [] as number[]
+})
 
 // 当前选中的分类
 const currentCatalog = computed(() => {
@@ -263,19 +336,52 @@ const handleBuy = (product: ProductItem) => {
   showPaymentDialog.value = true
 }
 
-// 确认支付
-const handleConfirmPayment = () => {
+// 弹窗打开时加载游戏列表
+const handleDialogOpen = async () => {
+  if (gameList.value.length === 0) {
+    try {
+      const response = await requestGames()
+      if (response.data && Array.isArray(response.data)) {
+        gameList.value = response.data.sort((a, b) => 
+          (a.name || '').localeCompare(b.name || '', 'zh-CN')
+        )
+      }
+    } catch (err) {
+      console.error('获取游戏列表失败:', err)
+    }
+  }
+}
+
+// 随机生成账号（预留实现）
+const generateRandomUsername = () => {
+  // TODO: 实现随机账号生成逻辑
+  console.log('生成随机账号')
+}
+
+// 获取地区显示文本
+const getLocationDisplay = () => {
+  const selectedIds = formData.value.locationIds
+  if (selectedIds.length === 0) return ''
+  
+  const firstCity = allCitiesMap.value.get(selectedIds[0])
+  if (selectedIds.length === 1) {
+    return firstCity?.cname || ''
+  }
+  return `${firstCity?.cname || ''}+${selectedIds.length - 1}个`
+}
+
+// 确认订单
+const handleConfirmOrder = () => {
   if (!selectedProduct.value) return
   
-  // TODO: 调用支付接口
-  console.log('发起支付', {
+  // TODO: 调用创建订单接口
+  console.log('确认订单', {
     productId: selectedProduct.value.id,
     metadataId: selectedProduct.value.metadataId,
-    price: selectedProduct.value.price
+    ...formData.value
   })
   
-  alert(`正在发起支付：${selectedProduct.value.name}`)
-  showPaymentDialog.value = false
+  alert('订单确认功能待实现')
 }
 
 // 生命周期
@@ -670,3 +776,14 @@ onMounted(() => {
   }
 }
 </style>
+
+.selected-locations {
+  font-size: 12px;
+  color: #909399;
+  margin-top: 5px;
+}
+
+.total-price {
+  font-size: 20px;
+  font-weight: bold;
+}
