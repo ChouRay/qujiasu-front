@@ -2,6 +2,7 @@ import request from '@/utils/request'
 import type { UserInfo } from '@/types/user'
 import type { RechargeListResponse, RechargeListParams } from '@/types/recharge'
 import { setUserInfo } from '@/reactive/user'
+import { getErrorMessage } from '@/utils/errorMessage'
 
 /**
  * 获取用户个人信息
@@ -70,4 +71,76 @@ export function getUpdatePsdSmsCode(data: {
     method: 'POST',
     data
   })
+}
+
+/**
+ * 用户注册接口
+ * @param data - 注册信息
+ * @param data.phoneNumber - 手机号
+ * @param data.password - 密码
+ * @param data.smsCode - 短信验证码
+ * @param data.inviteCode - 邀请码
+ * @param callback - 回调函数，成功时 callback(200)，业务错误时 callback(400, errorMsg)
+ * @returns Promise<void>
+ */
+export function requestRegister(
+  data: {
+    phoneNumber: string
+    password: string
+    smsCode: string
+    inviteCode: string
+  },
+  callback: (status: number, errorMsg?: string) => void
+) {
+  return request({
+    url: '/api/user/registrations',
+    method: 'POST',
+    data
+  })
+    .then((res: any) => {
+      if (res.status === 200) {
+        callback(200)
+      } else if (res.status === 400) {
+        callback(400, getErrorMessage(res.msg, '注册失败'))
+      }
+    })
+    .catch((error: any) => {
+      console.error('注册失败:', error)
+      callback(400, '注册失败，请稍后重试')
+    })
+}
+
+/**
+ * 重置密码接口
+ * @param data - 重置密码信息
+ * @param data.phoneNumber - 手机号
+ * @param data.password - 新密码
+ * @param data.smsCode - 短信验证码
+ * @param callback - 回调函数，成功时 callback(200)，业务错误时 callback(400, errorMsg)
+ * @returns Promise<void>
+ */
+export function requestResetPassword(
+  data: {
+    phoneNumber: string
+    password: string
+    smsCode: string
+  },
+  callback: (status: number, errorMsg?: string) => void
+) {
+  return request({
+    url: '/api/user/password-resets',
+    method: 'PUT',
+    data
+  })
+    .then((res: any) => {
+      if (res.status === 200) {
+        callback(200)
+      } else if (res.status === 400) {
+        callback(400, getErrorMessage(res.msg, '重置密码失败'))
+      }
+    })
+    .catch((error: any) => {
+      console.error('重置密码失败:', error)
+      callback(400, '重置密码失败，请稍后重试')
+    })
 }

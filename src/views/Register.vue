@@ -78,10 +78,13 @@
 
 <script setup lang="ts">
 import { reactive, ref,onBeforeUnmount  } from 'vue'
+import { useRouter } from 'vue-router'
 import TcentCaptcha from '@/components/captcha/TcentCaptcha'
-import { getRegisterSmsCode } from '@/api/user'
+import { getRegisterSmsCode, requestRegister } from '@/api/user'
 import { ElMessage } from 'element-plus'
 import { getErrorMessage } from '@/utils/errorMessage'
+
+const router = useRouter()
 
 const form = reactive({
   phone: '',
@@ -171,7 +174,8 @@ const sendSmsCode = async (ticket: string, randstr: string) => {
     if (response.status === 200) {
       ElMessage.success('发送成功')
     } else if (response.status === 400) {
-      ElMessage.error(`发送失败：${getErrorMessage(response.msg, '请重试')}`)
+      const errorMsg = (response as any).data?.msg || (response as any).msg || '请重试'
+      ElMessage.error(`发送失败：${getErrorMessage(errorMsg, '请重试')}`)
     }
   } catch (error) {
     console.error('发送验证码失败:', error)
@@ -181,24 +185,39 @@ const sendSmsCode = async (ticket: string, randstr: string) => {
 
 const handleRegister = () => {
   if (form.password !== form.confirmPassword) {
-    alert('两次输入的密码不一致')
+    ElMessage.error('两次输入的密码不一致')
     return
   }
   if (form.password.length < 6 || form.password.length > 20) {
-    alert('密码长度应为6-20位')
+    ElMessage.error('密码长度应为 6-20 位')
     return
   }
   if (!/^[a-zA-Z0-9]+$/.test(form.password)) {
-    alert('密码应为字母和数字组合')
+    ElMessage.error('密码应为字母和数字组合')
     return
   }
   if (!form.agree) {
-    alert('请勾选同意协议')
+    ElMessage.error('请勾选同意协议')
     return
   }
-  // TODO: 实现注册逻辑
-  console.log('注册信息:', form)
-  alert('注册成功')
+  
+  // 调用注册接口
+  requestRegister(
+    {
+      phoneNumber: form.phone,
+      password: form.password,
+      smsCode: form.code,
+      inviteCode: form.inviteCode
+    },
+    (status, errorMsg) => {
+      if (status === 200) {
+        ElMessage.success('注册成功')
+        router.push('/login')
+      } else if (status === 400) {
+        ElMessage.error(errorMsg || '注册失败')
+      }
+    }
+  )
 }
 
 onBeforeUnmount(() => {

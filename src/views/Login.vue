@@ -129,13 +129,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from "vue";
+import { ref, reactive } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { ElMessage } from "element-plus";
 import { User, Lock } from "@element-plus/icons-vue";
 import { loginApi } from "@/api/auth";
 import TcentCaptcha from '@/components/captcha/TcentCaptcha';
-import { getUpdatePsdSmsCode } from '@/api/user';
+import { getUpdatePsdSmsCode, requestResetPassword } from '@/api/user';
 import { getErrorMessage } from '@/utils/errorMessage';
 
 const router = useRouter();
@@ -172,7 +172,7 @@ const submitForm = async () => {
     if (!valid) return;
 
     try {
-      const response = await loginApi({
+      await loginApi({
         username: loginForm.username,
         password: loginForm.password,
       });
@@ -277,7 +277,8 @@ const sendSmsCode = async (ticket: string, randstr: string) => {
       // 开始倒计时
       startCountdown();
     } else if (response.status === 400) {
-      ElMessage.error(`发送失败：${getErrorMessage(response.msg, '请重试')}`);
+      const errorMsg = (response as any).data?.msg || (response as any).msg || '请重试'
+      ElMessage.error(`发送失败：${getErrorMessage(errorMsg, '请重试')}`);
     }
   } catch (error) {
     console.error('发送验证码失败:', error);
@@ -298,7 +299,7 @@ const startCountdown = () => {
 };
 
 // 确认修改密码
-const confirmReset = async () => {
+const confirmReset = () => {
   if (!resetForm.phone || !/^1[3-9]\d{9}$/.test(resetForm.phone)) {
     ElMessage.warning('请输入正确的手机号');
     return;
@@ -314,30 +315,26 @@ const confirmReset = async () => {
     return;
   }
   
-  try {
-    // TODO: 调用实际的重置密码 API
-    // await api.resetPassword({
-    //   phone: resetForm.phone,
-    //   newPassword: resetForm.newPassword,
-    //   code: resetForm.code
-    // });
-    
-    console.log('重置密码:', {
-      phone: resetForm.phone,
-      newPassword: resetForm.newPassword,
-      code: resetForm.code
-    });
-    
-    ElMessage.success('密码修改成功');
-    resetDialogVisible.value = false;
-    // 清空表单
-    resetForm.phone = '';
-    resetForm.newPassword = '';
-    resetForm.code = '';
-  } catch (error: any) {
-    console.error('修改密码失败:', error);
-    ElMessage.error(error.message || '修改密码失败，请稍后重试');
-  }
+  // 调用重置密码接口
+  requestResetPassword(
+    {
+      phoneNumber: resetForm.phone,
+      password: resetForm.newPassword,
+      smsCode: resetForm.code
+    },
+    (status, errorMsg) => {
+      if (status === 200) {
+        ElMessage.success('密码修改成功');
+        resetDialogVisible.value = false;
+        // 清空表单
+        resetForm.phone = '';
+        resetForm.newPassword = '';
+        resetForm.code = '';
+      } else if (status === 400) {
+        ElMessage.error(errorMsg || '修改密码失败');
+      }
+    }
+  );
 };
 </script>
 
