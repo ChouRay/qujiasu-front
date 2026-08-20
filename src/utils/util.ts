@@ -1,7 +1,7 @@
 /**
  * 综合判断（推荐使用）
  */
-export function isMobile(ua): boolean {
+export function isMobile(ua: string): boolean {
   // User Agent 判断
   const isMobileUA = /Android|iPhone|webOS|BlackBerry|IEMobile|Opera Mini|Mobile/i.test(ua);
   

@@ -81,15 +81,15 @@ const fetchData = async () => {
   try {
     const params = {
       isAgent: activeTab.value,
-      page: currentPage.value,
-      size: pageSize.value
+      pageNum: currentPage.value,
+      pageSize: pageSize.value
     }
     const res = await getInvitedUserRecords(params)
-    tableData.value = res.data.records.map((item: any, index: number) => ({
+    tableData.value = res.data.map((item: any, index: number) => ({
       ...item,
       index: (currentPage.value - 1) * pageSize.value + index + 1
     }))
-    total.value = res.data.total
+    total.value = res.totalNum
   } catch (error) {
     console.error('获取邀请用户记录失败:', error)
   } finally {

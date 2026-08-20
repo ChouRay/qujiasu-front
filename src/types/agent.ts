@@ -6,6 +6,7 @@ export interface PortalDividendRecordVO {
   dividendOrderId: number;
   batchNo: number;
   buyerUserId: number;
+  buyerUserName: string;
   tradeNo: number;
   orderType: string;
   itemIndex: number;

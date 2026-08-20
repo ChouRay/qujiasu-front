@@ -3,7 +3,7 @@
     <!-- 账户余额卡片 -->
     <el-card class="balance-card" shadow="hover">
       <div class="balance-label">账户余额</div>
-      <div class="balance-amount">¥ {{ userInfo.balance?.toFixed(2) || '0.00' }}</div>
+      <div class="balance-amount">¥ {{ userInfo.userBalance?.toFixed(2) || '0.00' }}</div>
     </el-card>
 
     <!-- 快捷充值 -->
@@ -159,7 +159,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
 import { ElMessage } from 'element-plus';
-import { CircleCheckFilled, Money } from '@element-plus/icons-vue';
+import { CircleCheckFilled } from '@element-plus/icons-vue';
 import { getRechargeList } from '@/api/user';
 import { userInfo } from '@/reactive/user';
 import { formatDateTime } from '@/utils/times';
