@@ -132,17 +132,18 @@
           <p class="product-duration">套餐时长：{{ selectedProduct.duration }}天</p>
         </div>
 
-        <el-form :model="formData" label-width="100px" size="default">
+        <el-form :model="formData" :rules="formRules" ref="formRef" label-width="100px" size="default">
           <!-- 1. 账号 -->
-          <el-form-item label="设置账号">
+          <el-form-item label="设置账号" prop="username">
             <div style="display: flex; gap: 10px;">
               <el-input v-model="formData.username" placeholder="请输入账号" />
-              <el-button @click="generateRandomUsername">随机生成</el-button>
+              <el-button @click="generateRandomUsername" :loading="generatingUsername">随机生成</el-button>
             </div>
+            <div v-if="usernameAvailabilityError" class="username-error-tip">{{ usernameAvailabilityError }}</div>
           </el-form-item>
 
           <!-- 2. 密码 -->
-          <el-form-item label="设置密码">
+          <el-form-item label="设置密码" prop="password">
             <el-input v-model="formData.password" type="password" placeholder="请输入密码" show-password />
           </el-form-item>
 
@@ -159,7 +160,7 @@
           </el-form-item>
 
           <!-- 4. 绑定项目 -->
-          <el-form-item label="绑定项目">
+          <el-form-item label="绑定项目" prop="gameId">
             <el-select
               v-model="formData.gameId"
               filterable
@@ -247,6 +248,9 @@ import type { Province, City } from '@/types/region'
 import type { GameDTO } from '@/types/packages'
 import { userInfo } from '@/reactive/user'
 import { isMobile } from '@/utils/util'
+import { checkUsernameAvilability } from '@/api/order'
+import { ElMessage, FormRules } from 'element-plus'
+import { getErrorMessage } from '@/utils/errorMessage'
 const route = useRoute()
 
 // 状态
@@ -265,6 +269,9 @@ const gameList = ref<GameDTO[]>([])
 const locationOptions = ref<Province[]>([])
 const allCitiesMap = ref<Map<number, City>>(new Map())
 
+// 表单引用
+const formRef = ref<any>(null)
+
 // 表单数据
 const formData = ref({
   username: '',
@@ -273,6 +280,26 @@ const formData = ref({
   gameId: undefined as number | undefined,
   locationIds: [] as number[]
 })
+
+// 表单验证规则
+const formRules: FormRules = {
+  username: [
+    { required: true, message: '请输入账号', trigger: 'blur' },
+    { pattern: /^[a-zA-Z0-9]{6,20}$/, message: '账号应为 6-20 位字母和数字组合', trigger: 'blur' }
+  ],
+  password: [
+    { required: true, message: '请输入密码', trigger: 'blur' },
+    { min: 6, message: '密码不能少于 6 位', trigger: 'blur' },
+    { pattern: /^[a-zA-Z0-9]+$/, message: '密码仅限数字和字母', trigger: 'blur' }
+  ],
+  gameId: [
+    { required: true, message: '请选择绑定项目', trigger: 'change' }
+  ]
+}
+
+// 随机生成账号状态
+const generatingUsername = ref(false)
+const usernameAvailabilityError = ref('')
 
 // 当前选中的分类
 const currentCatalog = computed(() => {
@@ -396,10 +423,63 @@ watch(
   { immediate: false }
 )
 
-// 随机生成账号（预留实现）
-const generateRandomUsername = () => {
-  // TODO: 实现随机账号生成逻辑
-  console.log('生成随机账号')
+// 随机生成账号并检查可用性
+const generateRandomUsername = async () => {
+  generatingUsername.value = true
+  usernameAvailabilityError.value = ''
+  
+  try {
+    // 生成随机账号：前 3 个为 a-z 字符，后 8 个为 0-9 数字
+    const generate = () => {
+      const letters = 'abcdefghijklmnopqrstuvwxyz'
+      const digits = '0123456789'
+      let result = ''
+      // 前 3 个字母
+      for (let i = 0; i < 3; i++) {
+        result += letters.charAt(Math.floor(Math.random() * letters.length))
+      }
+      // 后 8 个数字
+      for (let i = 0; i < 8; i++) {
+        result += digits.charAt(Math.floor(Math.random() * digits.length))
+      }
+      return result
+    }
+    
+    // 最多尝试 10 次
+    for (let i = 0; i < 10; i++) {
+      const username = generate()
+      
+      try {
+        const response = await checkUsernameAvilability(username)
+        
+        // 状态码 200 且 response.data 为 null 表示可用
+        if (response.status === 200 && response.data === null) {
+          formData.value.username = username
+          ElMessage.success(`账号 ${username} 可用`)
+          generatingUsername.value = false
+          return
+        }
+      } catch (error: any) {
+        // 如果是 400 错误，继续尝试下一个
+        if (error.response?.status === 400) {
+          continue
+        }
+        // 其他错误抛出
+        throw error
+      }
+    }
+    
+    // 尝试 10 次后仍未找到可用账号
+    usernameAvailabilityError.value = '未能生成可用账号，请手动输入或重试'
+    ElMessage.warning('未能生成可用账号，请手动输入')
+  } catch (error: any) {
+    console.error('生成随机账号失败:', error)
+    const errorMsg = error.response?.data?.msg || error.message || '生成失败'
+    usernameAvailabilityError.value = getErrorMessage(errorMsg, '生成失败')
+    ElMessage.error('生成账号失败：' + getErrorMessage(errorMsg, '生成失败'))
+  } finally {
+    generatingUsername.value = false
+  }
 }
 
 // 获取地区显示文本
@@ -845,6 +925,14 @@ onMounted(() => {
   .confirm-btn {
     width: 100%;
   }
+}
+
+// 账号可用性错误提示
+.username-error-tip {
+  color: #f56c6c;
+  font-size: 12px;
+  margin-top: 4px;
+  line-height: 1.5;
 }
 </style>
 
