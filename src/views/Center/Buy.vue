@@ -340,9 +340,9 @@ const handleBuy = (product: ProductItem) => {
 const handleDialogOpen = async () => {
   if (gameList.value.length === 0) {
     try {
-      const response = await requestGames()
-      if (response.data && Array.isArray(response.data)) {
-        gameList.value = response.data.sort((a, b) => 
+      const gameData = await requestGames()
+      if (Array.isArray(gameData)) {
+        gameList.value = gameData.sort((a, b) => 
           (a.name || '').localeCompare(b.name || '', 'zh-CN')
         )
       }
