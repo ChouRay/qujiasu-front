@@ -206,17 +206,15 @@
           <el-form-item label="账单合计">
             <div class="price-detail">
               <div class="total-price-row">
-                <span class="label">实际总价：</span>
-                <span class="total-price" :style="{ color: currentCatalog?.uiConfig?.primaryColor }">
+                <span v-if="userInfo.dividendRatio && userInfo.dividendRatio > 0" class="original-total-price">
                   ¥{{ totalPrice.toFixed(2) }}元
                 </span>
-              </div>
-              <div v-if="userInfo.dividendRatio && userInfo.dividendRatio > 0" class="discount-price-row">
-                <span class="label">实际应付：</span>
-                <span class="discount-price" :style="{ color: currentCatalog?.uiConfig?.primaryColor }">
-                  ¥{{ actualPayPrice.toFixed(2) }}元
+                <span v-else class="total-price" :style="{ color: currentCatalog?.uiConfig?.primaryColor }">
+                  ¥{{ totalPrice.toFixed(2) }}元
                 </span>
-                <span class="discount-tag">（享{{ (1 - userInfo.dividendRatio) * 100 }}折优惠）</span>
+                <span v-if="userInfo.dividendRatio && userInfo.dividendRatio > 0" class="actual-pay-info">
+                  （实际应付：<span class="discount-price" :style="{ color: currentCatalog?.uiConfig?.primaryColor }">¥{{ actualPayPrice.toFixed(2) }}元</span>）
+                </span>
               </div>
             </div>
           </el-form-item>
@@ -701,17 +699,11 @@ onMounted(() => {
   border-radius: 8px;
 }
 
-.total-price-row,
-.discount-price-row {
+.total-price-row {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 8px;
-}
-
-.total-price-row:last-child,
-.discount-price-row:last-child {
-  margin-bottom: 0;
+  flex-wrap: wrap;
 }
 
 .label {
@@ -719,14 +711,22 @@ onMounted(() => {
   color: #7f8c8d;
 }
 
-.total-price {
+.total-price,
+.discount-price {
   font-size: 20px;
   font-weight: bold;
 }
 
-.discount-price {
+.original-total-price {
   font-size: 20px;
   font-weight: bold;
+  text-decoration: line-through;
+  color: #95a5a6;
+}
+
+.actual-pay-info {
+  font-size: 14px;
+  color: #7f8c8d;
 }
 
 .discount-tag {
