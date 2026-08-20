@@ -147,10 +147,10 @@
       width="400px"
       destroy-on-close
     >
-      <p>修改密码功能开发中...</p>
+      <p>可返回到登录页面点击"忘记密码"来修改...</p>
       <template #footer>
         <el-button @click="showPasswordDialog = false">取消</el-button>
-        <el-button type="primary">确认修改</el-button>
+        <el-button type="primary">确认</el-button>
       </template>
     </el-dialog>
   </div>

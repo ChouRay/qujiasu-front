@@ -121,7 +121,7 @@
     <el-dialog 
       v-model="showPaymentDialog" 
       title="套餐购买"
-      class="buy-dialog"
+      :width="dialogWidth"      
       destroy-on-close
       @opened="handleDialogOpen"
     >
@@ -246,7 +246,7 @@ import type { ProductMetadataItem, ProductItem } from '@/types/product'
 import type { Province, City } from '@/types/region'
 import type { GameDTO } from '@/types/packages'
 import { userInfo } from '@/reactive/user'
-
+import { isMobile } from '@/utils/util'
 const route = useRoute()
 
 // 状态
@@ -258,6 +258,7 @@ const selectedCatalogId = ref<number | null>(null)
 const currentProducts = ref<ProductItem[]>([])
 const selectedProduct = ref<ProductItem | null>(null)
 const showPaymentDialog = ref(false)
+const dialogWidth = ref(isMobile(navigator.userAgent) ? '90%' : '560px;')
 
 // 游戏列表和地区数据
 const gameList = ref<GameDTO[]>([])
@@ -441,7 +442,7 @@ const handleConfirmOrder = () => {
 }
 
 // 生命周期
-onMounted(() => {
+onMounted(() => {  
   fetchProductMetadata()
 })
 </script>
@@ -690,15 +691,8 @@ onMounted(() => {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-/* 购买详情弹窗 */
-.buy-dialog {
-  /* 响应式宽度：移动端 90%，大屏幕最大 540px */
-  width: 90%;
-  max-width: 540px;
-}
-
 .dialog-content {
-  padding: 10px 0;
+  padding: 20px 24px;
 }
 
 .product-summary {
@@ -854,13 +848,3 @@ onMounted(() => {
 }
 </style>
 
-.selected-locations {
-  font-size: 12px;
-  color: #909399;
-  margin-top: 5px;
-}
-
-.total-price {
-  font-size: 20px;
-  font-weight: bold;
-}
