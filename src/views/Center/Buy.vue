@@ -523,6 +523,20 @@ const selectProduct = (product: ProductItem) => {
 // 立即购买
 const handleBuy = (product: ProductItem) => {
   selectedProduct.value = product
+  // 重置表单数据
+  formData.value = {
+    username: '',
+    password: '',
+    usageCount: 1,
+    gameId: undefined,
+    locationIds: []
+  }
+  // 重置验证状态
+  usernameAvailabilityError.value = ''
+  // 重置支付状态
+  payMethod.value = 'ALI_PAY'
+  wechatPayDisabled.value = false
+  
   showPaymentDialog.value = true
 }
 
