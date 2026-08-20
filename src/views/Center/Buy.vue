@@ -366,7 +366,7 @@ const currentProducts = ref<ProductItem[]>([])
 const selectedProduct = ref<ProductItem | null>(null)
 const showPaymentDialog = ref(false)
 const showPaymentConfirmDialog = ref(false)
-const dialogWidth = ref(isMobile(navigator.userAgent) ? '90%' : '560px;')
+const dialogWidth = ref(isMobile(navigator.userAgent) ? '90%' : 560)
 
 // 游戏列表和地区数据
 const gameList = ref<GameDTO[]>([])
