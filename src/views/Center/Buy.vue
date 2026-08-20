@@ -121,12 +121,17 @@
     <el-dialog 
       v-model="showPaymentDialog" 
       title="套餐购买"
-      width="90%"
-      :max-width="'600px'"
+      class="buy-dialog"
       destroy-on-close
       @opened="handleDialogOpen"
     >
       <div v-if="selectedProduct" class="dialog-content">
+        <!-- 产品信息摘要 -->
+        <div class="product-summary">
+          <h3>{{ selectedProduct.name }}</h3>
+          <p class="product-duration">套餐时长：{{ selectedProduct.duration }}天</p>
+        </div>
+
         <el-form :model="formData" label-width="100px" size="default">
           <!-- 1. 账号 -->
           <el-form-item label="账号">
@@ -199,9 +204,21 @@
 
           <!-- 6. 账单合计 -->
           <el-form-item label="账单合计">
-            <span class="total-price" :style="{ color: currentCatalog?.uiConfig?.primaryColor }">
-              ¥{{ selectedProduct.price?.toFixed(2) }}
-            </span>
+            <div class="price-detail">
+              <div class="total-price-row">
+                <span class="label">实际总价：</span>
+                <span class="total-price" :style="{ color: currentCatalog?.uiConfig?.primaryColor }">
+                  ¥{{ totalPrice.toFixed(2) }}元
+                </span>
+              </div>
+              <div v-if="userInfo.dividendRatio && userInfo.dividendRatio > 0" class="discount-price-row">
+                <span class="label">实际应付：</span>
+                <span class="discount-price" :style="{ color: currentCatalog?.uiConfig?.primaryColor }">
+                  ¥{{ actualPayPrice.toFixed(2) }}元
+                </span>
+                <span class="discount-tag">（享{{ (1 - userInfo.dividendRatio) * 100 }}折优惠）</span>
+              </div>
+            </div>
           </el-form-item>
         </el-form>
       </div>
@@ -224,13 +241,14 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { useRoute } from 'vue-router'
 import { getProductMetadata, getProductsByMetadataId } from '@/api/product'
 import { requestGames } from '@/api/packages'
-import type { ProductMetadataItem, ProductItem, GameDTO } from '@/types/product'
+import type { ProductMetadataItem, ProductItem } from '@/types/product'
 import type { Province, City } from '@/types/region'
+import type { GameDTO } from '@/types/packages'
+import { userInfo } from '@/reactive/user'
 
-const router = useRouter()
 const route = useRoute()
 
 // 状态
@@ -369,6 +387,19 @@ const getLocationDisplay = () => {
   }
   return `${firstCity?.cname || ''}+${selectedIds.length - 1}个`
 }
+
+// 计算实际总价 = 连接数 * 单价
+const totalPrice = computed(() => {
+  if (!selectedProduct.value || !selectedProduct.value.price) return 0
+  return formData.value.usageCount * selectedProduct.value.price
+})
+
+// 计算实际应付 = 连接数 * 单价 * (1 - 折扣比率)
+const actualPayPrice = computed(() => {
+  if (!selectedProduct.value || !selectedProduct.value.price) return 0
+  const ratio = userInfo.dividendRatio || 0
+  return formData.value.usageCount * selectedProduct.value.price * (1 - ratio)
+})
 
 // 确认订单
 const handleConfirmOrder = () => {
@@ -635,8 +666,20 @@ onMounted(() => {
 }
 
 /* 购买详情弹窗 */
+.buy-dialog {
+  /* 响应式宽度：移动端 90%，大屏幕最大 540px */
+  width: 90%;
+  max-width: 540px;
+}
+
 .dialog-content {
   padding: 10px 0;
+}
+
+.product-summary {
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #e0e0e0;
 }
 
 .product-summary h3 {
@@ -651,23 +694,23 @@ onMounted(() => {
   margin-bottom: 20px;
 }
 
-.price-info {
+/* 价格明细样式 */
+.price-detail {
   background: #f8f9fa;
   padding: 15px;
   border-radius: 8px;
-  margin-bottom: 15px;
 }
 
-.current-price-row,
-.original-price-row {
+.total-price-row,
+.discount-price-row {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 10px;
   margin-bottom: 8px;
 }
 
-.current-price-row:last-child,
-.original-price-row:last-child {
+.total-price-row:last-child,
+.discount-price-row:last-child {
   margin-bottom: 0;
 }
 
@@ -676,15 +719,22 @@ onMounted(() => {
   color: #7f8c8d;
 }
 
-.current-price {
-  font-size: 24px;
+.total-price {
+  font-size: 20px;
   font-weight: bold;
 }
 
-.original-price {
-  font-size: 16px;
-  color: #95a5a6;
-  text-decoration: line-through;
+.discount-price {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.discount-tag {
+  font-size: 12px;
+  color: #67c23a;
+  background: #f0f9eb;
+  padding: 2px 8px;
+  border-radius: 10px;
 }
 
 .tips {
