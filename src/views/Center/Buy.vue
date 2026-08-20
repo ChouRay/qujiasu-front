@@ -351,7 +351,9 @@ import type { Province, City } from '@/types/region'
 import type { GameDTO } from '@/types/packages'
 import { userInfo } from '@/reactive/user'
 import { isMobile } from '@/utils/util'
-import { checkUsernameAvilability } from '@/api/order'
+import { checkUsernameAvilability, requestPackageOrders } from '@/api/order'
+import type { PackageOrderRequest, PaySource } from '@/types/order'
+import { OrderType } from '@/types/order'
 import { ElMessage, FormRules } from 'element-plus'
 import { getErrorMessage } from '@/utils/errorMessage'
 const route = useRoute()
@@ -726,25 +728,77 @@ const handleConfirmOrder = () => {
 }
 
 // 最终确认支付
-const handleFinalConfirm = () => {
+const handleFinalConfirm = async () => {
   if (onlinePayAmount.value <= 0 || wechatPayDisabled.value) {
+    // 全额抵扣情况，直接创建订单
+    if (onlinePayAmount.value <= 0) {
+      await createOrderAndPay()
+      return
+    }
     return
   }
   
-  console.log('发起支付', {
-    productId: selectedProduct.value?.id,
-    metadataId: selectedProduct.value?.metadataId,
-    ...formData.value,
-    payMethod: payMethod.value,
-    payAmount: onlinePayAmount.value
-  })
+  // 需要在线支付的情况
+  await createOrderAndPay()
+}
+
+// 创建订单并发起支付
+const createOrderAndPay = async () => {
+  if (!selectedProduct.value) return
   
-  // TODO: 调用创建订单和支付接口
-  ElMessage.success(`发起${payMethod.value === 'ALI_PAY' ? '支付宝' : '微信'}支付：¥${onlinePayAmount.value.toFixed(2)}`)
-  
-  // 关闭对话框
-  showPaymentConfirmDialog.value = false
-  showPaymentDialog.value = false
+  try {
+    // 构建订单请求数据
+    const orderData: PackageOrderRequest = {
+      orderType: OrderType.PACKAGE_ORDER,
+      username: formData.value.username,
+      password: formData.value.password,
+      usageCount: formData.value.usageCount,
+      productId: selectedProduct.value.id || 0,
+      gameBind: {
+        username: formData.value.username,
+        gameId: formData.value.gameId || 0,
+        locationIdList: formData.value.locationIds
+      },
+      paySource: payMethod.value as PaySource,
+      tradeType: isMobile(navigator.userAgent) ? 'WAP' : 'WEB'
+    }
+    
+    console.log('创建订单:', orderData)
+    
+    // 调用创建订单接口
+    const response = await requestPackageOrders(orderData)
+    
+    if (response && response.data) {
+      const orderInfo = response.data
+      
+      // 如果需要在线支付且金额大于 0
+      if (onlinePayAmount.value > 0) {
+        // 跳转到支付页面或打开支付二维码
+        // 这里根据实际支付流程处理
+        ElMessage.success('订单创建成功，正在跳转支付...')
+        
+        // 如果有支付链接，直接跳转
+        if (orderInfo.payUrl) {
+          window.location.href = orderInfo.payUrl
+        } else if (orderInfo.qrCode) {
+          // 显示二维码弹窗
+          // TODO: 实现二维码弹窗
+          console.log('支付二维码:', orderInfo.qrCode)
+        }
+      } else {
+        // 全额抵扣，直接成功
+        ElMessage.success('订单创建成功，已使用余额和抵用券全额抵扣')
+        showPaymentConfirmDialog.value = false
+        showPaymentDialog.value = false
+        // 刷新用户信息
+        // TODO: 刷新 userInfo
+      }
+    }
+  } catch (error: any) {
+    console.error('创建订单失败:', error)
+    const errorMsg = error.response?.data?.msg || error.message || '创建订单失败'
+    ElMessage.error(getErrorMessage(errorMsg, '创建订单失败'))
+  }
 }
 
 // 生命周期
