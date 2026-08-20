@@ -143,7 +143,7 @@
 
           <!-- 2. 密码 -->
           <el-form-item label="设置密码">
-            <el-input v-model="formData.password" type="password" placeholder="请输入密码" show-password />
+            <el-input v-model="formData.password" placeholder="请输入密码"/>
           </el-form-item>
 
           <!-- 3. 连接数 -->
@@ -209,11 +209,11 @@
                 <span v-if="userInfo.dividendRatio && userInfo.dividendRatio > 0" class="original-total-price">
                   ¥{{ totalPrice.toFixed(2) }}元
                 </span>
-                <span v-else class="total-price" :style="{ color: currentCatalog?.uiConfig?.primaryColor }">
+                <span v-else class="total-price" style="color: red">
                   ¥{{ totalPrice.toFixed(2) }}元
                 </span>
                 <span v-if="userInfo.dividendRatio && userInfo.dividendRatio > 0" class="actual-pay-info">
-                  （实际应付：<span class="discount-price" :style="{ color: currentCatalog?.uiConfig?.primaryColor }">¥{{ actualPayPrice.toFixed(2) }}元</span>）
+                  （实际应付：<span class="discount-price" style="color: red">¥{{ actualPayPrice.toFixed(2) }}元</span>）
                 </span>
               </div>
             </div>
@@ -742,12 +742,10 @@ onMounted(() => {
   font-size: 20px;
   font-weight: bold;
   text-decoration: line-through;
-  color: #95a5a6;
 }
 
 .actual-pay-info {
   font-size: 14px;
-  color: #7f8c8d;
 }
 
 .discount-tag {
