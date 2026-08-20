@@ -235,6 +235,109 @@
         </div>
       </template>
     </el-dialog>
+
+    <!-- 订单详情及支付确认弹窗 -->
+    <el-dialog
+      v-model="showPaymentConfirmDialog"
+      title="订单详情"
+      :width="dialogWidth"
+      :close-on-click-modal="false"
+      destroy-on-close
+    >
+      <div class="payment-confirm-content">
+        <!-- 订单信息 -->
+        <div class="order-info-section">
+          <div class="info-row">
+            <span class="info-label">账号：</span>
+            <span class="info-value">{{ formData.username }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">密码：</span>
+            <span class="info-value">{{ formData.password }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">名称：</span>
+            <span class="info-value">{{ selectedProduct?.name }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">数量：</span>
+            <span class="info-value">{{ formData.usageCount }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">时长：</span>
+            <span class="info-value">{{ selectedProduct?.duration }}天</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">订单总价：</span>
+            <span class="info-value price-highlight">{{ actualPayPrice.toFixed(2) }}元</span>
+          </div>
+        </div>
+
+        <!-- 余额和抵用券 -->
+        <div class="balance-section">
+          <div class="balance-item">
+            余额：<span style="color:rgb(225, 37, 27); font-weight: bold;">{{ userInfo.userBalance?.toFixed(2) || '0.00' }}</span>
+          </div>
+          <div class="balance-item">
+            抵用券：<span style="color:rgb(225, 37, 27); font-weight: bold;">{{ userInfo.userReward?.toFixed(2) || '0.00' }}</span>
+          </div>
+        </div>
+
+        <!-- 在线支付金额计算 -->
+        <div class="online-pay-section">
+          <div class="pay-calculation">
+            <span>在线支付金额 = 订单总价 - (抵用券 + 余额)</span>
+            <span class="pay-amount-display">
+              = {{ actualPayPrice.toFixed(2) }} - ({{ (userInfo.userReward || 0).toFixed(2) }} + {{ (userInfo.userBalance || 0).toFixed(2) }})
+              = <span :class="{'pay-amount-zero': onlinePayAmount <= 0}">{{ onlinePayAmountDisplay }}</span>
+            </span>
+          </div>
+        </div>
+
+        <!-- 支付方式选择 -->
+        <div class="payment-methods-section">
+          <div class="section-title-small">在线支付</div>
+          <div class="payment-methods">
+            <div
+              class="method-item"
+              :class="{ active: payMethod === 'ALI_PAY', disabled: onlinePayAmount <= 0 }"
+              @click="selectPayMethod('ALI_PAY')"
+            >
+              <img src="@/assets/images/alipay-ico.png" alt="支付宝" class="method-icon" />
+              <span class="method-name">支付宝</span>
+              <el-icon v-if="payMethod === 'ALI_PAY'" class="check-icon"><CircleCheckFilled /></el-icon>
+            </div>
+
+            <div
+              class="method-item"
+              :class="{ active: payMethod === 'WECHAT_PAY', disabled: onlinePayAmount <= 0 }"
+              @click="selectPayMethod('WECHAT_PAY')"
+            >
+              <img src="@/assets/images/wxpay-ico.png" alt="微信" class="method-icon" />
+              <span class="method-name">微信</span>
+              <el-icon v-if="payMethod === 'WECHAT_PAY'" class="check-icon"><CircleCheckFilled /></el-icon>
+            </div>
+          </div>
+          <div v-if="wechatPayDisabled" class="wechat-limit-tip">
+            <el-icon><WarningFilled /></el-icon>
+            微信支付限额 200 元，请改用支付宝或减少支付金额
+          </div>
+        </div>
+      </div>
+
+      <template #footer>
+        <div class="dialog-footer">
+          <button @click="showPaymentConfirmDialog = false" class="cancel-btn">取消</button>
+          <button 
+            @click="handleFinalConfirm" 
+            class="confirm-btn payment-confirm-btn"
+            :disabled="onlinePayAmount <= 0 || wechatPayDisabled"
+          >
+            确认支付
+          </button>
+        </div>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -262,6 +365,7 @@ const selectedCatalogId = ref<number | null>(null)
 const currentProducts = ref<ProductItem[]>([])
 const selectedProduct = ref<ProductItem | null>(null)
 const showPaymentDialog = ref(false)
+const showPaymentConfirmDialog = ref(false)
 const dialogWidth = ref(isMobile(navigator.userAgent) ? '90%' : '560px;')
 
 // 游戏列表和地区数据
@@ -544,22 +648,93 @@ const actualPayPrice = computed(() => {
   return formData.value.usageCount * selectedProduct.value.price * (1 - ratio)
 })
 
-// 确认订单
+// 在线支付金额 = 订单总价 - (抵用券 + 余额)
+const onlinePayAmount = computed(() => {
+  const balance = userInfo.userBalance || 0
+  const reward = userInfo.userReward || 0
+  const amount = actualPayPrice.value - (balance + reward)
+  return Math.max(0, amount)
+})
+
+// 在线支付金额显示
+const onlinePayAmountDisplay = computed(() => {
+  if (onlinePayAmount.value <= 0) {
+    return '0.00 元（全额抵扣）'
+  }
+  return onlinePayAmount.value.toFixed(2) + '元'
+})
+
+// 支付方式
+const payMethod = ref<'ALI_PAY' | 'WECHAT_PAY'>('ALI_PAY')
+
+// 微信支付是否被禁用（超过 200 元限额）
+const wechatPayDisabled = ref(false)
+
+// 选择支付方式
+const selectPayMethod = (method: 'ALI_PAY' | 'WECHAT_PAY') => {
+  if (onlinePayAmount.value <= 0) {
+    return // 金额为 0 时不能选择支付方式
+  }
+  
+  if (method === 'WECHAT_PAY' && onlinePayAmount.value >= 200) {
+    wechatPayDisabled.value = true
+    ElMessage.warning('微信支付限额 200 元，请改用支付宝支付')
+    return
+  }
+  
+  wechatPayDisabled.value = false
+  payMethod.value = method
+}
+
+// 确认订单 - 弹出支付详情对话框
 const handleConfirmOrder = () => {
   if (!selectedProduct.value) return
   
-  // TODO: 调用创建订单接口
-  console.log('确认订单', {
-    productId: selectedProduct.value.id,
-    metadataId: selectedProduct.value.metadataId,
-    ...formData.value
+  // 验证表单
+  formRef.value?.validate((valid: boolean) => {
+    if (!valid) {
+      return
+    }
+    
+    // 检查账号可用性是否有错误
+    if (usernameAvailabilityError.value) {
+      ElMessage.error('请输入可用的账号')
+      return
+    }
+    
+    // 打开支付确认对话框
+    showPaymentConfirmDialog.value = true
+    
+    // 重置支付方式为默认支付宝
+    payMethod.value = 'ALI_PAY'
+    wechatPayDisabled.value = false
+  })
+}
+
+// 最终确认支付
+const handleFinalConfirm = () => {
+  if (onlinePayAmount.value <= 0 || wechatPayDisabled.value) {
+    return
+  }
+  
+  console.log('发起支付', {
+    productId: selectedProduct.value?.id,
+    metadataId: selectedProduct.value?.metadataId,
+    ...formData.value,
+    payMethod: payMethod.value,
+    payAmount: onlinePayAmount.value
   })
   
-  alert('订单确认功能待实现')
+  // TODO: 调用创建订单和支付接口
+  ElMessage.success(`发起${payMethod.value === 'ALI_PAY' ? '支付宝' : '微信'}支付：¥${onlinePayAmount.value.toFixed(2)}`)
+  
+  // 关闭对话框
+  showPaymentConfirmDialog.value = false
+  showPaymentDialog.value = false
 }
 
 // 生命周期
-onMounted(() => {  
+onMounted(() => {
   fetchProductMetadata()
 })
 </script>
@@ -968,6 +1143,191 @@ onMounted(() => {
   font-size: 12px;
   margin-top: 4px;
   line-height: 1.5;
+}
+
+/* 支付确认弹窗样式 */
+.payment-confirm-content {
+  padding: 10px 0;
+}
+
+.order-info-section {
+  margin-bottom: 20px;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px dashed #e0e0e0;
+  
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.info-label {
+  color: #606266;
+  font-size: 14px;
+}
+
+.info-value {
+  color: #303133;
+  font-size: 14px;
+  font-weight: 500;
+  
+  &.price-highlight {
+    color: rgb(225, 37, 27);
+    font-size: 16px;
+    font-weight: bold;
+  }
+}
+
+.balance-section {
+  display: flex;
+  gap: 20px;
+  padding: 15px;
+  background: #fff3cd;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.balance-item {
+  font-size: 14px;
+  color: #606266;
+}
+
+.online-pay-section {
+  padding: 15px;
+  background: #ecf5ff;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.pay-calculation {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 14px;
+  color: #606266;
+}
+
+.pay-amount-display {
+  font-weight: bold;
+  color: #303133;
+}
+
+.pay-amount-zero {
+  color: #67c23a;
+  font-size: 16px;
+}
+
+.section-title-small {
+  font-size: 15px;
+  font-weight: bold;
+  color: #303133;
+  margin-bottom: 12px;
+}
+
+.payment-methods-section {
+  margin-bottom: 10px;
+}
+
+.payment-methods {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.method-item {
+  flex: 1;
+  min-width: 150px;
+  max-width: 200px;
+  border: 2px solid #e4e7ed;
+  border-radius: 8px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.3s;
+  position: relative;
+
+  &:hover:not(.disabled) {
+    border-color: #409EFF;
+    background-color: #f5f7fa;
+  }
+
+  &.active:not(.disabled) {
+    border-color: #409EFF;
+    background-color: #ecf5ff;
+
+    .check-icon {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  &.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: #f5f7fa;
+  }
+
+  .method-icon {
+    width: 28px;
+    height: 28px;
+    margin-right: 10px;
+    object-fit: contain;
+  }
+
+  .method-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: #606266;
+  }
+
+  .check-icon {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%) scale(0);
+    color: #409EFF;
+    font-size: 20px;
+    transition: all 0.3s;
+    opacity: 0;
+  }
+}
+
+.wechat-limit-tip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  padding: 8px 12px;
+  background: #fef0f0;
+  border: 1px solid #fde2e2;
+  border-radius: 6px;
+  color: #f56c6c;
+  font-size: 13px;
+}
+
+.payment-confirm-btn {
+  background-color: rgb(225, 37, 27) !important;
+  color: white !important;
+  
+  &:hover:not(:disabled) {
+    opacity: 0.8;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(225, 37, 27, 0.3);
+  }
+  
+  &:disabled {
+    background-color: #dcdfe6 !important;
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
 }
 </style>
 
