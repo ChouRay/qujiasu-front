@@ -228,7 +228,7 @@
           <button 
             @click="handleConfirmOrder" 
             class="confirm-btn"
-            :style="{ backgroundColor: currentCatalog?.uiConfig?.primaryColor }"
+            style="backgroundColor: #409eff"
           >
             确认
           </button>
