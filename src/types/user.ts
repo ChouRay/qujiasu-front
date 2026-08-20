@@ -41,5 +41,6 @@ export interface UserInfo {
   onWithdraw: number
   totalCost: number
   dividendRatio: number // 折扣或返佣比率
+  isCertifyOk: boolean
   vipInfo: VipInfo
 }

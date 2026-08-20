@@ -195,9 +195,11 @@ const fetchData = async () => {
     let res: PackagesResponse
     if (isSearchMode.value && searchUsername.value) {
       // 注意：这里假设后端搜索接口也支持分页，如果不支持需调整逻辑
-      res = await getPackagesByUsername(searchUsername.value, params)
+      const searchRes = await getPackagesByUsername(searchUsername.value, params)
+      res = searchRes
     } else {
-      res = await getPackagesList(params)
+      const listRes = await getPackagesList(params)
+      res = listRes
     }
     
     tableData.value = res.data || []

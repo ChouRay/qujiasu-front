@@ -11,7 +11,7 @@
           </div>
           <div class="info-item">
             <span class="label">返佣比率：</span>
-            <span class="value">{{ ((userInfo.dividenratio || 0) * 100).toFixed(1) }}%</span>
+            <span class="value">{{ ((userInfo.dividendRatio || 0) * 100).toFixed(1) }}%</span>
           </div>
           <div class="info-item">
             <span class="label">我的积分：</span>
@@ -29,7 +29,7 @@
           </div>
           <div class="info-item">
             <span class="label">提现中：</span>
-            <span class="value" style="color: #ff9800;">{{ onWithdraw || 0 }}</span>
+            <span class="value" style="color: #ff9800;">{{ userInfo.onWithdraw || 0 }}</span>
           </div>
           <div class="info-item">
             <span class="label">推广人数：</span>
@@ -37,7 +37,7 @@
           </div>
           <div class="info-item">
             <span class="label">加入时间：</span>
-            <span class="value">{{ formatTime(userInfo.gmtCreate) }}</span>
+            <span class="value">{{ formatTime(userInfo.gmtCreate || '') }}</span>
           </div>
         </div>
       </div>
