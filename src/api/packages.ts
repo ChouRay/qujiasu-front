@@ -6,7 +6,7 @@ export function getPackagesList(params: { pageNum: number; pageSize: number }) {
     url: '/api/user/packages',
     method: 'get',
     params,
-  })
+  }) as Promise<PackagesResponse>
 }
 
 export function getPackagesByUsername(
@@ -20,7 +20,7 @@ export function getPackagesByUsername(
       ...params,
       username,
     },
-  })
+  }) as Promise<PackagesResponse>
 }
 
 /**
