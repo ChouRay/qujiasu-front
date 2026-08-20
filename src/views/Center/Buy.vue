@@ -238,10 +238,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { getProductMetadata, getProductsByMetadataId } from '@/api/product'
-import { requestGames } from '@/api/packages'
+import { requestGames, requestLocations } from '@/api/packages'
 import type { ProductMetadataItem, ProductItem } from '@/types/product'
 import type { Province, City } from '@/types/region'
 import type { GameDTO } from '@/types/packages'
@@ -367,6 +367,33 @@ const handleDialogOpen = async () => {
     }
   }
 }
+
+// 监听 gameId 和 metadataId 变化，动态加载地区列表
+watch(
+  [() => formData.value.gameId, () => selectedProduct.value?.metadataId],
+  async ([gameId, metadataId]) => {
+    // 清空旧选项和选中值
+    locationOptions.value = []
+    formData.value.locationIds = []
+    
+    // 必须同时有 gameId 和 metadataId 才请求
+    if (!gameId || !metadataId) {
+      return
+    }
+    
+    try {
+      const locations = await requestLocations({ gameId, metadataId })
+      if (Array.isArray(locations)) {
+        locationOptions.value = locations
+        // 可选：如果有默认选中的地区，可以在这里设置
+        // formData.value.locationIds = [locations[0]?.id].filter(Boolean)
+      }
+    } catch (err) {
+      console.error('获取地区列表失败:', err)
+    }
+  },
+  { immediate: false }
+)
 
 // 随机生成账号（预留实现）
 const generateRandomUsername = () => {
