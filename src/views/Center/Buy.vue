@@ -136,7 +136,7 @@
           <!-- 1. 账号 -->
           <el-form-item label="设置账号" prop="username">
             <div style="display: flex; gap: 10px;">
-              <el-input v-model="formData.username" placeholder="请输入6-20位的账号" />
+              <el-input v-model="formData.username" placeholder="请输入 6-20 位的账号" @blur="handleUsernameBlur" />
               <el-button @click="generateRandomUsername" :loading="generatingUsername">随机生成</el-button>
             </div>
             <div v-if="usernameAvailabilityError" class="username-error-tip">{{ usernameAvailabilityError }}</div>
@@ -300,6 +300,48 @@ const formRules: FormRules = {
 // 随机生成账号状态
 const generatingUsername = ref(false)
 const usernameAvailabilityError = ref('')
+const checkingUsername = ref(false)
+
+// 检查账号可用性的处理函数（在失去焦点时调用）
+const handleUsernameBlur = async () => {
+  const username = formData.value.username.trim()
+  
+  // 如果账号为空，不进行检查
+  if (!username) {
+    usernameAvailabilityError.value = ''
+    return
+  }
+  
+  // 验证账号格式
+  const usernameRegex = /^[a-zA-Z0-9]{6,20}$/
+  if (!usernameRegex.test(username)) {
+    usernameAvailabilityError.value = '账号应为 6-20 位字母和数字组合'
+    return
+  }
+  
+  checkingUsername.value = true
+  usernameAvailabilityError.value = ''
+  
+  try {
+    const response = await checkUsernameAvilability(username)
+    
+    // 如果返回了数据，说明账号不可用
+    if (response && response.data !== null) {
+      usernameAvailabilityError.value = '该账号已被使用，请更换其他账号'
+    }
+  } catch (error: any) {
+    // 400 错误表示账号不可用
+    if (error.response?.status === 400) {
+      usernameAvailabilityError.value = '该账号已被使用，请更换其他账号'
+    } else {
+      // 其他错误显示错误信息
+      const errorMsg = error.response?.data?.msg || error.message || '检查失败'
+      usernameAvailabilityError.value = getErrorMessage(errorMsg, '检查失败')
+    }
+  } finally {
+    checkingUsername.value = false
+  }
+}
 
 // 当前选中的分类
 const currentCatalog = computed(() => {
