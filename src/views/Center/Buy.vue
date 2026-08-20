@@ -134,7 +134,7 @@
 
         <el-form :model="formData" label-width="100px" size="default">
           <!-- 1. 账号 -->
-          <el-form-item label="账号">
+          <el-form-item label="设置账号">
             <div style="display: flex; gap: 10px;">
               <el-input v-model="formData.username" placeholder="请输入账号" />
               <el-button @click="generateRandomUsername">随机生成</el-button>
@@ -142,12 +142,12 @@
           </el-form-item>
 
           <!-- 2. 密码 -->
-          <el-form-item label="密码">
+          <el-form-item label="设置密码">
             <el-input v-model="formData.password" type="password" placeholder="请输入密码" show-password />
           </el-form-item>
 
           <!-- 3. 连接数 -->
-          <el-form-item label="连接数">
+          <el-form-item label="授权数量">
             <div style="display: flex; align-items: center; gap: 10px;">
               <el-input-number v-model="formData.usageCount" :min="1" :max="100" />
               <el-popover placement="right" :width="200" trigger="hover" content="多开需要多买连接数">
