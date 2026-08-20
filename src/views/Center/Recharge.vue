@@ -290,12 +290,12 @@ const fetchRechargeList = async () => {
       pageNum: pageNum.value,
       pageSize: pageSize.value
     });
-    console.log('data=>',res.data)
+    console.log('data=>',res)
     if (res?.data) {
-      rechargeList.value = res?.data || [];
-      totalNum.value = res.data?.totalNum || 0;
+      rechargeList.value = res.data || [];
+      totalNum.value = res.totalNum || 0;
     } else {
-      ElMessage.error(res.msg || '获取记录失败');
+      ElMessage.error('获取记录失败');
     }
   } catch (error) {
     ElMessage.error('获取记录失败');

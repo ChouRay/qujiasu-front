@@ -110,14 +110,14 @@ const fetchData = async () => {
   loading.value = true;
   try {
     const res = await getWithdrawalRecords({
-      page: currentPage.value,
+      pageNum: currentPage.value,
       pageSize: pageSize.value,
     });
     
     // 适配返回数据结构，根据实际情况调整
     if (res) {
-      tableData.value = res.list || res.data || [];
-      total.value = res.total || res.count || 0;
+      tableData.value = res.data || [];
+      total.value = res.totalNum || 0;
     } else {
       tableData.value = [];
       total.value = 0;

@@ -90,9 +90,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-
-const title = ref('服务协议')
+// 页面标题（未使用，保留以备将来扩展）
+// const title = ref('服务协议')
 </script>
 
 <style scoped lang="scss">

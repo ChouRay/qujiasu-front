@@ -34,10 +34,10 @@ request.interceptors.request.use(
   }
 );
 
-// 响应拦截器
+// 响应拦截器 - 直接返回 response.data
 request.interceptors.response.use(
-  (response: AxiosResponse) => {
-    return response.data;
+  <T>(response: AxiosResponse<T>) => {
+    return response.data as T;
   },
   (error) => {
     // 处理 401 和 403 错误（未授权或登录过期）

@@ -134,6 +134,12 @@ const error = ref<string>('')
 const productMetadataList = ref<ProductMetadataItem[]>([])
 const selectedCatalogId = ref<number | null>(null)
 const currentProducts = ref<ProductItem[]>([])
+const selectedProduct = ref<ProductItem | null>(null)
+
+// 选择产品
+const selectProduct = (product: ProductItem) => {
+  selectedProduct.value = product
+}
 
 // 当前选中的分类
 const currentCatalog = computed(() => {
