@@ -190,7 +190,7 @@
                 :label="province.pname"
               >
                 <el-option
-                  v-for="city in province.cityList"
+                  v-for="city in province.cities"
                   :key="city.id"
                   :label="city.cname"
                   :value="city.id"

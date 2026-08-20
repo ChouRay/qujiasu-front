@@ -11,6 +11,6 @@ export interface City {
 export interface Province {
   id: number;          // 省份ID
   isEnable: number;    // 是否可用 1：可用，0：不可用
-  cityList: City[];    // 城市列表
+  cities: City[];      // 城市列表
   pname: string;       // 省份名称
 }
