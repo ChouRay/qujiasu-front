@@ -786,7 +786,7 @@ const createOrderAndPay = async () => {
       resetForm()
     } catch {
       // 取消继续购买：跳转到 orders 页面
-      router.push('/user/orders')
+      router.push('/center/orders')
     }
   } catch (error: any) {
     console.error('创建订单失败:', error)

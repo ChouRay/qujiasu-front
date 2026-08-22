@@ -293,7 +293,7 @@ const handleSubmit = async () => {
       
       if (payMethod.value === PAY_SOURCE.ALIPAY) {
         // 支付宝：直接执行 document.write 跳转
-        document.write(responseData);
+        document.write(responseData.data);
         document.close();
       } else if (payMethod.value === PAY_SOURCE.WECHAT) {
         // 微信：暂时不做处理，可根据返回数据展示二维码等
