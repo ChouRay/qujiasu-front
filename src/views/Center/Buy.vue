@@ -300,22 +300,22 @@
           <div class="payment-methods">
             <div
               class="method-item"
-              :class="{ active: payMethod === 'ALI_PAY', disabled: onlinePayAmount <= 0 }"
-              @click="selectPayMethod('ALI_PAY')"
+              :class="{ active: payMethod === PAY_SOURCE.ALIPAY, disabled: onlinePayAmount <= 0 }"
+              @click="selectPayMethod(PAY_SOURCE.ALIPAY)"
             >
               <img src="@/assets/images/alipay-ico.png" alt="支付宝" class="method-icon" />
               <span class="method-name">支付宝</span>
-              <el-icon v-if="payMethod === 'ALI_PAY'" class="check-icon"><CircleCheckFilled /></el-icon>
+              <el-icon v-if="payMethod === PAY_SOURCE.ALIPAY" class="check-icon"><CircleCheckFilled /></el-icon>
             </div>
 
             <div
               class="method-item"
-              :class="{ active: payMethod === 'WECHAT_PAY', disabled: onlinePayAmount <= 0 }"
-              @click="selectPayMethod('WECHAT_PAY')"
+              :class="{ active: payMethod === PAY_SOURCE.WECHAT, disabled: onlinePayAmount <= 0 }"
+              @click="selectPayMethod(PAY_SOURCE.WECHAT)"
             >
               <img src="@/assets/images/wxpay-ico.png" alt="微信" class="method-icon" />
               <span class="method-name">微信</span>
-              <el-icon v-if="payMethod === 'WECHAT_PAY'" class="check-icon"><CircleCheckFilled /></el-icon>
+              <el-icon v-if="payMethod === PAY_SOURCE.WECHAT" class="check-icon"><CircleCheckFilled /></el-icon>
             </div>
           </div>
           <div v-if="wechatPayDisabled" class="wechat-limit-tip">
@@ -356,6 +356,7 @@ import type { PackageOrderRequest, PaySource } from '@/types/order'
 import { OrderType } from '@/types/order'
 import { ElMessage, FormRules } from 'element-plus'
 import { getErrorMessage } from '@/utils/errorMessage'
+import { PAY_SOURCE } from '@/utils/apiEnums'
 const route = useRoute()
 
 // 状态
@@ -536,7 +537,7 @@ const handleBuy = (product: ProductItem) => {
   // 重置验证状态
   usernameAvailabilityError.value = ''
   // 重置支付状态
-  payMethod.value = 'ALI_PAY'
+  payMethod.value = PAY_SOURCE.ALIPAY
   wechatPayDisabled.value = false
   
   showPaymentDialog.value = true
@@ -681,18 +682,18 @@ const onlinePayAmountDisplay = computed(() => {
 })
 
 // 支付方式
-const payMethod = ref<'ALI_PAY' | 'WECHAT_PAY'>('ALI_PAY')
+const payMethod = ref<typeof PAY_SOURCE.ALIPAY | typeof PAY_SOURCE.WECHAT>(PAY_SOURCE.ALIPAY)
 
 // 微信支付是否被禁用（超过 200 元限额）
 const wechatPayDisabled = ref(false)
 
 // 选择支付方式
-const selectPayMethod = (method: 'ALI_PAY' | 'WECHAT_PAY') => {
+const selectPayMethod = (method: typeof PAY_SOURCE.ALIPAY | typeof PAY_SOURCE.WECHAT) => {
   if (onlinePayAmount.value <= 0) {
     return // 金额为 0 时不能选择支付方式
   }
   
-  if (method === 'WECHAT_PAY' && onlinePayAmount.value >= 200) {
+  if (method === PAY_SOURCE.WECHAT && onlinePayAmount.value >= 200) {
     wechatPayDisabled.value = true
     ElMessage.warning('微信支付限额 200 元，请改用支付宝支付')
     return
@@ -722,7 +723,7 @@ const handleConfirmOrder = () => {
     showPaymentConfirmDialog.value = true
     
     // 重置支付方式为默认支付宝
-    payMethod.value = 'ALI_PAY'
+    payMethod.value = PAY_SOURCE.ALIPAY
     wechatPayDisabled.value = false
   })
 }
@@ -796,10 +797,10 @@ const createOrderAndPay = async () => {
     if (error.response?.status === 402) {
       const paySource = payMethod.value as PaySource
       
-      if (paySource === 'ALI_PAY') {
+      if (paySource === PAY_SOURCE.ALIPAY) {
         // 支付宝支付：直接写入响应内容跳转
         document.write(error.response.data)
-      } else if (paySource === 'WECHAT_PAY') {
+      } else if (paySource === PAY_SOURCE.WECHAT) {
         // 微信支付：走二维码支付逻辑（暂时不做）
         ElMessage.info('微信支付二维码功能待实现')
         // TODO: 实现微信二维码支付逻辑
