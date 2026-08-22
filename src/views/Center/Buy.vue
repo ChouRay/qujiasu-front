@@ -331,7 +331,7 @@
           <button 
             @click="handleFinalConfirm" 
             class="confirm-btn payment-confirm-btn"
-            :disabled="onlinePayAmount <= 0 || wechatPayDisabled"
+            :disabled="wechatPayDisabled"
           >
             确认支付
           </button>
@@ -729,16 +729,11 @@ const handleConfirmOrder = () => {
 
 // 最终确认支付
 const handleFinalConfirm = async () => {
-  if (onlinePayAmount.value <= 0 || wechatPayDisabled.value) {
-    // 全额抵扣情况，直接创建订单
-    if (onlinePayAmount.value <= 0) {
-      await createOrderAndPay()
-      return
-    }
+  if (wechatPayDisabled.value) {
     return
   }
   
-  // 需要在线支付的情况
+  // 直接创建订单，由后端判断支付状态
   await createOrderAndPay()
 }
 
@@ -796,8 +791,28 @@ const createOrderAndPay = async () => {
     }
   } catch (error: any) {
     console.error('创建订单失败:', error)
-    const errorMsg = error.response?.data?.msg || error.message || '创建订单失败'
-    ElMessage.error(getErrorMessage(errorMsg, '创建订单失败'))
+    
+    // 处理 402 状态码 - 需要支付
+    if (error.response?.status === 402) {
+      const paySource = payMethod.value as PaySource
+      
+      if (paySource === 'ALI_PAY') {
+        // 支付宝支付：直接写入响应内容跳转
+        document.write(error.response.data)
+      } else if (paySource === 'WECHAT_PAY') {
+        // 微信支付：走二维码支付逻辑（暂时不做）
+        ElMessage.info('微信支付二维码功能待实现')
+        // TODO: 实现微信二维码支付逻辑
+      }
+    } else if (error.response?.status === 400) {
+      // 400 错误：提示错误信息
+      const errorMsg = error.response?.data?.msg || '创建订单失败'
+      ElMessage.error(getErrorMessage(errorMsg, '创建订单失败'))
+    } else {
+      // 其他错误
+      const errorMsg = error.response?.data?.msg || error.message || '创建订单失败'
+      ElMessage.error(getErrorMessage(errorMsg, '创建订单失败'))
+    }
   }
 }
 
