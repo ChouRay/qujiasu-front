@@ -1,6 +1,6 @@
 import request from '@/utils/request'
 import type { UserInfo } from '@/types/user'
-import type { RechargeListResponse, RechargeListParams } from '@/types/recharge'
+import type { RechargeListResponse, RechargeListParams, CreateRechargeOrderParams } from '@/types/recharge'
 import { setUserInfo } from '@/reactive/user'
 import { getErrorMessage } from '@/utils/errorMessage'
 
@@ -142,5 +142,60 @@ export function requestResetPassword(
     .catch((error: any) => {
       console.error('重置密码失败:', error)
       callback(400, '重置密码失败，请稍后重试')
+    })
+}
+
+/**
+ * 生成充值订单接口
+ * @param data - 充值订单信息
+ * @param data.totalAmount - 充值金额，最小 0.01
+ * @param data.paySource - 支付来源 (BALANCE_PAY, ALI_PAY, WECHAT_PAY, APPLE_PAY)
+ * @param data.tradeType - 交易类型
+ * @param onSuccess - 成功回调 (200)
+ * @param onError - 错误回调 (400 业务错误，或 402 需要处理支付宝/微信数据)
+ * @returns Promise<void>
+ */
+export function createRechargeOrder(
+  data: CreateRechargeOrderParams,
+  onSuccess: () => void,
+  onError: (status: number, response?: any) => void
+) {
+  return request({
+    url: '/api/user/recharges',
+    method: 'POST',
+    data
+  })
+    .then((res: any) => {
+      if (res.status === 200) {
+        onSuccess()
+      } else if (res.status === 400) {
+        onError(400, res)
+      }
+    })
+    .catch((error: any) => {
+      // 处理 402 状态码：支付宝或微信数据
+      if (error.response && error.response.status === 402) {
+        const paySource = data.paySource
+        const responseData = error.response.data
+        
+        if (paySource === 'ALI_PAY') {
+          // 支付宝：直接执行 document.write 跳转
+          document.write(responseData)
+          document.close()
+        } else if (paySource === 'WECHAT_PAY') {
+          // 微信：暂时不做处理，返回数据给调用方
+          onError(402, responseData)
+        } else {
+          // 其他支付方式，返回数据给调用方
+          onError(402, responseData)
+        }
+      } else if (error.response && error.response.status === 400) {
+        // 400 业务错误
+        onError(400, error.response)
+      } else {
+        // 其他错误
+        console.error('生成充值订单失败:', error)
+        onError(500, error)
+      }
     })
 }
