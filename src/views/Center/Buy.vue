@@ -343,21 +343,23 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { getProductMetadata, getProductsByMetadataId } from '@/api/product'
 import { requestGames, requestLocations } from '@/api/packages'
 import type { ProductMetadataItem, ProductItem } from '@/types/product'
 import type { Province, City } from '@/types/region'
 import type { GameDTO } from '@/types/packages'
 import { userInfo } from '@/reactive/user'
+import { getUserInfo } from '@/api/user'
 import { isMobile } from '@/utils/util'
 import { checkUsernameAvilability, requestPackageOrders } from '@/api/order'
 import type { PackageOrderRequest, PaySource } from '@/types/order'
 import { OrderType } from '@/types/order'
-import { ElMessage, FormRules } from 'element-plus'
+import { ElMessage, FormRules, ElMessageBox } from 'element-plus'
 import { getErrorMessage } from '@/utils/errorMessage'
 import { PAY_SOURCE, PAY_TRADE_TYPE } from '@/utils/apiEnums'
 const route = useRoute()
+const router = useRouter()
 
 // 状态
 const loading = ref(false)
@@ -762,33 +764,29 @@ const createOrderAndPay = async () => {
     console.log('创建订单:', orderData)
     
     // 调用创建订单接口
-    const response = await requestPackageOrders(orderData)
+    await requestPackageOrders(orderData)
     
-    if (response && response.data) {
-      const orderInfo = response.data
+    // 200 状态码：request.ts 拦截器已处理，表示成功，无返回数据
+    // 刷新用户信息
+    await getUserInfo()
+    
+    ElMessage.success('购买成功')
+    showPaymentConfirmDialog.value = false
+    showPaymentDialog.value = false
+    
+    // 询问是否继续购买
+    try {
+      await ElMessageBox.confirm('是否继续购买？', '提示', {
+        confirmButtonText: '继续购买',
+        cancelButtonText: '查看订单',
+        type: 'success'
+      })
       
-      // 如果需要在线支付且金额大于 0
-      if (onlinePayAmount.value > 0) {
-        // 跳转到支付页面或打开支付二维码
-        // 这里根据实际支付流程处理
-        ElMessage.success('订单创建成功，正在跳转支付...')
-        
-        // 如果有支付链接，直接跳转
-        if (orderInfo.payUrl) {
-          window.location.href = orderInfo.payUrl
-        } else if (orderInfo.qrCode) {
-          // 显示二维码弹窗
-          // TODO: 实现二维码弹窗
-          console.log('支付二维码:', orderInfo.qrCode)
-        }
-      } else {
-        // 全额抵扣，直接成功
-        ElMessage.success('订单创建成功，已使用余额和抵用券全额抵扣')
-        showPaymentConfirmDialog.value = false
-        showPaymentDialog.value = false
-        // 刷新用户信息
-        // TODO: 刷新 userInfo
-      }
+      // 继续购买：清空套餐购买框的数据
+      resetForm()
+    } catch {
+      // 取消继续购买：跳转到 orders 页面
+      router.push('/user/orders')
     }
   } catch (error: any) {
     console.error('创建订单失败:', error)
@@ -814,6 +812,22 @@ const createOrderAndPay = async () => {
       const errorMsg = error.response?.data?.msg || error.message || '创建订单失败'
       ElMessage.error(getErrorMessage(errorMsg, '创建订单失败'))
     }
+  }
+}
+
+// 重置表单数据
+const resetForm = () => {
+  formData.value = {
+    username: '',
+    password: '',
+    usageCount: 1,
+    gameId: undefined,
+    locationIds: []
+  }
+  selectedProduct.value = null
+  payMethod.value = PAY_SOURCE.ALIPAY
+  if (formRef.value) {
+    formRef.value.resetFields()
   }
 }
 
