@@ -73,22 +73,22 @@
     <div class="payment-methods">
       <div 
         class="method-item"
-        :class="{ active: payMethod === 'ALI_PAY' }"
-        @click="payMethod = 'ALI_PAY'"
+        :class="{ active: payMethod === PAY_SOURCE.ALIPAY }"
+        @click="payMethod = PAY_SOURCE.ALIPAY"
       >
         <img src="@/assets/images/alipay-ico.png" alt="支付宝" class="method-icon" />
         <span class="method-name">支付宝充值</span>
-        <el-icon v-if="payMethod === 'ALI_PAY'" class="check-icon"><CircleCheckFilled /></el-icon>
+        <el-icon v-if="payMethod === PAY_SOURCE.ALIPAY" class="check-icon"><CircleCheckFilled /></el-icon>
       </div>
 
       <div 
         class="method-item"
-        :class="{ active: payMethod === 'WECHAT_PAY' }"
-        @click="payMethod = 'WECHAT_PAY'"
+        :class="{ active: payMethod === PAY_SOURCE.WECHAT }"
+        @click="payMethod = PAY_SOURCE.WECHAT"
       >
         <img src="@/assets/images/wxpay-ico.png" alt="微信" class="method-icon" />
         <span class="method-name">微信充值</span>
-        <el-icon v-if="payMethod === 'WECHAT_PAY'" class="check-icon"><CircleCheckFilled /></el-icon>
+        <el-icon v-if="payMethod === PAY_SOURCE.WECHAT" class="check-icon"><CircleCheckFilled /></el-icon>
       </div>
     </div>
 
@@ -163,7 +163,7 @@ import { CircleCheckFilled } from '@element-plus/icons-vue';
 import { getRechargeList, createRechargeOrder } from '@/api/user';
 import { userInfo } from '@/reactive/user';
 import { formatDateTime } from '@/utils/times';
-import { formatPayStatus } from '@/utils/apiEnums'; 
+import { formatPayStatus, PAY_SOURCE } from '@/utils/apiEnums'; 
 
 import iconBronze from '@/assets/images/icon-bronze-medal.png';
 import iconSilver from '@/assets/images/icon-silver-medal.png';
@@ -175,7 +175,7 @@ const loading = ref(false);
 const listLoading = ref(false);
 const selectedAmount = ref<number | null>(null);
 const customAmount = ref<string>('');
-const payMethod = ref<'ALI_PAY' | 'WECHAT_PAY'>('ALI_PAY');
+const payMethod = ref<typeof PAY_SOURCE.ALIPAY | typeof PAY_SOURCE.WECHAT>(PAY_SOURCE.ALIPAY);
 
 // 列表相关
 const pageNum = ref(1);
@@ -240,10 +240,10 @@ const handleCustomInput = () => {
 
 const formatPaySource = (source: string) => {
   const map: Record<string, string> = {
-    'WECHAT_PAY': '微信',
-    'ALI_PAY': '支付宝',
-    'BALANCE_PAY': '余额支付',
-    'APPLE_PAY': 'Apple Pay'
+    [PAY_SOURCE.WECHAT]: '微信',
+    [PAY_SOURCE.ALIPAY]: '支付宝',
+    [PAY_SOURCE.BALANCE]: '余额支付',
+    [PAY_SOURCE.APPLE]: 'Apple Pay'
   };
   return map[source] || source;
 };
@@ -273,7 +273,7 @@ const handleSubmit = async () => {
 
   loading.value = true;
   try {
-    const res = await createRechargeOrder({
+    await createRechargeOrder({
       totalAmount: amount,
       paySource: payMethod.value,
       tradeType: 'RECHARGE'
@@ -291,11 +291,11 @@ const handleSubmit = async () => {
     if (error.response && error.response.status === 402) {
       const responseData = error.response.data;
       
-      if (payMethod.value === 'ALI_PAY') {
+      if (payMethod.value === PAY_SOURCE.ALIPAY) {
         // 支付宝：直接执行 document.write 跳转
         document.write(responseData);
         document.close();
-      } else if (payMethod.value === 'WECHAT_PAY') {
+      } else if (payMethod.value === PAY_SOURCE.WECHAT) {
         // 微信：暂时不做处理，可根据返回数据展示二维码等
         ElMessage.warning('请根据提示完成微信支付');
         console.log('微信支付数据:', responseData);
