@@ -163,7 +163,7 @@ import { CircleCheckFilled } from '@element-plus/icons-vue';
 import { getRechargeList, createRechargeOrder } from '@/api/user';
 import { userInfo } from '@/reactive/user';
 import { formatDateTime } from '@/utils/times';
-import { formatPayStatus, PAY_SOURCE } from '@/utils/apiEnums'; 
+import { formatPayStatus, PAY_SOURCE, PAY_TRADE_TYPE } from '@/utils/apiEnums'; 
 
 import iconBronze from '@/assets/images/icon-bronze-medal.png';
 import iconSilver from '@/assets/images/icon-silver-medal.png';
@@ -276,7 +276,7 @@ const handleSubmit = async () => {
     await createRechargeOrder({
       totalAmount: amount,
       paySource: payMethod.value,
-      tradeType: 'RECHARGE'
+      tradeType: PAY_TRADE_TYPE.NATIVE
     });
 
     // 200 成功

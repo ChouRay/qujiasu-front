@@ -356,7 +356,7 @@ import type { PackageOrderRequest, PaySource } from '@/types/order'
 import { OrderType } from '@/types/order'
 import { ElMessage, FormRules } from 'element-plus'
 import { getErrorMessage } from '@/utils/errorMessage'
-import { PAY_SOURCE } from '@/utils/apiEnums'
+import { PAY_SOURCE, PAY_TRADE_TYPE } from '@/utils/apiEnums'
 const route = useRoute()
 
 // 状态
@@ -756,7 +756,7 @@ const createOrderAndPay = async () => {
         locationIdList: formData.value.locationIds
       },
       paySource: payMethod.value as PaySource,
-      tradeType: isMobile(navigator.userAgent) ? 'WAP' : 'WEB'
+      tradeType: PAY_TRADE_TYPE.NATIVE
     }
     
     console.log('创建订单:', orderData)
