@@ -160,7 +160,7 @@
 import { ref, onMounted, computed } from 'vue';
 import { ElMessage } from 'element-plus';
 import { CircleCheckFilled } from '@element-plus/icons-vue';
-import { getRechargeList } from '@/api/user';
+import { getRechargeList, createRechargeOrder } from '@/api/user';
 import { userInfo } from '@/reactive/user';
 import { formatDateTime } from '@/utils/times';
 import { formatPayStatus } from '@/utils/apiEnums'; 
@@ -273,13 +273,42 @@ const handleSubmit = async () => {
 
   loading.value = true;
   try {
-    setTimeout(() => {
-      ElMessage.success(`发起支付：¥${amount}，方式：${formatPaySource(payMethod.value)}`);
-      loading.value = false;
-    }, 1000);
-  } catch (error) {
+    const res = await createRechargeOrder({
+      totalAmount: amount,
+      paySource: payMethod.value,
+      tradeType: 'RECHARGE'
+    });
+
+    // 200 成功
+    ElMessage.success('充值订单创建成功');
+    // 刷新列表
+    fetchRechargeList();
+    // 清空选择
+    selectedAmount.value = null;
+    customAmount.value = '';
+  } catch (error: any) {
+    // 处理 402 状态码：支付宝或微信数据
+    if (error.response && error.response.status === 402) {
+      const responseData = error.response.data;
+      
+      if (payMethod.value === 'ALI_PAY') {
+        // 支付宝：直接执行 document.write 跳转
+        document.write(responseData);
+        document.close();
+      } else if (payMethod.value === 'WECHAT_PAY') {
+        // 微信：暂时不做处理，可根据返回数据展示二维码等
+        ElMessage.warning('请根据提示完成微信支付');
+        console.log('微信支付数据:', responseData);
+      }
+    } else if (error.response && error.response.status === 400) {
+      // 400 业务错误
+      ElMessage.error(error.response.data?.message || '充值失败');
+    } else {
+      // 其他错误
+      ElMessage.error('充值请求失败，请稍后重试');
+    }
+  } finally {
     loading.value = false;
-    ElMessage.error('发起支付失败');
   }
 };
 
