@@ -219,7 +219,7 @@ const dialogVisible = computed({
 const isRenewMode = computed(() => props.mode === 'renew')
 
 // 对话框宽度
-const dialogWidth = ref(isMobile(navigator.userAgent) ? '90%' : 640)
+const dialogWidth = ref(isMobile(navigator.userAgent) ? '85%' : 640)
 
 // 状态
 const loading = ref(false)
@@ -685,6 +685,7 @@ onMounted(() => {
 
 .payment-methods {
   display: flex;
+  width: 50%;
   gap: 15px;
 }
 
