@@ -1,5 +1,5 @@
 import request from '@/utils/request'
-import type { PackageOrderRequest } from '@/types/order'
+import type { PackageOrderRequest, PackageRenewOrderRequest } from '@/types/order'
 
 /**
  * 创建订单请求
@@ -17,4 +17,12 @@ export function checkUsernameAvilability(username: string) {
   return request.get('/api/user/package-orders/username-availability', {
     params: { username }
   })
+}
+
+/**
+ * 创建续费订单请求
+ * @param data 续费订单数据
+ */
+export function requestRenew(data: PackageRenewOrderRequest) {
+  return request.post('/api/user/package-renew-orders', data)
 }

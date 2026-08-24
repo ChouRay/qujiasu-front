@@ -37,3 +37,15 @@ export interface PackageOrderRequest {
   paySource: PaySource
   tradeType: string
 }
+
+/**
+ * 续费订单请求参数
+ */
+export interface PackageRenewOrderRequest {
+  orderType: OrderType
+  username: string
+  usageCount: number
+  productId: number
+  paySource: PaySource
+  tradeType: string
+}
