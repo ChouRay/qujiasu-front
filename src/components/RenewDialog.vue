@@ -248,17 +248,44 @@ const canSubmit = computed(() => {
   return true
 })
 
-// 计算总价 = 单价 * 数量
+// 判断账号是否已到期
+const isAccountExpired = computed(() => {
+  const offlineTime = new Date(props.subscription.dateOffline).getTime()
+  const now = Date.now()
+  return offlineTime < now
+})
+
+// 计算总价
+// 规则：
+// 1. 如果账号未到期且是增加连接数：(最终授权数 - 原授权数) * 单价
+// 2. 如果账号已到期或减少连接数：最终连接数 * 单价
 const totalPrice = computed(() => {
   if (!formData.value.selectedProduct || !formData.value.selectedProduct.price) return 0
-  return formData.value.selectedProduct.price * formData.value.finalUsageCount
+  
+  const unitPrice = formData.value.selectedProduct.price
+  const finalCount = formData.value.finalUsageCount
+  const adjustCount = formData.value.adjustCount
+  
+  // 如果是增减模式且账号未到期
+  if (!isRenewMode.value && !isAccountExpired.value) {
+    if (adjustCount > 0) {
+      // 增加连接数：只对新增部分收费
+      return adjustCount * unitPrice
+    } else if (adjustCount < 0) {
+      // 减少连接数：按最终数量收费
+      return finalCount * unitPrice
+    }
+  }
+  
+  // 其他情况（续费模式、账号已到期）：按最终数量收费
+  return finalCount * unitPrice
 })
 
 // 计算实际应付 = 总价 * (1 - 折扣比率)
 const actualPayPrice = computed(() => {
   if (!formData.value.selectedProduct || !formData.value.selectedProduct.price) return 0
   const ratio = userInfo.dividendRatio || 0
-  return formData.value.selectedProduct.price * formData.value.finalUsageCount * (1 - ratio)
+  return totalPrice.value * (1 - ratio)
 })
 
 // 在线支付金额
@@ -335,6 +362,24 @@ const handleAdjustChange = () => {
   if (formData.value.finalUsageCount < 1) {
     formData.value.finalUsageCount = 1
     formData.value.adjustCount = 1 - props.subscription.usageCount
+  }
+  
+  // 如果减少数量，检查时长是否 >= 30 天
+  if (formData.value.adjustCount < 0 && formData.value.selectedProduct) {
+    const selectedDuration = formData.value.selectedProduct.duration || 0
+    if (selectedDuration < 30) {
+      ElMessage.warning('减少连接数续费时，时长必须大于等于 30 天')
+      // 自动选择第一个 >= 30 天的产品
+      const validProduct = formData.value.productList.find(p => (p.duration || 0) >= 30)
+      if (validProduct) {
+        selectProduct(validProduct)
+      } else {
+        // 如果没有符合条件的产品，重置调整数量
+        formData.value.adjustCount = 0
+        formData.value.finalUsageCount = props.subscription.usageCount
+        ElMessage.info('无可用的 30 天及以上时长产品，已取消减少操作')
+      }
+    }
   }
 }
 
