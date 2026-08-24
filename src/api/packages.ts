@@ -47,3 +47,23 @@ export function requestLocations(params: { metadataId: number; gameId?: number }
     params,
   })
 }
+
+/**
+ * 修改游戏和地区配置
+ * @param id - 套餐 ID
+ * @param data - 配置数据
+ * @returns Promise<any>
+ */
+export function updatePackageConfig(
+  id: number,
+  data: {
+    gameId: number
+    locationList: number[]
+  }
+) {
+  return request({
+    url: `/api/user/packages/${id}/config`,
+    method: 'put',
+    data,
+  })
+}
