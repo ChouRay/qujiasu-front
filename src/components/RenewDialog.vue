@@ -257,8 +257,9 @@ const isAccountExpired = computed(() => {
 
 // 计算总价
 // 规则：
-// 1. 如果账号未到期且是增加连接数：(最终授权数 - 原授权数) * 单价
-// 2. 如果账号已到期或减少连接数：最终连接数 * 单价
+// 1. 账号未到期 + 增加数量：只对新增部分收费 = (最终授权数 - 原授权数) * 单价
+// 2. 账号未到期 + 减少数量：必须续费≥30天，按最终数量收费 = 最终授权数 * 单价
+// 3. 账号已到期：无论增减，都按最终数量收费 = 最终授权数 * 单价
 const totalPrice = computed(() => {
   if (!formData.value.selectedProduct || !formData.value.selectedProduct.price) return 0
   
@@ -266,18 +267,23 @@ const totalPrice = computed(() => {
   const finalCount = formData.value.finalUsageCount
   const adjustCount = formData.value.adjustCount
   
-  // 如果是增减模式且账号未到期
-  if (!isRenewMode.value && !isAccountExpired.value) {
-    if (adjustCount > 0) {
-      // 增加连接数：只对新增部分收费
-      return adjustCount * unitPrice
-    } else if (adjustCount < 0) {
-      // 减少连接数：按最终数量收费
-      return finalCount * unitPrice
+  // 如果是增减模式
+  if (!isRenewMode.value) {
+    if (!isAccountExpired.value) {
+      // 账号未到期
+      if (adjustCount > 0) {
+        // 增加数量：只对新增部分收费
+        return adjustCount * unitPrice
+      } else if (adjustCount < 0) {
+        // 减少数量：按最终数量收费（前面已验证时长≥30天）
+        return finalCount * unitPrice
+      }
     }
+    // 账号已到期：按最终数量收费
+    return finalCount * unitPrice
   }
   
-  // 其他情况（续费模式、账号已到期）：按最终数量收费
+  // 续费模式：按最终数量收费
   return finalCount * unitPrice
 })
 
@@ -364,11 +370,11 @@ const handleAdjustChange = () => {
     formData.value.adjustCount = 1 - props.subscription.usageCount
   }
   
-  // 如果减少数量，检查时长是否 >= 30 天
-  if (formData.value.adjustCount < 0 && formData.value.selectedProduct) {
+  // 只有账号未到期且减少数量时，才强制要求时长≥30天
+  if (formData.value.adjustCount < 0 && !isAccountExpired.value && formData.value.selectedProduct) {
     const selectedDuration = formData.value.selectedProduct.duration || 0
     if (selectedDuration < 30) {
-      ElMessage.warning('减少连接数续费时，时长必须大于等于 30 天')
+      ElMessage.warning('账号未到期减少连接数时，时长必须大于等于 30 天')
       // 自动选择第一个 >= 30 天的产品
       const validProduct = formData.value.productList.find(p => (p.duration || 0) >= 30)
       if (validProduct) {
