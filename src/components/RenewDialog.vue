@@ -34,19 +34,19 @@
       <!-- 时长选择 -->
       <div class="form-item">
         <label class="form-label">时长选择：</label>
-        <el-select
-          v-model="formData.selectedProduct"
-          placeholder="请选择续费时长"
-          style="width: 100%;"
-          @change="handleProductChange"
-        >
-          <el-option
+        <div class="duration-options">
+          <div
             v-for="product in formData.productList"
             :key="product.id"
-            :label="`${product.duration}天 - ¥${product.price?.toFixed(2)}`"
-            :value="product"
-          />
-        </el-select>
+            class="duration-option"
+            :class="{ active: formData.selectedProduct?.id === product.id }"
+            @click="selectProduct(product)"
+          >
+            <span class="duration-text">{{ product.duration }}天</span>
+            <span class="duration-price">¥{{ product.price?.toFixed(2) }}</span>
+            <el-icon v-if="formData.selectedProduct?.id === product.id" class="check-icon"><CircleCheckFilled /></el-icon>
+          </div>
+        </div>
       </div>
 
       <!-- 续费后到期时间 -->
@@ -323,7 +323,8 @@ const calculateRenewedDate = () => {
 }
 
 // 处理产品选择变化
-const handleProductChange = () => {
+const selectProduct = (product: ProductItem) => {
+  formData.value.selectedProduct = product
   calculateRenewedDate()
 }
 
@@ -699,6 +700,59 @@ onMounted(() => {
   margin-top: 20px;
   padding-top: 15px;
   border-top: 1px solid #ebeef5;
+}
+
+.duration-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  width: 100%;
+}
+
+.duration-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 100px;
+  padding: 12px 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s;
+  position: relative;
+  background: #fff;
+}
+
+.duration-option:hover {
+  border-color: #409eff;
+  background: #ecf5ff;
+}
+
+.duration-option.active {
+  border-color: #409eff;
+  background: #ecf5ff;
+}
+
+.duration-text {
+  font-size: 14px;
+  color: #303133;
+  font-weight: 500;
+}
+
+.duration-price {
+  font-size: 16px;
+  color: #f56c6c;
+  font-weight: bold;
+  margin-top: 4px;
+}
+
+.duration-option .check-icon {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  color: #409eff;
+  font-size: 18px;
 }
 
 .dialog-footer {
