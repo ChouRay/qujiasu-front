@@ -81,10 +81,10 @@
                 </el-table-column>
                 
                 <el-table-column label="操作" fixed="right" width="150">
-                  <template #default>
+                  <template #default="{ row }">
                     <div class="action-buttons">
-                      <el-button type="primary" size="small">续费</el-button>
-                      <el-button type="success" size="small">增减</el-button>
+                      <el-button type="primary" size="small" @click="handleRenew(row)">续费</el-button>
+                      <el-button type="success" size="small" @click="handleAdjust(row)">增减</el-button>
                     </div>
                   </template>
                 </el-table-column>
@@ -132,8 +132,8 @@
                     </span>
 
                     <div class="">
-                      <el-button type="primary" size="small" class="action-btn">续费</el-button>
-                      <el-button type="success" size="small" class="action-btn">增减</el-button>
+                      <el-button type="primary" size="small" class="action-btn" @click="handleRenew(item)">续费</el-button>
+                      <el-button type="success" size="small" class="action-btn" @click="handleAdjust(item)">增减</el-button>
                     </div>
                   </div> 
                 </div>
@@ -160,6 +160,14 @@
         </el-card>
       </el-col>
     </el-row>
+
+    <!-- 续费/增减弹窗 -->
+    <RenewDialog
+      v-model="showRenewDialog"
+      :subscription="currentSubscription!"
+      :mode="renewMode"
+      @success="refreshData"
+    />
   </div>
 </template>
 
@@ -169,6 +177,7 @@ import { getPackagesList, getPackagesByUsername } from '@/api/packages'
 import { formatDateTime } from '@/utils/times'
 import { Search } from '@element-plus/icons-vue'
 import type { SubscriptionVO, PackagesResponse } from '@/types/packages'
+import RenewDialog from '@/components/RenewDialog.vue'
 
 // 数据定义
 const tableData = ref<SubscriptionVO[]>([])
@@ -176,12 +185,36 @@ const loading = ref(false)
 const searchUsername = ref('')
 const isSearchMode = ref(false)
 
+// 弹窗控制
+const showRenewDialog = ref(false)
+const currentSubscription = ref<SubscriptionVO | null>(null)
+const renewMode = ref<'renew' | 'adjust'>('renew')
+
 // 分页参数
 const pagination = ref({
   currentPage: 1,
   pageSize: 10,
   total: 0
 })
+
+// 处理续费
+const handleRenew = (row: SubscriptionVO) => {
+  currentSubscription.value = row
+  renewMode.value = 'renew'
+  showRenewDialog.value = true
+}
+
+// 处理增减
+const handleAdjust = (row: SubscriptionVO) => {
+  currentSubscription.value = row
+  renewMode.value = 'adjust'
+  showRenewDialog.value = true
+}
+
+// 刷新数据
+const refreshData = () => {
+  fetchData()
+}
 
 // 获取数据方法
 const fetchData = async () => {
