@@ -21,13 +21,7 @@
       <div class="form-item">
         <label class="form-label">续费账号：</label>
         <span class="form-value">{{ subscription.username }}</span>
-      </div>
-
-      <!-- 当前时间 -->
-      <div class="form-item">
-        <label class="form-label">当前时间：</label>
-        <span class="form-value">{{ formatDateTime(currentTime) }}</span>
-      </div>
+      </div> 
 
       <!-- 原到期时间 -->
       <div class="form-item">
@@ -225,7 +219,7 @@ const dialogVisible = computed({
 const isRenewMode = computed(() => props.mode === 'renew')
 
 // 对话框宽度
-const dialogWidth = ref(isMobile(navigator.userAgent) ? '90%' : 560)
+const dialogWidth = ref(isMobile(navigator.userAgent) ? '90%' : 640)
 
 // 状态
 const loading = ref(false)
@@ -237,7 +231,7 @@ const formData = ref({
   productList: [] as ProductItem[],
   selectedProduct: null as ProductItem | null,
   adjustCount: 0, // 增减数量（仅增减模式）
-  finalUsageCount: props.subscription.usageCount, // 最终授权数
+  finalUsageCount: 0, // 最终授权数
   renewedDate: 0 as number, // 续费后的时间戳
   agreed: false
 })
@@ -461,6 +455,7 @@ watch(() => props.modelValue, async (newVal) => {
 
 onMounted(() => {
   // 定时更新当前时间
+   console.log( props.subscription)
   setInterval(() => {
     if (dialogVisible.value) {
       currentTime.value = new Date()
