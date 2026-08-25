@@ -32,7 +32,7 @@
       <el-form-item label="绑定地区">
         <el-checkbox-group v-model="selectedLocations">
           <div v-for="location in locationList" :key="location.id" style="margin-bottom: 8px">
-            <el-checkbox :label="location.id">
+            <el-checkbox :label="location.id" :disabled="location.isEnable !== 1">
               {{ location.cname }} [{{ location.lineNum }}]
             </el-checkbox>
           </div>
@@ -64,6 +64,7 @@ interface GameInfo {
 
 interface LocationInfo {
   id: number
+  isEnable: number
   cname: string
   lineNum: number
 }
@@ -97,7 +98,7 @@ const locationList = ref<LocationInfo[]>([])
 const selectedGameId = ref<number | null>(null)
 const selectedLocations = ref<number[]>([])
 const currentGameName = ref('')
-const orderId = ref('');
+const orderId = ref<number>(0);
 
 // 同步 v-model
 watch(
@@ -150,9 +151,18 @@ const loadLocations = async (gameId: number) => {
     const params = {metadataId: props.metadataId, gameId:gameId};
     const locations = await requestLocations(params)
     if (Array.isArray(locations)) {
-      locationList.value = locations
-      // 可选：如果有默认选中的地区，可以在这里设置
-      // formData.value.locationIds = [locations[0]?.id].filter(Boolean)
+      // 过滤：只有当 province.isEnable == 1 且 cities 不为空时，才将 cities 加入 locationList
+      const enabledLocations: LocationInfo[] = []
+      locations.forEach((province: any) => {
+        if (province.isEnable === 1 && province.cities && province.cities.length > 0) {
+          province.cities.forEach((city: LocationInfo) => {
+            if (city.isEnable === 1) {
+              enabledLocations.push(city)
+            }
+          })
+        }
+      })
+      locationList.value = enabledLocations
     }
   } catch (error) {    
     console.log('loadLocations',error)
@@ -188,7 +198,7 @@ const handleConfirm = async () => {
     ElMessage.success('配置更新成功')
     emit('success')
     dialogVisible.value = false
-  } catch (error) {
+  } catch (error: any) {
     const errorMsg = error.response?.data?.msg || '修改绑定失败'
     ElMessage.error(getErrorMessage(errorMsg, '创建订单失败'))
   } finally {
