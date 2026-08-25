@@ -575,7 +575,7 @@ watch(
     }
     
     try {
-      const locations = await requestLocations({ gameId, metadataId })
+      const locations = await requestLocations({ metadataId, gameId })
       if (Array.isArray(locations)) {
         locationOptions.value = locations
         // 可选：如果有默认选中的地区，可以在这里设置

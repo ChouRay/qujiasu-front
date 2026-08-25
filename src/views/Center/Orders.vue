@@ -192,11 +192,12 @@
     <ConfigEditDialog
       v-model="showConfigDialog"
       :config="{
+        orderId: configForm.orderId,
         gameId: configForm.gameId || 0,
         gameInfo: { name: configForm.currentGameName },
         locationList: configForm.locationList
       }"
-      :metadata-id="configForm.metadataId"
+      :metadataId=configForm.metadataId
       @success="handleConfigSuccess"
     />
   </div>
@@ -237,7 +238,7 @@ const handleEditConfig = (row: SubscriptionVO) => {
   // 初始化表单数据，传递给子组件
   configForm.value = {
     orderId: row.id,
-    metadataId: row.metadata_id || row.id,
+    metadataId: row.metadataId,
     currentGameName: row.config?.gameInfo?.name || '未绑定',
     gameId: row.config?.gameInfo?.id,
     locationList: row.config?.locationList ? [...row.config.locationList] : []

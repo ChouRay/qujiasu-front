@@ -71,6 +71,7 @@ interface LocationInfo {
 interface Props {
   modelValue: boolean
   config: {
+    orderId: number
     gameId: number
     gameInfo: {
       name: string
@@ -96,6 +97,7 @@ const locationList = ref<LocationInfo[]>([])
 const selectedGameId = ref<number | null>(null)
 const selectedLocations = ref<number[]>([])
 const currentGameName = ref('')
+const orderId = ref('');
 
 // 同步 v-model
 watch(
@@ -119,18 +121,24 @@ const initDialog = async () => {
     // 初始化当前游戏信息
     currentGameName.value = props.config.gameInfo.name
     selectedGameId.value = props.config.gameId
+    orderId.value = props.config.orderId
     selectedLocations.value = [...props.config.locationList]
 
     // 获取所有游戏列表
-    const gamesRes = await requestGames()
-    gameList.value = gamesRes.data || []
+    const gameData = await requestGames()
+    if (Array.isArray(gameData)) {
+      gameList.value = gameData.sort((a, b) => 
+        (a.name || '').localeCompare(b.name || '', 'zh-CN')
+      )
+    }
 
-    // 根据当前游戏加载地区列表
-    if (selectedGameId.value) {
+    // 根据当前游戏加载地区列表    
+    if (selectedGameId.value) {      
       await loadLocations(selectedGameId.value)
     }
   } catch (error) {
-    getErrorMessage(error)
+    // 
+    
   } finally {
     loading.value = false
   }
@@ -139,10 +147,15 @@ const initDialog = async () => {
 // 加载地区列表
 const loadLocations = async (gameId: number) => {
   try {
-    const res = await requestLocations(gameId, props.metadataId)
-    locationList.value = res.data || []
-  } catch (error) {
-    getErrorMessage(error)
+    const params = {metadataId: props.metadataId, gameId:gameId};
+    const locations = await requestLocations(params)
+    if (Array.isArray(locations)) {
+      locationList.value = locations
+      // 可选：如果有默认选中的地区，可以在这里设置
+      // formData.value.locationIds = [locations[0]?.id].filter(Boolean)
+    }
+  } catch (error) {    
+    console.log('loadLocations',error)
   }
 }
 
@@ -168,16 +181,16 @@ const handleConfirm = async () => {
 
   loading.value = true
   try {
-    await updatePackageConfig({
+    await updatePackageConfig(orderId.value,{
       gameId: selectedGameId.value,
-      locationList: selectedLocations.value,
-      metadataId: props.metadataId
+      locationList: selectedLocations.value
     })
     ElMessage.success('配置更新成功')
     emit('success')
     dialogVisible.value = false
   } catch (error) {
-    getErrorMessage(error)
+    const errorMsg = error.response?.data?.msg || '修改绑定失败'
+    ElMessage.error(getErrorMessage(errorMsg, '创建订单失败'))
   } finally {
     loading.value = false
   }
