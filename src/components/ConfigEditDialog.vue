@@ -54,19 +54,13 @@
 <script setup lang="ts">
 import { ref, watch, onMounted } from 'vue'
 import { requestGames, requestLocations, updatePackageConfig } from '@/api/packages'
+import type { Province, City } from '@/types/region'
 import { getErrorMessage } from '@/utils/errorMessage'
 import { ElMessage } from 'element-plus'
 
 interface GameInfo {
   id: number
   name: string
-}
-
-interface LocationInfo {
-  id: number
-  isEnable: number
-  cname: string
-  lineNum: number
 }
 
 interface Props {
@@ -94,9 +88,10 @@ const emit = defineEmits<{
 const dialogVisible = ref(false)
 const loading = ref(false)
 const gameList = ref<GameInfo[]>([])
-const locationList = ref<LocationInfo[]>([])
+const locationList = ref<City[]>([])
 const selectedGameId = ref<number | null>(null)
 const selectedLocations = ref<number[]>([])
+const selectedCities = ref<number[]>([])
 const currentGameName = ref('')
 const orderId = ref<number>(0);
 
@@ -123,7 +118,8 @@ const initDialog = async () => {
     currentGameName.value = props.config.gameInfo.name
     selectedGameId.value = props.config.gameId
     orderId.value = props.config.orderId
-    selectedLocations.value = [...props.config.locationList]
+    selectedCities.value = [...props.config.locationList]
+    selectedLocations.value = []
 
     // 获取所有游戏列表
     const gameData = await requestGames()
@@ -152,13 +148,16 @@ const loadLocations = async (gameId: number) => {
     const locations = await requestLocations(params)
     if (Array.isArray(locations)) {
       // 过滤：只有当 province.isEnable == 1 且 cities 不为空时，才将 cities 加入 locationList
-      const enabledLocations: LocationInfo[] = []
-      locations.forEach((province: any) => {
+      const enabledLocations: City[] = []
+      locations.forEach((province: Province) => {
         if (province.isEnable === 1 && province.cities && province.cities.length > 0) {
-          province.cities.forEach((city: LocationInfo) => {
-            if (city.isEnable === 1) {
-              enabledLocations.push(city)
-            }
+          province.cities.forEach((city: City) => {
+            enabledLocations.push(city)
+            selectedCities.value.forEach((cityId: number) => {
+              if (cityId == city.id) {
+                selectedLocations.value.push(cityId);
+              }
+            })
           })
         }
       })
