@@ -177,6 +177,7 @@ const handleGameChange = async (gameId: number) => {
   }
   // 清空已选地区
   selectedLocations.value = []
+  selectedCities.value = []
   // 重新加载地区列表
   await loadLocations(gameId)
 }
