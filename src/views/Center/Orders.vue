@@ -59,10 +59,19 @@
                       type="primary" 
                       size="small"
                       plain
+                      @click="handleEditConfig(row)"
                     >
                       {{ row.config.gameInfo.name }}
                     </el-button>
-                    <span v-else class="text-gray">未绑定</span>
+                    <el-button 
+                      v-else 
+                      type="info" 
+                      size="small"
+                      plain
+                      @click="handleEditConfig(row)"
+                    >
+                      未绑定
+                    </el-button>
                   </template>
                 </el-table-column>
                 
@@ -115,14 +124,24 @@
                   <div class="info-row">
                     <span class="label">项目:</span>
                     <span class="value">
-                      <el-tag 
+                      <el-button 
                         v-if="item.config && item.config.gameInfo" 
-                        size="small" 
-                        type="primary"
+                        type="primary" 
+                        size="small"
+                        plain
+                        @click="handleEditConfig(item)"
                       >
                         {{ item.config.gameInfo.name }}
-                      </el-tag>
-                      <span v-else class="text-gray">未绑定</span>
+                      </el-button>
+                      <el-button 
+                        v-else 
+                        type="info" 
+                        size="small"
+                        plain
+                        @click="handleEditConfig(item)"
+                      >
+                        未绑定
+                      </el-button>
                     </span>
                   </div>                 
                   <div class="info-row">
@@ -168,6 +187,18 @@
       :mode="renewMode"
       @success="refreshData"
     />
+
+    <!-- 编辑配置弹窗 -->
+    <ConfigEditDialog
+      v-model="showConfigDialog"
+      :config="{
+        gameId: configForm.gameId || 0,
+        gameInfo: { name: configForm.currentGameName },
+        locationList: configForm.locationList
+      }"
+      :metadata-id="configForm.metadataId"
+      @success="handleConfigSuccess"
+    />
   </div>
 </template>
 
@@ -178,6 +209,7 @@ import { formatDateTime } from '@/utils/times'
 import { Search } from '@element-plus/icons-vue'
 import type { SubscriptionVO, PackagesResponse } from '@/types/packages'
 import RenewDialog from '@/components/RenewDialog.vue'
+import ConfigEditDialog from '@/components/ConfigEditDialog.vue'
 
 // 数据定义
 const tableData = ref<SubscriptionVO[]>([])
@@ -189,6 +221,36 @@ const isSearchMode = ref(false)
 const showRenewDialog = ref(false)
 const currentSubscription = ref<SubscriptionVO | null>(null)
 const renewMode = ref<'renew' | 'adjust'>('renew')
+
+// 编辑配置相关
+const showConfigDialog = ref(false)
+const configForm = ref({
+  orderId: 0,
+  metadataId: 0,
+  currentGameName: '',
+  gameId: undefined as number | undefined,
+  locationList: [] as number[]
+})
+
+// 处理编辑配置
+const handleEditConfig = (row: SubscriptionVO) => {
+  // 初始化表单数据，传递给子组件
+  configForm.value = {
+    orderId: row.id,
+    metadataId: row.metadata_id || row.id,
+    currentGameName: row.config?.gameInfo?.name || '未绑定',
+    gameId: row.config?.gameInfo?.id,
+    locationList: row.config?.locationList ? [...row.config.locationList] : []
+  }
+  
+  showConfigDialog.value = true
+}
+
+// 配置修改成功后的回调
+const handleConfigSuccess = () => {
+  showConfigDialog.value = false
+  fetchData()
+}
 
 // 分页参数
 const pagination = ref({
@@ -209,6 +271,26 @@ const handleAdjust = (row: SubscriptionVO) => {
   currentSubscription.value = row
   renewMode.value = 'adjust'
   showRenewDialog.value = true
+}
+
+// 处理编辑配置
+const handleEditConfig = (row: SubscriptionVO) => {
+  // 初始化表单数据，传递给子组件
+  configForm.value = {
+    orderId: row.id,
+    metadataId: row.metadata_id || row.id,
+    currentGameName: row.config?.gameInfo?.name || '未绑定',
+    gameId: row.config?.gameInfo?.id,
+    locationList: row.config?.locationList ? [...row.config.locationList] : []
+  }
+  
+  showConfigDialog.value = true
+}
+
+// 配置修改成功后的回调
+const handleConfigSuccess = () => {
+  showConfigDialog.value = false
+  fetchData()
 }
 
 // 刷新数据
