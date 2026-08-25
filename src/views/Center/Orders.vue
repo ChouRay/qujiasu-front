@@ -191,6 +191,7 @@
     <!-- 编辑配置弹窗 -->
     <ConfigEditDialog
       v-model="showConfigDialog"
+      :username=configForm.username
       :config="{
         orderId: configForm.orderId,
         gameId: configForm.gameId || 0,
@@ -227,6 +228,7 @@ const renewMode = ref<'renew' | 'adjust'>('renew')
 const showConfigDialog = ref(false)
 const configForm = ref({
   orderId: 0,
+  username: '',
   metadataId: 0,
   currentGameName: '',
   gameId: undefined as number | undefined,
@@ -235,9 +237,10 @@ const configForm = ref({
 
 // 处理编辑配置
 const handleEditConfig = (row: SubscriptionVO) => {
-  // 初始化表单数据，传递给子组件
+  // 初始化表单数据，传递给子组件  
   configForm.value = {
     orderId: row.id,
+    username: row.username,
     metadataId: row.metadataId,
     currentGameName: row.config?.gameInfo?.name || '未绑定',
     gameId: row.config?.gameInfo?.id,

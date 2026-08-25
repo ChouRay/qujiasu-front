@@ -6,6 +6,10 @@
     :before-close="handleClose"
   >
     <el-form label-width="100px">
+      <!-- 当前账号 -->
+      <el-form-item label="当前账号">
+        <span>{{ currentUserName }}</span>
+      </el-form-item>
       <!-- 当前已绑定的游戏 -->
       <el-form-item label="当前游戏">
         <span>{{ currentGameName }}</span>
@@ -65,6 +69,7 @@ interface GameInfo {
 
 interface Props {
   modelValue: boolean
+  username: string,
   config: {
     orderId: number
     gameId: number
@@ -92,6 +97,7 @@ const locationList = ref<City[]>([])
 const selectedGameId = ref<number | null>(null)
 const selectedLocations = ref<number[]>([])
 const selectedCities = ref<number[]>([])
+const currentUserName = ref('')
 const currentGameName = ref('')
 const orderId = ref<number>(0);
 
@@ -115,6 +121,7 @@ const initDialog = async () => {
   loading.value = true
   try {
     // 初始化当前游戏信息
+    currentUserName.value = props.username
     currentGameName.value = props.config.gameInfo.name
     selectedGameId.value = props.config.gameId
     orderId.value = props.config.orderId
