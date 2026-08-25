@@ -273,25 +273,6 @@ const handleAdjust = (row: SubscriptionVO) => {
   showRenewDialog.value = true
 }
 
-// 处理编辑配置
-const handleEditConfig = (row: SubscriptionVO) => {
-  // 初始化表单数据，传递给子组件
-  configForm.value = {
-    orderId: row.id,
-    metadataId: row.metadata_id || row.id,
-    currentGameName: row.config?.gameInfo?.name || '未绑定',
-    gameId: row.config?.gameInfo?.id,
-    locationList: row.config?.locationList ? [...row.config.locationList] : []
-  }
-  
-  showConfigDialog.value = true
-}
-
-// 配置修改成功后的回调
-const handleConfigSuccess = () => {
-  showConfigDialog.value = false
-  fetchData()
-}
 
 // 刷新数据
 const refreshData = () => {
