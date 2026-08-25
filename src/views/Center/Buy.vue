@@ -195,6 +195,7 @@
                   :key="city.id"
                   :label="city.cname"
                   :value="city.id"
+                  :disabled="city.isEnable !== 1"
                 />
               </el-option-group>
             </el-select>
@@ -567,6 +568,7 @@ watch(
   async ([gameId, metadataId]) => {
     // 清空旧选项和选中值
     locationOptions.value = []
+    allCitiesMap.value.clear()
     formData.value.locationIds = []
     
     // 必须同时有 gameId 和 metadataId 才请求
@@ -577,9 +579,27 @@ watch(
     try {
       const locations = await requestLocations({ metadataId, gameId })
       if (Array.isArray(locations)) {
-        locationOptions.value = locations
-        // 可选：如果有默认选中的地区，可以在这里设置
-        // formData.value.locationIds = [locations[0]?.id].filter(Boolean)
+        // 过滤：只有当 province.isEnable == 1 且 cities 不为空时，才处理其 cities
+        const filteredProvinces: Province[] = []
+        locations.forEach((province: Province) => {
+          if (province.isEnable === 1 && province.cities && province.cities.length > 0) {
+            // 创建新的 province 对象，只包含启用的城市
+            const enabledCities = province.cities.filter(city => city.isEnable === 1)
+            if (enabledCities.length > 0) {
+              const filteredProvince: Province = {
+                ...province,
+                cities: enabledCities
+              }
+              filteredProvinces.push(filteredProvince)
+              
+              // 将启用的城市加入 allCitiesMap
+              enabledCities.forEach(city => {
+                allCitiesMap.value.set(city.id, city)
+              })
+            }
+          }
+        })
+        locationOptions.value = filteredProvinces
       }
     } catch (err) {
       console.error('获取地区列表失败:', err)
