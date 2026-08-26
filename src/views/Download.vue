@@ -15,15 +15,15 @@
 
       <!-- 底部下载按钮 -->
       <div class="download-buttons">
-        <div class="download-btn pc-btn">
+        <div class="download-btn pc-btn" @click="handlePcDownload">
           <img src="@/assets/images/icon-pc.png" alt="电脑图标" class="btn-icon" />
           <span class="btn-text">电脑下载</span>
         </div>
-        <div class="download-btn android-btn">
+        <div class="download-btn android-btn" @click="handleAndroidDownload">
           <img src="@/assets/images/icon-android.png" alt="安卓图标" class="btn-icon" />
           <span class="btn-text">安卓下载</span>
         </div>
-        <div class="download-btn ios-btn">
+        <div class="download-btn ios-btn" @click="handleIosDownload">
           <img src="@/assets/images/icon-ios.png" alt="苹果图标" class="btn-icon" />
           <span class="btn-text">苹果下载</span>
         </div>
@@ -36,7 +36,68 @@
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted } from 'vue'
+import { getLatestClientVersion, type ClientVersion } from '@/api/download'
+import { ElMessage } from 'element-plus'
 
+const versionList = ref<ClientVersion[]>([])
+const loading = ref(false)
+
+// 设备类型映射
+const deviceTypeMap = {
+  PC: ['WINDOWS', 'MAC', 'LINUX'],
+  ANDROID: ['ANDROID', 'HARMONYOS'],
+  IOS: ['IOS']
+}
+
+// 获取最新版本信息
+const fetchVersionList = async () => {
+  loading.value = true
+  try {
+    const res = await getLatestClientVersion()
+    versionList.value = res || []
+  } catch (error) {
+    console.error('获取版本信息失败:', error)
+    ElMessage.error('获取版本信息失败')
+  } finally {
+    loading.value = false
+  }
+}
+
+// 根据设备类型获取下载链接
+const getDownloadUrl = (types: string[]): string | null => {
+  const item = versionList.value.find(v => types.includes(v.deviceType))
+  return item?.downloadUrl || null
+}
+
+// 处理下载点击
+const handleDownload = (types: string[], deviceName: string) => {
+  const url = getDownloadUrl(types)
+  if (url) {
+    window.open(url, '_blank')
+  } else {
+    ElMessage.warning(`暂未发布${deviceName}版本`)
+  }
+}
+
+// 电脑下载
+const handlePcDownload = () => {
+  handleDownload(deviceTypeMap.PC, '电脑')
+}
+
+// 安卓下载
+const handleAndroidDownload = () => {
+  handleDownload(deviceTypeMap.ANDROID, '安卓')
+}
+
+// 苹果下载
+const handleIosDownload = () => {
+  handleDownload(deviceTypeMap.IOS, '苹果')
+}
+
+onMounted(() => {
+  fetchVersionList()
+})
 </script>
 
 <style lang="scss" scoped>
