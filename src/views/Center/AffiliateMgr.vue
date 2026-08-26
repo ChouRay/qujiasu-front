@@ -83,15 +83,65 @@
       </div>
     </div>
   </div>
+
+  <!-- 绑定支付宝弹窗 -->
+  <el-dialog
+    v-model="bindDialogVisible"
+    title="绑定支付宝账号"
+    width="400px"
+    :close-on-click-modal="false"
+  >
+    <el-form :model="bindForm" label-width="100px">
+      <el-form-item label="支付宝真实姓名">
+        <el-input v-model="bindForm.aliRealName" placeholder="请输入支付宝真实姓名" />
+      </el-form-item>
+      <el-form-item label="支付宝账号">
+        <el-input v-model="bindForm.aliAccount" placeholder="请输入支付宝账号" />
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <div style="display: flex; justify-content: flex-end; gap: 12px;">
+        <el-button @click="bindDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="confirmBindAlipay">确定</el-button>
+      </div>
+    </template>
+  </el-dialog>
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
 import { userInfo } from '@/reactive/user'
 import { formatTime } from '@/utils/times'
+import { requestBindAliapy } from '@/api/user'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { getErrorMessage } from '@/utils/errorMessage'
+
+// 绑定支付宝弹窗控制
+const bindDialogVisible = ref(false)
+const bindForm = ref({
+  aliRealName: '',
+  aliAccount: ''
+})
 
 const handleBindAlipay = () => {
-  console.log('绑定支付宝')
-  // TODO: 实现绑定逻辑
+  bindForm.value = {
+    aliRealName: '',
+    aliAccount: ''
+  }
+  bindDialogVisible.value = true
+}
+
+const confirmBindAlipay = async () => {
+  try {
+    await requestBindAliapy(bindForm.value)
+    ElMessage.success('绑定成功')
+    bindDialogVisible.value = false
+    // 刷新用户信息
+    // getUserInfo() // 如果需要刷新可以调用
+  } catch (error: any) {
+    const errorMsg = error.response?.data?.msg || '绑定失败'
+    ElMessage.error(getErrorMessage(errorMsg))
+  }
 }
 
 const handleWithdraw = () => {

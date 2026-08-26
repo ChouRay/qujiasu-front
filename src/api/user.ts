@@ -160,3 +160,21 @@ export function createRechargeOrder(data: CreateRechargeOrderParams) {
     data
   })
 }
+
+/**
+ * 绑定支付宝账号接口
+ * @param data - 支付宝信息
+ * @param data.aliRealName - 支付宝真实姓名
+ * @param data.aliAccount - 支付宝账号
+ * @returns Promise<any>
+ */
+export function requestBindAliapy(data: {
+  aliRealName: string
+  aliAccount: string
+}) {
+  return request({
+    url: '/api/user/alipay-account',
+    method: 'PUT',
+    data
+  })
+}
