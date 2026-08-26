@@ -51,12 +51,22 @@
               <span class="value money">¥{{ formatNumber(userInfo.userReward) }}</span>
             </div>
 
-            <!-- 实名认证占位 -->
+            <!-- 实名认证 -->
             <div class="info-row">
               <span class="label">实名认证：</span>
               <span class="value">
-                <el-tag v-if="userInfo.isCertifyOk" type="success">已认证</el-tag>
-                <el-tag v-else type="info">未认证</el-tag>
+                <el-tag v-if="userInfo.isCertifyOk" type="success" effect="plain">
+                  <el-icon style="vertical-align: middle; margin-right: 4px;"><CircleCheck /></el-icon>
+                  已认证
+                </el-tag>
+                <el-button 
+                  v-else 
+                  type="primary" 
+                  size="small"
+                  @click="showCertifyTipDialog = true"
+                >
+                  去认证
+                </el-button>
               </span>
             </div>
           </div>
@@ -153,6 +163,63 @@
         <el-button type="primary">确认</el-button>
       </template>
     </el-dialog>
+
+    <!-- 实名认证提示弹窗 -->
+    <el-dialog
+      v-model="showCertifyTipDialog"
+      title="实名认证"
+      width="420px"
+      destroy-on-close
+      :close-on-click-modal="false"
+    >
+      <div class="certify-tip-content">
+        <p class="tip-text">根据网安要求，请先完成实名认证</p>
+        <p class="tip-privacy">认证信息仅用于身份核实，平台不会泄露您的隐私</p>
+      </div>
+      <template #footer>
+        <el-button @click="showCertifyTipDialog = false">取消</el-button>
+        <el-button type="primary" @click="showCertifyTipDialog = false; showCertifyDialog = true">去认证</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- 微信公众号认证弹窗 -->
+    <el-dialog
+      v-model="showCertifyDialog"
+      title="微信公众号认证"
+      width="460px"
+      destroy-on-close
+      :close-on-click-modal="false"
+    >
+      <div class="wechat-certify-content">
+        <p class="wechat-tip">请先使用微信扫码下方二维码关注公众号</p>
+        <div class="qr-wrapper">
+          <img 
+            src="@/assets/images/wx-open-qr.jpg" 
+            alt="微信二维码" 
+            class="wechat-qr-image"
+          />
+        </div>
+        <p class="wechat-instruction">关注后请发送<span class="keyword-box">[实名认证]</span>获取认证链接</p>
+        <div class="steps-list">
+          <div class="step-item">
+            <span class="step-number">1</span>
+            <span class="step-text">打开手机微信扫一扫</span>
+          </div>
+          <div class="step-item">
+            <span class="step-number">2</span>
+            <span class="step-text">扫描二维码关注公众号</span>
+          </div>
+          <div class="step-item">
+            <span class="step-number">3</span>
+            <span class="step-text">在公众号内完成实名认证</span>
+          </div>
+        </div>
+      </div>
+      <template #footer>
+        <el-button @click="showCertifyDialog = false">返回</el-button>
+        <el-button type="success" @click="handleCertifiedComplete">已完成认证</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -161,11 +228,21 @@ import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { userInfo } from '@/reactive/user'
 import { ElMessage } from 'element-plus'
+import { CircleCheck } from '@element-plus/icons-vue'
 
 const router = useRouter()
 
 // 弹窗控制
 const showPasswordDialog = ref(false)
+const showCertifyTipDialog = ref(false)
+const showCertifyDialog = ref(false)
+
+// 处理已完成认证
+const handleCertifiedComplete = () => {
+  // 这里可以调用 API 更新认证状态，目前仅做演示
+  ElMessage.success('认证信息已提交，请等待审核')
+  showCertifyDialog.value = false
+}
 
 // 计算推广链接
 const promoLink = computed(() => {
@@ -416,5 +493,107 @@ const handleRecharge = () => {
     width: 100%;
     font-size: 3vw;
   }
+}
+
+/* 实名认证提示弹窗样式 */
+.certify-tip-content {
+  text-align: center;
+  padding: 20px 10px;
+}
+
+.tip-text {
+  font-size: 16px;
+  color: #303133;
+  margin-bottom: 16px;
+  line-height: 1.6;
+}
+
+.tip-privacy {
+  font-size: 13px;
+  color: #909399;
+  margin-top: 20px;
+}
+
+/* 微信公众号认证弹窗样式 */
+.wechat-certify-content {
+  text-align: center;
+  padding: 10px 10px;
+}
+
+.wechat-tip {
+  font-size: 15px;
+  color: #303133;
+  margin-bottom: 20px;
+}
+
+.qr-wrapper {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.wechat-qr-image {
+  width: 200px;
+  height: 200px;
+  object-fit: cover;
+  border: 4px solid #f0f0f0;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.wechat-instruction {
+  font-size: 14px;
+  color: #606266;
+  margin: 20px 0;
+}
+
+.keyword-box {
+  display: inline-block;
+  background: #f0f7ff;
+  color: #409eff;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-weight: bold;
+  border: 1px dashed #409eff;
+  margin: 0 4px;
+}
+
+.steps-list {
+  text-align: left;
+  margin-top: 24px;
+  padding: 16px;
+  background: #f9fafc;
+  border-radius: 8px;
+}
+
+.step-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.step-item:last-child {
+  margin-bottom: 0;
+}
+
+.step-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #409eff;
+  color: #fff;
+  font-size: 13px;
+  font-weight: bold;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.step-text {
+  font-size: 14px;
+  color: #606266;
+  line-height: 1.5;
 }
 </style>

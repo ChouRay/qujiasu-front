@@ -156,7 +156,7 @@ import { ref } from 'vue'
 import { userInfo } from '@/reactive/user'
 import { formatTime } from '@/utils/times'
 import { getUserInfo, requestBindAliapy, requestWithdraw } from '@/api/user'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessage } from 'element-plus'
 import { getErrorMessage } from '@/utils/errorMessage'
 import { Edit } from '@element-plus/icons-vue'
 
