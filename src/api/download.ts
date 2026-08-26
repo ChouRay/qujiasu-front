@@ -14,9 +14,10 @@ export interface ClientVersion {
 
 /**
  * 获取客户端最新版本信息
+ * @returns 返回 ClientVersion 数组
  */
 export function getLatestClientVersion() {
-  return request<any, ClientVersion>({
+  return request<any, ClientVersion[]>({
     url: '/api/client-versions/latest',
     method: 'GET'
   })
