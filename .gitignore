@@ -1,50 +1,38 @@
 ```
-# Vue.js/JavaScript project
-node_modules/
+# Compiled and build artifacts
+*.pyc
+__pycache__/
+*.o
+*.obj
 dist/
 build/
+target/
 
-# IDE files
-.vscode/
-.idea/
-
-# Environment variables
-.env
-.env.local
-*.env.*
-
-# Logs
-*.log
-
-# Python (if present)
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-.Python
-env/
+# Dependencies
+node_modules/
 venv/
 .venv/
-.ENV
+.env
+.env.local
+.env.*
 
-# Temporary files
+# Logs and temp files
+*.log
 *.tmp
-*.temp
 *.swp
-*~
-.DS_Store
-Thumbs.db
+
+# Editors
+.vscode/
+.idea/
 
 # Coverage reports
 coverage/
 htmlcov/
 .coverage
 
-# Build outputs
-target/
-.gradle/
-.mypy_cache/
-.pytest_cache/
+# OS specific
+.DS_Store
+Thumbs.db
 
 # Compressed files
 *.zip

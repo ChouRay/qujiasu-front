@@ -178,3 +178,21 @@ export function requestBindAliapy(data: {
     data
   })
 }
+
+/**
+ * 申请提现接口
+ * @param data - 提现信息
+ * @param data.totalAmount - 提现金额，最小 100
+ * @param data.destination - 提现目的地 (BALANCE, ALIPAY)
+ * @returns Promise<any>
+ */
+export function requestWithdraw(data: {
+  totalAmount: number
+  destination: 'BALANCE' | 'ALIPAY'
+}) {
+  return request({
+    url: '/api/user/withdrawals',
+    method: 'POST',
+    data
+  })
+}

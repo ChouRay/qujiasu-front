@@ -106,13 +106,49 @@
       </div>
     </template>
   </el-dialog>
+
+  <!-- 提现弹窗 -->
+  <el-dialog
+    v-model="withdrawDialogVisible"
+    title="佣金提现"
+    width="400px"
+    :close-on-click-modal="false"
+  >
+    <div style="margin-bottom: 16px; color: #666;">
+      当前可提现金额：<span style="color: #f56c6c; font-weight: bold; font-size: 18px;">¥{{ (userInfo.agentIncome || 0).toFixed(2) }}</span>
+    </div>
+    <el-form :model="withdrawForm" label-width="120px">
+      <el-form-item label="提现方式">
+        <el-radio-group v-model="withdrawForm.destination">
+          <el-radio label="BALANCE">账号余额</el-radio>
+          <el-radio label="ALIPAY">支付宝</el-radio>
+        </el-radio-group>
+      </el-form-item>
+      <el-form-item label="提现金额">
+        <el-input-number 
+          v-model="withdrawForm.totalAmount" 
+          :min="100" 
+          :max="userInfo.agentIncome || 0"
+          :precision="2"
+          :step="1"
+          style="width: 100%;"
+        />
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <div style="display: flex; justify-content: flex-end; gap: 12px;">
+        <el-button @click="withdrawDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="confirmWithdraw">确定</el-button>
+      </div>
+    </template>
+  </el-dialog>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { userInfo } from '@/reactive/user'
+import { userInfo, getUserInfo } from '@/reactive/user'
 import { formatTime } from '@/utils/times'
-import { requestBindAliapy } from '@/api/user'
+import { requestBindAliapy, requestWithdraw } from '@/api/user'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getErrorMessage } from '@/utils/errorMessage'
 import { Edit } from '@element-plus/icons-vue'
@@ -122,6 +158,13 @@ const bindDialogVisible = ref(false)
 const bindForm = ref({
   aliRealName: '',
   aliAccount: ''
+})
+
+// 提现弹窗控制
+const withdrawDialogVisible = ref(false)
+const withdrawForm = ref({
+  totalAmount: 0,
+  destination: 'BALANCE' as 'BALANCE' | 'ALIPAY'
 })
 
 const handleBindAlipay = () => {
@@ -138,7 +181,7 @@ const confirmBindAlipay = async () => {
     ElMessage.success('绑定成功')
     bindDialogVisible.value = false
     // 刷新用户信息
-    // getUserInfo() // 如果需要刷新可以调用
+    getUserInfo()
   } catch (error: any) {
     const errorMsg = error.response?.data?.msg || '绑定失败'
     ElMessage.error(getErrorMessage(errorMsg))
@@ -146,8 +189,39 @@ const confirmBindAlipay = async () => {
 }
 
 const handleWithdraw = () => {
-  console.log('申请提现')
-  // TODO: 实现提现逻辑
+  // 检查是否有未处理的提现
+  if (userInfo.onWithdraw && userInfo.onWithdraw > 0) {
+    ElMessage.warning('还有未处理的提现，请等待处理完成后再提现')
+    return
+  }
+  
+  // 初始化提现表单
+  withdrawForm.value = {
+    totalAmount: userInfo.agentIncome || 0,
+    destination: 'BALANCE'
+  }
+  withdrawDialogVisible.value = true
+}
+
+const confirmWithdraw = async () => {
+  // 检查是否绑定支付宝（如果选择提现到支付宝）
+  if (withdrawForm.value.destination === 'ALIPAY' && !userInfo.idAli) {
+    ElMessage.warning('请先绑定支付宝账号')
+    withdrawDialogVisible.value = false
+    handleBindAlipay()
+    return
+  }
+  
+  try {
+    await requestWithdraw(withdrawForm.value)
+    ElMessage.success('提现申请成功')
+    withdrawDialogVisible.value = false
+    // 刷新用户信息
+    getUserInfo()
+  } catch (error: any) {
+    const errorMsg = error.response?.data?.msg || '提现失败'
+    ElMessage.error(getErrorMessage(errorMsg))
+  }
 }
 </script>
 
