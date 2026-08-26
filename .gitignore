@@ -1,100 +1,60 @@
-# Dependencies
+```
+# Vue.js/JavaScript project
 node_modules/
-
-# Build artifacts
 dist/
 build/
-target/
 
-# Python
+# IDE files
+.vscode/
+.idea/
+
+# Environment variables
+.env
+.env.local
+*.env.*
+
+# Logs
+*.log
+
+# Python (if present)
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
-*.py.class
 .Python
 env/
 venv/
 .venv/
 .ENV
-.venv.bak/
-pip-log.txt
-pip-selfcheck.json
-.pytest_cache/
-.coverage
-htmlcov/
-.mypy_cache/
-.tox/
-.coverage.*
-
-# Logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-Icon?
-.directory
-.fseventsd
-
-# Editor files
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# Environment variables
-.env
-.env.local
-.env.dev
-.env.production
-.env.test
-*.env
-
-# Coverage
-coverage/
-.nyc_output
-istanbul.config.js
-nyc.config.js
-coverage-final.json
 
 # Temporary files
 *.tmp
 *.temp
-.tmp
-.temp
+*.swp
+*~
+.DS_Store
+Thumbs.db
 
-# Compiled files
-*.exe
-*.dll
-*.so
-*.a
-*.o
-*.obj
-*.out
-*.class
-*.jar
-*.war
-*.ear
+# Coverage reports
+coverage/
+htmlcov/
+.coverage
+
+# Build outputs
+target/
+.gradle/
+.mypy_cache/
+.pytest_cache/
+
+# Compressed files
 *.zip
-*.tar.gz
-*.tgz
-*.tar.bz2
-*.tar.xz
-*.rar
-*.7z
 *.gz
+*.tar
+*.tgz
 *.bz2
 *.xz
+*.7z
+*.rar
 *.zst
 *.lz4
 *.lzh
@@ -105,59 +65,8 @@ coverage-final.json
 *.Z
 *.lz
 *.lzo
-
-# Testing
-.jest/
-jest/
-mochawesome-report/
-mocha.opts
-
-# Distribution
-dist/
-release/
-publish/
-
-# IDE specific
-.vs/
-*.user
-*.userosscache
-*.suo
-*.csproj.user
-*.vbproj.user
-*.userprefs
-
-# Browsers
-hs_err_pid*
-*.stackdump
-
-# Node
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-node_modules/
-jspm_packages/
-
-# Webpack
-webpack-stats.json
-*.map
-
-# TypeScript
-*.tsbuildinfo
-*.bak
-
-# Go
-*.exe
-*.test
-*.prof
-*.syso
-vendor/
-
-# Java
-*.class
-*.jar
-*.war
-*.ear
-*.swp
-.DS_Store
-target/
-.gradle/
+*.tar.gz
+*.tar.bz2
+*.tar.xz
+*.tar.zst
+```

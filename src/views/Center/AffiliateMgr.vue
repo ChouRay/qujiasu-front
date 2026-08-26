@@ -19,8 +19,8 @@
           </div>
           <div class="info-item">
             <span class="label">支付宝：</span>
-            <span v-if="userInfo.idAli" class="value">{{ userInfo.idAli }}</span>
-            <el-button v-else type="primary" size="small" @click="handleBindAlipay">绑定</el-button>
+            <span class="value">{{ userInfo.idAli || '未绑定' }}</span>
+            <el-icon class="edit-icon" @click="handleBindAlipay"><Edit /></el-icon>
           </div>
           <div class="info-item">
             <span class="label">佣金余额：</span>
@@ -91,7 +91,7 @@
     width="400px"
     :close-on-click-modal="false"
   >
-    <el-form :model="bindForm" label-width="100px">
+    <el-form :model="bindForm" label-width="120px">
       <el-form-item label="支付宝真实姓名">
         <el-input v-model="bindForm.aliRealName" placeholder="请输入支付宝真实姓名" />
       </el-form-item>
@@ -115,6 +115,7 @@ import { formatTime } from '@/utils/times'
 import { requestBindAliapy } from '@/api/user'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getErrorMessage } from '@/utils/errorMessage'
+import { Edit } from '@element-plus/icons-vue'
 
 // 绑定支付宝弹窗控制
 const bindDialogVisible = ref(false)
@@ -315,6 +316,17 @@ const handleWithdraw = () => {
   font-weight: 600;
   border: none;
   border-radius: 24px;
+}
+
+.edit-icon {
+  color: #409eff;
+  cursor: pointer;
+  font-size: 18px;
+  margin-left: 8px;
+}
+
+.edit-icon:hover {
+  color: #66b1ff;
 }
 
 /* 响应式 */
