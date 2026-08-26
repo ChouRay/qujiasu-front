@@ -171,15 +171,16 @@
       width="420px"
       destroy-on-close
       :close-on-click-modal="false"
+      class="certify-tip-dialog"
     >
       <div class="certify-tip-content">
+        <p class="tip-title">实名认证</p>
         <p class="tip-text">根据网安要求，请先完成实名认证</p>
+        <div class="tip-action">
+          <el-button type="primary" @click="showCertifyTipDialog = false; showCertifyDialog = true">去认证</el-button>
+        </div>
         <p class="tip-privacy">认证信息仅用于身份核实，平台不会泄露您的隐私</p>
       </div>
-      <template #footer>
-        <el-button @click="showCertifyTipDialog = false">取消</el-button>
-        <el-button type="primary" @click="showCertifyTipDialog = false; showCertifyDialog = true">去认证</el-button>
-      </template>
     </el-dialog>
 
     <!-- 微信公众号认证弹窗 -->
@@ -496,22 +497,60 @@ const handleRecharge = () => {
 }
 
 /* 实名认证提示弹窗样式 */
+.certify-tip-dialog {
+  .el-dialog__header {
+    padding: 15px 20px;
+    border-bottom: 1px solid #ebeef5;
+  }
+  
+  .el-dialog__title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #303133;
+  }
+  
+  .el-dialog__body {
+    padding: 30px 20px;
+  }
+  
+  .el-dialog__footer {
+    display: none;
+  }
+}
+
 .certify-tip-content {
   text-align: center;
-  padding: 20px 10px;
+  padding: 10px;
+}
+
+.tip-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #303133;
+  margin-bottom: 12px;
 }
 
 .tip-text {
-  font-size: 16px;
-  color: #303133;
-  margin-bottom: 16px;
+  font-size: 13px;
+  color: #909399;
+  margin-bottom: 24px;
   line-height: 1.6;
 }
 
+.tip-action {
+  margin-bottom: 20px;
+  
+  .el-button {
+    background-color: #409eff;
+    border-color: #409eff;
+    width: 120px;
+  }
+}
+
 .tip-privacy {
-  font-size: 13px;
-  color: #909399;
-  margin-top: 20px;
+  font-size: 12px;
+  color: rgb(192, 196, 204);
+  margin-top: 0;
 }
 
 /* 微信公众号认证弹窗样式 */
