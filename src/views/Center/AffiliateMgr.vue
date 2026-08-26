@@ -115,22 +115,18 @@
     :close-on-click-modal="false"
   >
     <div style="margin-bottom: 16px; color: #666;">
-      当前可提现金额：<span style="color: #f56c6c; font-weight: bold; font-size: 18px;">¥{{ (userInfo.agentIncome || 0).toFixed(2) }}</span>
+      当前可提现佣金：<span style="color: #f56c6c; font-weight: bold; font-size: 18px;">¥{{ (userInfo.agentIncome || 0).toFixed(2) }}</span>
     </div>
     <el-form :model="withdrawForm" label-width="120px">
-      <el-form-item label="提现方式">
+      <el-form-item label="提现到">
         <el-radio-group v-model="withdrawForm.destination">
           <el-radio label="BALANCE">账号余额</el-radio>
           <el-radio label="ALIPAY">支付宝</el-radio>
         </el-radio-group>
       </el-form-item>
       <el-form-item label="提现金额">
-        <el-input-number 
+        <el-input
           v-model="withdrawForm.totalAmount" 
-          :min="100" 
-          :max="userInfo.agentIncome || 0"
-          :precision="2"
-          :step="1"
           style="width: 100%;"
         />
       </el-form-item>
@@ -146,9 +142,9 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { userInfo, getUserInfo } from '@/reactive/user'
+import { userInfo } from '@/reactive/user'
 import { formatTime } from '@/utils/times'
-import { requestBindAliapy, requestWithdraw } from '@/api/user'
+import { getUserInfo, requestBindAliapy, requestWithdraw } from '@/api/user'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getErrorMessage } from '@/utils/errorMessage'
 import { Edit } from '@element-plus/icons-vue'
