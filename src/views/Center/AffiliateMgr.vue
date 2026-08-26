@@ -125,10 +125,21 @@
         </el-radio-group>
       </el-form-item>
       <el-form-item label="提现金额">
-        <el-input
-          v-model="withdrawForm.totalAmount" 
-          style="width: 100%;"
-        />
+        <div style="display: flex; gap: 8px;">
+          <el-input
+            v-model="withdrawForm.totalAmount" 
+            style="flex: 1;"
+            type="number"
+            placeholder="请输入提现金额"
+          />
+          <el-button 
+            type="primary" 
+            size="default"
+            @click="fillMaxAmount"
+          >
+            全部
+          </el-button>
+        </div>
       </el-form-item>
     </el-form>
     <template #footer>
@@ -193,10 +204,16 @@ const handleWithdraw = () => {
   
   // 初始化提现表单
   withdrawForm.value = {
-    totalAmount: userInfo.agentIncome || 0,
+    totalAmount: 0,
     destination: 'BALANCE'
   }
   withdrawDialogVisible.value = true
+}
+
+// 快捷输入全部佣金（取整）
+const fillMaxAmount = () => {
+  const maxAmount = Math.floor(userInfo.agentIncome || 0)
+  withdrawForm.value.totalAmount = maxAmount
 }
 
 const confirmWithdraw = async () => {
