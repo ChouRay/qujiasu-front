@@ -203,6 +203,9 @@
 
 <script setup lang="ts">
 import { ElMessage } from 'element-plus'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 const handleRecharge = (level: string) => {
   const levelNames: Record<string, string> = {
@@ -211,7 +214,7 @@ const handleRecharge = (level: string) => {
     gold: '金牌'
   }
   ElMessage.info(`即将跳转到${levelNames[level]}会员充值页面`)
-  // TODO: 实现充值跳转逻辑
+  router.push('/center/recharge')
 }
 
 const handleApply = (level: string) => {

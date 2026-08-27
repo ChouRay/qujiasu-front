@@ -134,7 +134,7 @@ const showMessage = (text: string) => {
 .contact-float {
   position: fixed;
   right: 0; /* 靠右显示，紧贴屏幕右边缘 */
-  top: 50%; /* 垂直居中 */
+  top: 80%; /* 垂直居中 */
   transform: translateY(-50%);
   z-index: 9999;
   transition: all 0.3s ease;
