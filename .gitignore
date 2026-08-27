@@ -1,11 +1,11 @@
 ```
-# TypeScript build info
+# Build artifacts
 tsconfig.tsbuildinfo
 
 # Dependencies
 node_modules/
 
-# IDE files
+# Editors
 .vscode/
 .idea/
 
@@ -14,17 +14,10 @@ node_modules/
 .env.local
 *.env.*
 
-# Logs
+# Logs and temp files
 *.log
-
-# Temp files
 *.tmp
 *.swp
-
-# Build outputs
-dist/
-build/
-target/
 
 # Python
 __pycache__/
@@ -32,25 +25,34 @@ __pycache__/
 *.pyo
 *.pyd
 
-# Compiled
-*.o
-*.obj
-*.exe
-*.dll
-*.so
-*.a
-*.out
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+.Python
 
-# Coverage
+# Coverage reports
 coverage/
 htmlcov/
 .coverage
 
-# OS
+# Testing
+.pytest_cache/
+.mypy_cache/
+
+# OS generated files
 .DS_Store
 Thumbs.db
 
-# Testing
-.mypy_cache/
-.pytest_cache/
+# Compressed files
+*.zip
+*.tar.gz
+*.tar.bz2
+*.tar.xz
+*.gz
+*.bz2
+*.xz
+*.7z
+*.rar
+*.zst
 ```
