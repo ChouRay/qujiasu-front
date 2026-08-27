@@ -91,6 +91,9 @@
       <div class="content-body">
         <router-view />
       </div>
+      
+      <!-- 联系方式悬浮组件 -->
+      <ContactFloat />
     </main>
   </div>
 </template>
@@ -104,6 +107,7 @@ import { getUserInfo } from '@/api/user'
 import { logout } from '@/api/auth'
 import { clearUserInfo } from '@/reactive/user'
 import type { UserInfo } from '@/types/user'
+import ContactFloat from '@/components/ContactFloat.vue'
 
 // 引入等级图标
 import iconNomalMember from '@/assets/images/icon-nomal-member.png'
