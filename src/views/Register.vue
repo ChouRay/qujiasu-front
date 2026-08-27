@@ -49,7 +49,7 @@
                   发送验证码
                 </button>
               </div>
-              <div class="form-group">
+              <div class="form-group" v-if="!inviteCodeFromUrl">
                 <input 
                   type="text" 
                   v-model="form.inviteCode" 
@@ -77,14 +77,24 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref,onBeforeUnmount  } from 'vue'
-import { useRouter } from 'vue-router'
+import { reactive, ref,onBeforeUnmount,onMounted  } from 'vue'
+import { useRouter,useRoute } from 'vue-router'
 import TcentCaptcha from '@/components/captcha/TcentCaptcha'
 import { getRegisterSmsCode, requestRegister } from '@/api/user'
 import { ElMessage } from 'element-plus'
 import { getErrorMessage } from '@/utils/errorMessage'
 
 const router = useRouter()
+const route = useRoute()
+// 从 URL 参数获取邀请码
+const inviteCodeFromUrl = ref<string>('')
+onMounted(() => {
+  const c = route.query.c as string
+  if (c) {
+    inviteCodeFromUrl.value = c
+    form.inviteCode = c
+  }
+})
 
 const form = reactive({
   phone: '',

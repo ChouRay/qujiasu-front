@@ -461,9 +461,9 @@ const handleRecharge = () => {
 }
 
 .promo-link-text {
-  font-size: 1vw; /* 使用相对单位 */
-  min-font-size: 10px;
-  max-font-size: 12px;
+  font-size: 0.86vw; /* 使用相对单位 */
+  min-font-size: 11px;
+  max-font-size: 13px;
   color: #666;
   margin-bottom: 0.8vw;
   background: #f2f2f2;
@@ -543,7 +543,7 @@ const handleRecharge = () => {
   .el-button {
     background-color: #409eff;
     border-color: #409eff;
-    width: 120px;
+    width: 70%;
   }
 }
 
