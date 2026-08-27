@@ -118,6 +118,9 @@
           </div>
         </div>
       </footer>
+
+      <!-- 右下角悬浮联系方式组件 -->
+      <ContactFloat />
     </div>
   </template>
 </template>
@@ -127,6 +130,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { Menu, HomeFilled, ShoppingCart, Download, UserFilled } from '@element-plus/icons-vue'
 import imgWXOpenQR from '@/assets/images/wx-open-qr.jpg'
+import ContactFloat from '@/components/ContactFloat.vue'
 
 const route = useRoute()
 const router = useRouter()
