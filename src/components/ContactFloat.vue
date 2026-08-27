@@ -1,51 +1,40 @@
 <template>
-  <div class="contact-float" :class="{ 'expanded': isExpanded }">
-    <!-- 展开状态：显示完整联系方式 -->
-    <template v-if="isExpanded">
-      <div class="contact-header">
-        <span>联系我们</span>
-        <el-icon class="close-btn" @click="toggleExpand"><Close /></el-icon>
-      </div>
-      <div class="contact-list">
-        <div class="contact-item" @click="copyPhone">
-          <div class="contact-icon phone">
-            <el-icon><Phone /></el-icon>
-          </div>
-          <div class="contact-info">
-            <span class="contact-label">手机号码</span>
-            <span class="contact-value">{{ contactInfo.phone }}</span>
-          </div>
+  <div class="contact-float">
+    <!-- 三个图标垂直排列 -->
+    <div class="icon-list">
+      <!-- 手机号 -->
+      <div class="contact-icon-wrapper phone" @mouseenter="showTooltip('phone')" @mouseleave="hideTooltip" @click="copyPhone">
+        <div class="contact-icon">
+          <el-icon><Phone /></el-icon>
         </div>
-        
-        <div class="contact-item" @click="jumpToQQ">
-          <div class="contact-icon qq">
-            <el-icon><ChatDotRound /></el-icon>
-          </div>
-          <div class="contact-info">
-            <span class="contact-label">QQ 号码</span>
-            <span class="contact-value">{{ contactInfo.qq }}</span>
-          </div>
-        </div>
-        
-        <div class="contact-item" @click="joinQQGroup">
-          <div class="contact-icon qq-group">
-            <el-icon><UserFilled /></el-icon>
-          </div>
-          <div class="contact-info">
-            <span class="contact-label">QQ 群</span>
-            <span class="contact-value">{{ contactInfo.qqGroup }}</span>
-          </div>
+        <div class="tooltip" v-if="activeTooltip === 'phone'">
+          <span class="tooltip-label">手机号码</span>
+          <span class="tooltip-value">{{ contactInfo.phone }}</span>
         </div>
       </div>
-    </template>
-    
-    <!-- 收起状态：显示悬浮按钮 -->
-    <template v-else>
-      <div class="float-button" @click="toggleExpand">
-        <el-icon :size="24"><ChatLineRound /></el-icon>
-        <span class="button-text">联系</span>
+      
+      <!-- QQ 号 -->
+      <div class="contact-icon-wrapper qq" @mouseenter="showTooltip('qq')" @mouseleave="hideTooltip" @click="jumpToQQ">
+        <div class="contact-icon">
+          <el-icon><ChatDotRound /></el-icon>
+        </div>
+        <div class="tooltip" v-if="activeTooltip === 'qq'">
+          <span class="tooltip-label">QQ 号码</span>
+          <span class="tooltip-value">{{ contactInfo.qq }}</span>
+        </div>
       </div>
-    </template>
+      
+      <!-- QQ 群 -->
+      <div class="contact-icon-wrapper qq-group" @mouseenter="showTooltip('qqGroup')" @mouseleave="hideTooltip" @click="joinQQGroup">
+        <div class="contact-icon">
+          <el-icon><UserFilled /></el-icon>
+        </div>
+        <div class="tooltip" v-if="activeTooltip === 'qqGroup'">
+          <span class="tooltip-label">QQ 群</span>
+          <span class="tooltip-value">{{ contactInfo.qqGroup }}</span>
+        </div>
+      </div>
+    </div>
   </div>
   
   <!-- 复制成功提示 -->
@@ -56,7 +45,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { Close, Phone, ChatDotRound, UserFilled, ChatLineRound } from '@element-plus/icons-vue'
+import { Phone, ChatDotRound, UserFilled } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 
 // 联系方式配置
@@ -66,13 +55,18 @@ const contactInfo = {
   qqGroup: '2112212'
 }
 
-const isExpanded = ref(false)
+const activeTooltip = ref<string | null>(null)
 const messageVisible = ref(false)
 const messageText = ref('')
 
-// 切换展开/收起状态
-const toggleExpand = () => {
-  isExpanded.value = !isExpanded.value
+// 显示提示
+const showTooltip = (type: string) => {
+  activeTooltip.value = type
+}
+
+// 隐藏提示
+const hideTooltip = () => {
+  activeTooltip.value = null
 }
 
 // 复制手机号
@@ -139,156 +133,142 @@ const showMessage = (text: string) => {
 <style scoped>
 .contact-float {
   position: fixed;
-  right: 25%; /* 右下角四分之三位置 */
-  bottom: 80px;
+  right: 0; /* 靠右显示，紧贴屏幕右边缘 */
+  top: 50%; /* 垂直居中 */
+  transform: translateY(-50%);
   z-index: 9999;
   transition: all 0.3s ease;
 }
 
-/* 展开状态 */
-.contact-float.expanded {
-  right: 25%;
-  bottom: 80px;
-}
-
-.contact-header {
+.icon-list {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 16px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: #fff;
-  font-weight: bold;
-  border-radius: 12px 12px 0 0;
-  cursor: pointer;
-}
-
-.close-btn {
-  cursor: pointer;
-  transition: transform 0.2s;
-}
-
-.close-btn:hover {
-  transform: rotate(90deg);
-}
-
-.contact-list {
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px 8px;
   background: #fff;
-  border-radius: 0 0 12px 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  overflow: hidden;
-  min-width: 200px;
+  border-radius: 12px 0 0 12px; /* 左侧圆角 */
+  box-shadow: -4px 4px 20px rgba(0, 0, 0, 0.15);
 }
 
-.contact-item {
-  display: flex;
-  align-items: center;
-  padding: 14px 16px;
+.contact-icon-wrapper {
+  position: relative;
   cursor: pointer;
-  transition: background-color 0.2s;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.contact-item:last-child {
-  border-bottom: none;
-}
-
-.contact-item:hover {
-  background-color: #f5f7fa;
+  display: flex;
+  justify-content: flex-end; /* 图标靠右 */
 }
 
 .contact-icon {
-  width: 40px;
-  height: 40px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 12px;
-  flex-shrink: 0;
+  color: #fff;
+  font-size: 24px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
-.contact-icon.phone {
+.contact-icon-wrapper:hover .contact-icon {
+  transform: scale(1.15);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.contact-icon-wrapper.phone .contact-icon {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: #fff;
 }
 
-.contact-icon.qq {
+.contact-icon-wrapper.qq .contact-icon {
   background: linear-gradient(135deg, #12b7f5 0%, #0ea5e9 100%);
-  color: #fff;
 }
 
-.contact-icon.qq-group {
+.contact-icon-wrapper.qq-group .contact-icon {
   background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-  color: #fff;
 }
 
-.contact-info {
+/* 提示框 */
+.tooltip {
+  position: absolute;
+  right: 60px; /* 在图标左侧显示 */
+  top: 50%;
+  transform: translateY(-50%);
+  background: #fff;
+  padding: 8px 12px;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  white-space: nowrap;
+  z-index: 10000;
   display: flex;
   flex-direction: column;
   gap: 4px;
+  animation: slideIn 0.2s ease;
 }
 
-.contact-label {
+.tooltip::after {
+  content: '';
+  position: absolute;
+  right: -6px;
+  top: 50%;
+  transform: translateY(-50%);
+  border-left: 6px solid #fff;
+  border-top: 6px solid transparent;
+  border-bottom: 6px solid transparent;
+}
+
+.tooltip-label {
   font-size: 12px;
   color: #666;
 }
 
-.contact-value {
+.tooltip-value {
   font-size: 14px;
   color: #333;
-  font-weight: 500;
+  font-weight: 600;
 }
 
-/* 收起状态 - 悬浮按钮 */
-.float-button {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 60px;
-  height: 60px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 50%;
-  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
-  cursor: pointer;
-  transition: all 0.3s ease;
-  color: #fff;
-  gap: 4px;
-}
-
-.float-button:hover {
-  transform: scale(1.1);
-  box-shadow: 0 6px 25px rgba(102, 126, 234, 0.5);
-}
-
-.button-text {
-  font-size: 12px;
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-50%) translateX(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+  }
 }
 
 /* 响应式设计 - 手机端适配 */
 @media (max-width: 768px) {
   .contact-float {
-    right: 15px;
-    bottom: 70px;
+    right: 0;
+    top: auto;
+    bottom: 100px;
+    transform: none;
   }
   
-  .contact-float.expanded {
-    right: 15px;
-    bottom: 70px;
+  .icon-list {
+    gap: 8px;
+    padding: 10px 6px;
   }
   
-  .contact-list {
-    min-width: 180px;
+  .contact-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
   }
   
-  .float-button {
-    width: 50px;
-    height: 50px;
+  .tooltip {
+    right: 50px;
+    padding: 6px 10px;
   }
   
-  .button-text {
-    font-size: 10px;
+  .tooltip-label {
+    font-size: 11px;
+  }
+  
+  .tooltip-value {
+    font-size: 13px;
   }
 }
 </style>
