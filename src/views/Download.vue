@@ -19,13 +19,49 @@
           <img src="@/assets/images/icon-pc.png" alt="电脑图标" class="btn-icon" />
           <span class="btn-text">电脑下载</span>
         </div>
-        <div class="download-btn android-btn" @click="handleAndroidDownload">
+        <div 
+          class="download-btn android-btn" 
+          @click="handleAndroidDownload"
+          @mouseenter="showQrCode('android')"
+          @mouseleave="hideQrCode"
+        >
           <img src="@/assets/images/icon-android.png" alt="安卓图标" class="btn-icon" />
           <span class="btn-text">安卓下载</span>
+          <!-- 安卓二维码弹窗 -->
+          <transition name="qr-fade">
+            <div v-if="qrVisible && qrType === 'android'" class="qr-popup android-qr">
+              <div class="qr-arrow"></div>
+              <div class="qr-content">
+                <div v-if="qrLoading" class="qr-loading">
+                  <span>生成中...</span>
+                </div>
+                <canvas v-show="!qrLoading" ref="androidQrCanvas" class="qr-canvas"></canvas>
+                <p class="qr-tip">扫码下载安卓版</p>
+              </div>
+            </div>
+          </transition>
         </div>
-        <div class="download-btn ios-btn" @click="handleIosDownload">
+        <div 
+          class="download-btn ios-btn" 
+          @click="handleIosDownload"
+          @mouseenter="showQrCode('ios')"
+          @mouseleave="hideQrCode"
+        >
           <img src="@/assets/images/icon-ios.png" alt="苹果图标" class="btn-icon" />
           <span class="btn-text">苹果下载</span>
+          <!-- iOS 二维码弹窗 -->
+          <transition name="qr-fade">
+            <div v-if="qrVisible && qrType === 'ios'" class="qr-popup ios-qr">
+              <div class="qr-arrow"></div>
+              <div class="qr-content">
+                <div v-if="qrLoading" class="qr-loading">
+                  <span>生成中...</span>
+                </div>
+                <canvas v-show="!qrLoading" ref="iosQrCanvas" class="qr-canvas"></canvas>
+                <p class="qr-tip">扫码下载 iOS 版</p>
+              </div>
+            </div>
+          </transition>
         </div>
       </div>
     </div>
@@ -36,12 +72,20 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, nextTick } from 'vue'
 import { getLatestClientVersion, type ClientVersion } from '@/api/download'
 import { ElMessage } from 'element-plus'
+import QRCode from 'qrcode'
 
 const versionList = ref<ClientVersion[]>([])
 const loading = ref(false)
+
+// 二维码相关状态
+const qrVisible = ref(false)
+const qrType = ref<'android' | 'ios'>('android')
+const qrLoading = ref(false)
+const androidQrCanvas = ref<HTMLCanvasElement | null>(null)
+const iosQrCanvas = ref<HTMLCanvasElement | null>(null)
 
 // 设备类型映射
 const deviceTypeMap = {
@@ -93,6 +137,54 @@ const handleAndroidDownload = () => {
 // 苹果下载
 const handleIosDownload = () => {
   handleDownload(deviceTypeMap.IOS, '苹果')
+}
+
+// 生成二维码
+const generateQrCode = async (url: string, canvas: HTMLCanvasElement | null) => {
+  if (!canvas || !url) return
+  
+  qrLoading.value = true
+  try {
+    await QRCode.toCanvas(canvas, url, {
+      width: 120,
+      margin: 2,
+      color: {
+        dark: '#333333',
+        light: '#ffffff'
+      }
+    })
+  } catch (error) {
+    console.error('二维码生成失败:', error)
+    ElMessage.error('二维码生成失败')
+  } finally {
+    qrLoading.value = false
+  }
+}
+
+// 显示二维码
+const showQrCode = async (type: 'android' | 'ios') => {
+  qrType.value = type
+  qrVisible.value = true
+  
+  const url = type === 'android' 
+    ? getDownloadUrl(deviceTypeMap.ANDROID)
+    : getDownloadUrl(deviceTypeMap.IOS)
+  
+  if (!url) {
+    ElMessage.warning(`暂未发布${type === 'android' ? '安卓' : '苹果'}版本`)
+    qrVisible.value = false
+    return
+  }
+  
+  await nextTick()
+  
+  const canvas = type === 'android' ? androidQrCanvas.value : iosQrCanvas.value
+  await generateQrCode(url, canvas)
+}
+
+// 隐藏二维码
+const hideQrCode = () => {
+  qrVisible.value = false
 }
 
 onMounted(() => {
@@ -344,5 +436,71 @@ onMounted(() => {
       font-size: 12px;
     }
   }
+}
+
+// 二维码弹窗样式
+.qr-popup {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-bottom: 12px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  padding: 16px;
+  z-index: 100;
+
+  .qr-arrow {
+    position: absolute;
+    bottom: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 6px solid #fff;
+  }
+
+  .qr-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+
+    .qr-loading {
+      width: 120px;
+      height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #999;
+      font-size: 13px;
+    }
+
+    .qr-canvas {
+      display: block;
+    }
+
+    .qr-tip {
+      margin: 0;
+      font-size: 12px;
+      color: #666;
+      text-align: center;
+    }
+  }
+}
+
+// 二维码淡入淡出动画
+.qr-fade-enter-active,
+.qr-fade-leave-active {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.qr-fade-enter-from,
+.qr-fade-leave-to {
+  opacity: 0;
+  transform: translateX(-50%) translateY(10px);
 }
 </style>
