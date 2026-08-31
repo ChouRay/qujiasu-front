@@ -1,22 +1,93 @@
-```vue
-<template>
-  <div class="buy-container">
-    <h1>Buy Page</h1>
-    <p>This is the buy page content.</p>
-  </div>
-</template>
+# 依赖
+node_modules/
+.pnpm-store/
+.yarn/cache/
+.yarn/unplugged/
 
-<script>
-export default {
-  name: 'Buy',
-  // Add your component logic here
-}
-</script>
+# 构建产物
+dist/
+build/
+out/
+*.local
 
-<style scoped>
-.buy-container {
-  padding: 20px;
-  text-align: center;
-}
-</style>
-```
+# 环境变量
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*.local
+
+# 日志
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# 测试
+coverage/
+.nyc_output/
+.vercel/
+
+# 缓存
+.cache/
+.parcel-cache/
+.vite/
+.turbo/
+.nuxt/
+.output/
+.next/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+
+# 操作系统
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# 敏感信息
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+
+# 临时文件
+*.tmp
+*.temp
+*.bak
+
+# TypeScript
+*.tsbuildinfo
+*.tscache
+
+# ESLint
+.eslintcache
+
+# Prettier
+.prettiercache
+
+# Storybook
+storybook-static/
+
+# 其他
+*.tgz
+*.gz
+*.zip
+*.rar

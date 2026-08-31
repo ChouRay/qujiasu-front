@@ -297,12 +297,13 @@ const handleSubmit = async () => {
         document.close();
       } else if (payMethod.value === PAY_SOURCE.WECHAT) {
         // 微信：暂时不做处理，可根据返回数据展示二维码等
-        ElMessage.warning('请根据提示完成微信支付');
+        ElMessage.warning('暂不支持');
         console.log('微信支付数据:', responseData);
       }
     } else if (error.response && error.response.status === 400) {
       // 400 业务错误
-      ElMessage.error(error.response.data?.message || '充值失败');
+      const errorMsg = error.response?.data?.msg || error.message || '充值失败'
+      ElMessage.error(errorMsg);
     } else {
       // 其他错误
       ElMessage.error('充值请求失败，请稍后重试');
