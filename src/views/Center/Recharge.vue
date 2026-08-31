@@ -277,7 +277,7 @@ const generateWechatQrCode = async (orderData: any) => {
   try {
     // 从返回数据中提取微信支付 URL
     // 根据后端返回格式，可能是 codeUrl 或者 qrCode 字段
-    const wechatUrl = orderData.codeUrl || orderData.qrCode || orderData.code_url || '';
+    const wechatUrl = orderData || '';
     
     if (!wechatUrl) {
       ElMessage.error('未获取到微信支付二维码信息');
@@ -377,7 +377,7 @@ const handleSubmit = async () => {
         document.close();
       } else if (payMethod.value === PAY_SOURCE.WECHAT) {
         // 微信：生成二维码弹窗
-        generateWechatQrCode(responseData.data);
+        generateWechatQrCode(responseData);
       }
     } else if (error.response && error.response.status === 400) {
       // 400 业务错误
