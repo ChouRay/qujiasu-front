@@ -324,6 +324,13 @@
             微信支付限额 200 元，请改用支付宝或减少支付金额
           </div>
         </div>
+
+        <!-- 退款政策同意 -->
+        <div class="refund-policy-section">
+          <el-checkbox v-model="agreeRefundPolicy">
+            我已知晓并同意，虚拟商品下单后不可退款
+          </el-checkbox>
+        </div>
       </div>
 
       <template #footer>
@@ -332,7 +339,7 @@
           <button 
             @click="handleFinalConfirm" 
             class="confirm-btn payment-confirm-btn"
-            :disabled="wechatPayDisabled"
+            :disabled="wechatPayDisabled || !agreeRefundPolicy"
           >
             确认支付
           </button>
@@ -708,6 +715,9 @@ const payMethod = ref<typeof PAY_SOURCE.ALIPAY | typeof PAY_SOURCE.WECHAT>(PAY_S
 
 // 微信支付是否被禁用（超过 200 元限额）
 const wechatPayDisabled = ref(false)
+
+// 是否同意退款政策
+const agreeRefundPolicy = ref(false)
 
 // 选择支付方式
 const selectPayMethod = (method: typeof PAY_SOURCE.ALIPAY | typeof PAY_SOURCE.WECHAT) => {
@@ -1445,6 +1455,22 @@ onMounted(() => {
     background-color: #dcdfe6 !important;
     cursor: not-allowed;
     opacity: 0.6;
+  }
+}
+
+.refund-policy-section {
+  margin-top: 16px;
+  padding: 12px 0;
+  border-top: 1px solid #ebeef5;
+  
+  :deep(.el-checkbox) {
+    color: #606266;
+    font-size: 14px;
+    
+    .el-checkbox__label {
+      color: #f56c6c;
+      font-weight: 500;
+    }
   }
 }
 </style>
