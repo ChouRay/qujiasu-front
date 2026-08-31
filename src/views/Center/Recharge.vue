@@ -153,14 +153,43 @@
         />
       </div>
     </div>
+
+    <!-- 微信支付二维码弹窗 -->
+    <el-dialog
+      v-model="wechatDialogVisible"
+      title="微信支付"
+      width="350px"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+      :show-close="false"
+    >
+      <div class="wechat-qrcode-container">
+        <div v-if="wechatQrCodeUrl" class="qrcode-wrapper">
+          <img :src="wechatQrCodeUrl" alt="微信扫码支付" class="qrcode-image" />
+        </div>
+        <div v-else class="qrcode-loading">
+          <el-icon class="is-loading"><Loading /></el-icon>
+          <span>生成二维码中...</span>
+        </div>
+        <div class="qrcode-tip">请使用微信扫描二维码进行支付</div>
+      </div>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button type="primary" size="large" @click="handlePaymentCompleted">
+            已完成支付
+          </el-button>
+        </div>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
-import { ElMessage } from 'element-plus';
-import { CircleCheckFilled } from '@element-plus/icons-vue';
-import { getRechargeList, createRechargeOrder } from '@/api/user';
+import { ElMessage, ElDialog } from 'element-plus';
+import { CircleCheckFilled, Loading } from '@element-plus/icons-vue';
+import QRCode from 'qrcode';
+import { getRechargeList, createRechargeOrder, getUserInfo } from '@/api/user';
 import { userInfo } from '@/reactive/user';
 import { formatDateTime } from '@/utils/times';
 import { formatPayStatus, PAY_SOURCE, PAY_TRADE_TYPE } from '@/utils/apiEnums'; 
@@ -176,6 +205,11 @@ const listLoading = ref(false);
 const selectedAmount = ref<number | null>(null);
 const customAmount = ref<string>('');
 const payMethod = ref<typeof PAY_SOURCE.ALIPAY | typeof PAY_SOURCE.WECHAT>(PAY_SOURCE.ALIPAY);
+
+// 微信二维码相关
+const wechatDialogVisible = ref(false);
+const wechatQrCodeUrl = ref<string>('');
+const wechatOrderData = ref<any>(null);
 
 // 列表相关
 const pageNum = ref(1);
@@ -238,6 +272,52 @@ const handleCustomInput = () => {
   selectedAmount.value = null;
 };
 
+// 生成微信二维码
+const generateWechatQrCode = async (orderData: any) => {
+  try {
+    // 从返回数据中提取微信支付 URL
+    // 根据后端返回格式，可能是 codeUrl 或者 qrCode 字段
+    const wechatUrl = orderData.codeUrl || orderData.qrCode || orderData.code_url || '';
+    
+    if (!wechatUrl) {
+      ElMessage.error('未获取到微信支付二维码信息');
+      return;
+    }
+    
+    // 使用 qrcode 生成二维码图片的 DataURL
+    wechatQrCodeUrl.value = await QRCode.toDataURL(wechatUrl, {
+      errorCorrectionLevel: 'M',
+      color: {
+        dark: '#333333',
+        light: '#ffffff'
+      }
+    });
+    
+    wechatOrderData.value = orderData;
+    wechatDialogVisible.value = true;
+  } catch (error) {
+    console.error('生成二维码失败:', error);
+    ElMessage.error('生成二维码失败，请重试');
+  }
+};
+
+// 已完成支付，刷新用户信息
+const handlePaymentCompleted = async () => {
+  try {
+    await getUserInfo();
+    ElMessage.success('支付成功，用户信息已更新');
+    wechatDialogVisible.value = false;
+    // 清空选择
+    selectedAmount.value = null;
+    customAmount.value = '';
+    // 刷新充值记录列表
+    fetchRechargeList();
+  } catch (error) {
+    console.error('刷新用户信息失败:', error);
+    ElMessage.error('刷新用户信息失败，请手动刷新页面');
+  }
+};
+
 const formatPaySource = (source: string) => {
   const map: Record<string, string> = {
     [PAY_SOURCE.WECHAT]: '微信',
@@ -296,9 +376,8 @@ const handleSubmit = async () => {
         document.write(responseData.data);
         document.close();
       } else if (payMethod.value === PAY_SOURCE.WECHAT) {
-        // 微信：暂时不做处理，可根据返回数据展示二维码等
-        ElMessage.warning('暂不支持');
-        console.log('微信支付数据:', responseData);
+        // 微信：生成二维码弹窗
+        generateWechatQrCode(responseData.data);
       }
     } else if (error.response && error.response.status === 400) {
       // 400 业务错误
@@ -784,5 +863,51 @@ onMounted(() => {
       flex-wrap: wrap;
     }
   }
+}
+
+// 微信二维码弹窗样式
+.wechat-qrcode-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 0;
+  
+  .qrcode-wrapper {
+    padding: 16px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+    
+    .qrcode-image {
+      width: 200px;
+      height: 200px;
+      display: block;
+    }
+  }
+  
+  .qrcode-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 40px;
+    color: #909399;
+    
+    .el-icon {
+      font-size: 32px;
+    }
+  }
+  
+  .qrcode-tip {
+    margin-top: 16px;
+    font-size: 14px;
+    color: #606266;
+    text-align: center;
+  }
+}
+
+.dialog-footer {
+  display: flex;
+  justify-content: center;
 }
 </style>
