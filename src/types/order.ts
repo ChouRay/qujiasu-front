@@ -49,3 +49,39 @@ export interface PackageRenewOrderRequest {
   paySource: PaySource
   tradeType: string
 }
+
+/**
+ * 套餐订单信息
+ */
+export interface PackageOrderVO {
+  tradeNo: string
+  orderType: string
+  gmtCreate: number
+  productId: number
+  metadataId: number
+  productName: string
+  unitPrice: number
+  fullPrice: number
+  channel: string
+  days: number
+  packageId: number
+  username: string
+  usageCount: number
+  originUsageCount: number
+  totalAmount: number
+  balanceAmount: number
+  rewardAmount: number
+  onlineAmount: number
+  paySource: string
+}
+
+/**
+ * 套餐订单列表响应
+ */
+export interface PackageOrdersResponse {
+  pageNum: number
+  pageSize: number
+  totalNum: number
+  data: PackageOrderVO[]
+  timestamp: number
+}

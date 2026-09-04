@@ -31,7 +31,7 @@ export type OrderType = typeof ORDER_TYPE[keyof typeof ORDER_TYPE];
 
 // 支付状态
 export const PAY_STATUS = {
-  UNPAID: 'UNPAID',
+  UNPAID: 'AWAITING_PAYMENT',
   PAID: 'PAID',
   REFUNDED: 'REFUNDED',
 } as const;

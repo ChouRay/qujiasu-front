@@ -151,9 +151,9 @@
           <el-form-item label="授权数量">
             <div style="display: flex; align-items: center; gap: 10px;">
               <el-input-number v-model="formData.usageCount" :min="1" :max="100" />
-              <el-popover placement="right" :width="200" trigger="hover" content="多开需要多买连接数">
+              <el-popover placement="right" :width="200" trigger="hover" content="授权数用于一个账号可用于多个窗口/设备同时连接">
                 <template #reference>
-                  <el-icon style="cursor: pointer; color: #909399;"><Question-Filled /></el-icon>
+                  <el-icon style="cursor: pointer; color: #909399; font-size:18px;"><QuestionFilled /></el-icon>
                 </template>
               </el-popover>
             </div>
@@ -364,6 +364,7 @@ import { checkUsernameAvilability, requestPackageOrders } from '@/api/order'
 import type { PackageOrderRequest, PaySource } from '@/types/order'
 import { OrderType } from '@/types/order'
 import { ElMessage, FormRules, ElMessageBox } from 'element-plus'
+import { QuestionFilled } from '@element-plus/icons-vue'
 import { getErrorMessage } from '@/utils/errorMessage'
 import { PAY_SOURCE, PAY_TRADE_TYPE } from '@/utils/apiEnums'
 const route = useRoute()
@@ -449,10 +450,11 @@ const handleUsernameBlur = async () => {
   } catch (error: any) {
     // 400 错误表示账号不可用
     if (error.response?.status === 400) {
-      usernameAvailabilityError.value = '该账号已被使用，请更换其他账号'
+      const errorMsg = error.response?.data?.msg
+      usernameAvailabilityError.value = getErrorMessage(errorMsg , '该账号已被使用，请更换其他账号')
     } else {
       // 其他错误显示错误信息
-      const errorMsg = error.response?.data?.msg || error.message || '检查失败'
+      const errorMsg = error.response?.data?.msg || '检查失败'
       usernameAvailabilityError.value = getErrorMessage(errorMsg, '检查失败')
     }
   } finally {
@@ -827,7 +829,7 @@ const createOrderAndPay = async () => {
       
       if (paySource === PAY_SOURCE.ALIPAY) {
         // 支付宝支付：直接写入响应内容跳转
-        document.write(error.response.data)
+        document.write(error.response.data.data)
       } else if (paySource === PAY_SOURCE.WECHAT) {
         // 微信支付：走二维码支付逻辑（暂时不做）
         ElMessage.info('微信支付二维码功能待实现')

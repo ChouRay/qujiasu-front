@@ -201,17 +201,59 @@
       :metadataId=configForm.metadataId
       @success="handleConfigSuccess"
     />
+
+    <!-- 待付款订单弹窗 -->
+    <el-dialog v-model="showUnpaidDialog" title="待付款订单" width="90%">
+      <el-table :data="unpaidOrders" border>
+        <el-table-column type="index" label="编号" width="60" align="center" />
+        <el-table-column prop="username" label="套餐账号" min-width="120" show-overflow-tooltip />
+        <el-table-column prop="usageCount" label="授权数量" min-width="90" align="center" />
+        <el-table-column prop="productName" label="版本" min-width="100" show-overflow-tooltip />
+        <el-table-column prop="totalAmount" label="金额" min-width="90" align="center" />
+        <el-table-column prop="days" label="时长(天)" min-width="90" align="center" />
+        <el-table-column prop="tradeNo" label="订单编号" min-width="180" show-overflow-tooltip />
+        <el-table-column label="创建时间" min-width="160">
+          <template #default="{ row }">
+            {{ formatDateTime(row.gmtCreate) }}
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" fixed="right" width="150" align="center">
+          <template #default="{ row }">
+            <el-button type="primary" size="small" @click="handleUnpaidPay(row)">付款</el-button>
+            <el-button type="danger" size="small" @click="handleUnpaidDelete(row)">删除</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-dialog>
+
+    <!-- 待付款支付弹窗 -->
+    <UnpaidDialog
+      v-model="showUnpaidPayDialog"
+      :trade-no="currentUnpaidOrder?.tradeNo || ''"
+      :username="currentUnpaidOrder?.username || ''"
+      :total-amount="currentUnpaidOrder?.totalAmount || 0"
+      :usage-count="currentUnpaidOrder?.usageCount || 0"
+      :product-name="currentUnpaidOrder?.productName || ''"
+      :days="currentUnpaidOrder?.days || 0"
+      @success="handleUnpaidPaySuccess"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { getPackagesList, getPackagesByUsername } from '@/api/packages'
+import { getPackageOrders, closePackageOrder } from '@/api/order'
+import { ORDER_TYPE, PAY_STATUS } from '@/utils/apiEnums'
 import { formatDateTime } from '@/utils/times'
 import { Search } from '@element-plus/icons-vue'
 import type { SubscriptionVO, PackagesResponse } from '@/types/packages'
+import type { PackageOrderVO } from '@/types/order'
+import { getErrorMessage } from '@/utils/errorMessage';
 import RenewDialog from '@/components/RenewDialog.vue'
 import ConfigEditDialog from '@/components/ConfigEditDialog.vue'
+import UnpaidDialog from '@/components/UnpaidDialog.vue'
 
 // 数据定义
 const tableData = ref<SubscriptionVO[]>([])
@@ -234,6 +276,14 @@ const configForm = ref({
   gameId: undefined as number | undefined,
   locationList: [] as number[]
 })
+
+// 待付款订单弹窗
+const showUnpaidDialog = ref(false)
+const unpaidOrders = ref<PackageOrderVO[]>([])
+
+// 待付款支付弹窗
+const showUnpaidPayDialog = ref(false)
+const currentUnpaidOrder = ref<PackageOrderVO | null>(null)
 
 // 处理编辑配置
 const handleEditConfig = (row: SubscriptionVO) => {
@@ -358,8 +408,58 @@ const getDeadlineColor = (dateStr: string) => {
   }
 }
 
+// 获取待付款订单
+const fetchUnpaidOrders = async () => {
+  try {
+    const res = await getPackageOrders({
+      channelPaymentStatus: PAY_STATUS.UNPAID,
+      orderType: ORDER_TYPE.PACKAGE_ORDER
+    })
+
+    unpaidOrders.value = res.data || []
+    showUnpaidDialog.value = unpaidOrders.value.length > 0
+  } catch (error) {
+    console.error('获取待付款订单失败:', error)
+  }
+}
+
+// 打开待付款支付弹窗
+const handleUnpaidPay = (row: PackageOrderVO) => {
+  currentUnpaidOrder.value = row
+  showUnpaidPayDialog.value = true
+}
+
+// 删除（关闭）待付款订单
+const handleUnpaidDelete = async (row: PackageOrderVO) => {
+  try {
+    await ElMessageBox.confirm('确认关闭该待付款订单？', '提示', {
+      confirmButtonText: '确认',
+      cancelButtonText: '取消',
+      type: 'warning'
+    })
+  } catch {
+    return // 用户取消
+  }
+
+  try {
+    await closePackageOrder(row.tradeNo)
+    ElMessage.success('订单已关闭')
+    await fetchUnpaidOrders()
+  } catch (error: any) {
+    console.error('关闭订单失败:', error)
+    ElMessage.error(getErrorMessage(error?.response?.data?.msg) || '关闭订单失败')
+  }
+}
+
+// 支付成功回调
+const handleUnpaidPaySuccess = () => {
+  fetchUnpaidOrders()
+  fetchData()
+}
+
 onMounted(() => {
   fetchData()
+  fetchUnpaidOrders()
 })
 </script>
 

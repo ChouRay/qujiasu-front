@@ -464,7 +464,7 @@ const handleSubmit = async () => {
       
       if (paySource === PAY_SOURCE.ALIPAY) {
         // 支付宝支付
-        document.write(error.response.data)
+        document.write(error.response.data.data)
       } else if (paySource === PAY_SOURCE.WECHAT) {
         ElMessage.info('微信支付二维码功能待实现')
       }

@@ -56,7 +56,7 @@ const ERROR_MESSAGE_MAP: Record<string, string> = {
   "user.query_value_required": "查询参数不能为空",
 
   // ========== 订单相关 (OrderErrorCode) ==========
-  "order.self_conflict": "存在未支付订单，请先完成支付或删除后重试",
+  "order.self_conflict": "存在未支付订单，请去订单管理完成支付或删除后重试",
   "order.not_found": "订单不存在",
   "order.status_not_allowed_close": "当前订单状态不允许关闭",
   "order.product_id_required": "请选择产品",
