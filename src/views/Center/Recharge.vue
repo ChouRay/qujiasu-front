@@ -193,6 +193,7 @@ import { getRechargeList, createRechargeOrder, getUserInfo } from '@/api/user';
 import { userInfo } from '@/reactive/user';
 import { formatDateTime } from '@/utils/times';
 import { formatPayStatus, PAY_SOURCE, PAY_TRADE_TYPE } from '@/utils/apiEnums'; 
+import { getErrorMessage } from '@/utils/errorMessage';
 
 import iconBronze from '@/assets/images/icon-bronze-medal.png';
 import iconSilver from '@/assets/images/icon-silver-medal.png';
@@ -381,8 +382,8 @@ const handleSubmit = async () => {
       }
     } else if (error.response && error.response.status === 400) {
       // 400 业务错误
-      const errorMsg = error.response?.data?.msg || error.message || '充值失败'
-      ElMessage.error(errorMsg);
+      const errorMsg = error.response?.data?.msg || '充值失败'
+      ElMessage.error(getErrorMessage(errorMsg));
     } else {
       // 其他错误
       ElMessage.error('充值请求失败，请稍后重试');
