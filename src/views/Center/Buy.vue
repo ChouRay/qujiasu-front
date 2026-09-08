@@ -309,7 +309,7 @@
               <el-icon v-if="payMethod === PAY_SOURCE.ALIPAY" class="check-icon"><CircleCheckFilled /></el-icon>
             </div>
 
-            <div
+            <!-- <div
               class="method-item"
               :class="{ active: payMethod === PAY_SOURCE.WECHAT, disabled: onlinePayAmount <= 0 }"
               @click="selectPayMethod(PAY_SOURCE.WECHAT)"
@@ -317,7 +317,7 @@
               <img src="@/assets/images/wxpay-ico.png" alt="微信" class="method-icon" />
               <span class="method-name">微信</span>
               <el-icon v-if="payMethod === PAY_SOURCE.WECHAT" class="check-icon"><CircleCheckFilled /></el-icon>
-            </div>
+            </div> -->
           </div>
           <div v-if="wechatPayDisabled" class="wechat-limit-tip">
             <el-icon><WarningFilled /></el-icon>

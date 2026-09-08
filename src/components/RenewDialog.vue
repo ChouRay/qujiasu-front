@@ -74,11 +74,11 @@
             style="width: 150px;"
             @change="handleAdjustChange"
           />
-          <span class="adjust-tip">（负数减少，正数增加）</span>
+          <span class="adjust-tip">（正数增加，负数减少）</span>
         </div>
         <div class="adjust-hint">
           <el-icon><Info-Filled /></el-icon>
-          未到期增加连接数，仅对新增加的连接数扣费，时间再综合到每个连接数上
+          未到期增加连接数，仅对新增加的连接数扣费，时间再平均
         </div>
       </div>
 
@@ -137,7 +137,7 @@
             <el-icon v-if="payMethod === PAY_SOURCE.ALIPAY" class="check-icon"><CircleCheckFilled /></el-icon>
           </div>
 
-          <div
+          <!-- <div
             class="method-item"
             :class="{ active: payMethod === PAY_SOURCE.WECHAT, disabled: onlinePayAmount <= 0 }"
             @click="selectPayMethod(PAY_SOURCE.WECHAT)"
@@ -145,7 +145,7 @@
             <img src="@/assets/images/wxpay-ico.png" alt="微信" class="method-icon" />
             <span class="method-name">微信</span>
             <el-icon v-if="payMethod === PAY_SOURCE.WECHAT" class="check-icon"><CircleCheckFilled /></el-icon>
-          </div>
+          </div> -->
         </div>
         <div v-if="wechatPayDisabled" class="wechat-limit-tip">
           <el-icon><WarningFilled /></el-icon>

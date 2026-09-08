@@ -81,7 +81,7 @@
         <el-icon v-if="payMethod === PAY_SOURCE.ALIPAY" class="check-icon"><CircleCheckFilled /></el-icon>
       </div>
 
-      <div 
+      <!-- <div 
         class="method-item"
         :class="{ active: payMethod === PAY_SOURCE.WECHAT }"
         @click="payMethod = PAY_SOURCE.WECHAT"
@@ -89,7 +89,7 @@
         <img src="@/assets/images/wxpay-ico.png" alt="微信" class="method-icon" />
         <span class="method-name">微信充值</span>
         <el-icon v-if="payMethod === PAY_SOURCE.WECHAT" class="check-icon"><CircleCheckFilled /></el-icon>
-      </div>
+      </div> -->
     </div>
 
     <!-- 确认支付按钮 -->
