@@ -52,7 +52,7 @@
       <div class="product-cards">
         <div class="product-card">
           <div class="card-image placeholder-img-medium">
-            <img width="288px" :src="cardFast" />
+            <img width="100%" :src="cardFast" />
           </div>
           <div class="card-content">
             <h3 class="card-title">极速稳定</h3>
@@ -62,7 +62,7 @@
         
         <div class="product-card">
           <div class="card-image placeholder-img-medium">
-            <img width="288px" :src="cardSafe" />
+            <img width="100%" :src="cardSafe" />
           </div>
           <div class="card-content">
             <h3 class="card-title">安全保障</h3>
@@ -72,7 +72,7 @@
         
         <div class="product-card">
           <div class="card-image placeholder-img-medium">
-            <img width="288px" :src="cardService" />
+            <img width="100%" :src="cardService" />
           </div>
           <div class="card-content">
             <h3 class="card-title">专业服务</h3>
