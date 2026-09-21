@@ -33,7 +33,7 @@
             <el-button type="success" size="large" round @click="goToDownload">
               立即下载
             </el-button>
-            <el-button type="danger" size="large" round @click="goToPurchase">
+            <el-button type="danger" size="large" round @click="goToPurchase" style="margin-left:-0px;">
               购买套餐
             </el-button>
           </div>
@@ -384,9 +384,9 @@ const goToPurchase = () => {
   .banner-actions {
     flex-direction: column;
     gap: 12px;
-    align-items: stretch;
+    align-items: center;
   }
-  
+
   .banner-actions .el-button {
     width: 100%;
     max-width: 280px;

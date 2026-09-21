@@ -76,7 +76,7 @@
             <el-icon><ShoppingCart /></el-icon>
             <span>套餐购买</span>
           </el-menu-item>
-          <el-menu-item index="/doawload" key="drawer-download">
+          <el-menu-item index="/download" key="drawer-download">
             <el-icon><Download /></el-icon>
             <span>软件下载</span>
           </el-menu-item>
