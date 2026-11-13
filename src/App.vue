@@ -111,9 +111,8 @@
           </div>
           <div class="footer-section full-width">
             <p class="copyright">
-              Copyright© 趣加速 (qujiasu.com) 版权所有。
-              湘 ICP 备 20251xxx482 号 -1, 
-              湘公网安备 43011xxx002354 号
+              Copyright© 趣加速 (qujiasu.com) 版权所有。               
+              <a class="text-primary" href="https://beian.miit.gov.cn/"><span style="color:white">湘ICP备2025142482号-1</span></a>              
             </p>
           </div>
         </div>

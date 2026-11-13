@@ -45,8 +45,13 @@
                   required
                 />
                 <div id="captcha-register-container" style="display:none"></div>
-                <button type="button" class="send-code-btn" @click="sendCode">
-                  发送验证码
+                <button
+                  type="button"
+                  class="send-code-btn"
+                  :disabled="countdown > 0"
+                  @click="sendCode"
+                >
+                  {{ countdown > 0 ? `${countdown}s后重发` : '发送验证码' }}
                 </button>
               </div>
               <div class="form-group" v-if="!inviteCodeFromUrl">
@@ -107,6 +112,28 @@ const form = reactive({
 
 const captchaInstance = ref<any>(null)
 const CaptchaAppId = '191280376' // 请替换为您的腾讯云 CaptchaAppId
+
+// 验证码倒计时
+const countdown = ref(0)
+let countdownTimer: ReturnType<typeof setInterval> | null = null
+
+// 启动 60 秒倒计时
+const startCountdown = () => {
+  countdown.value = 90
+  if (countdownTimer) {
+    clearInterval(countdownTimer)
+  }
+  countdownTimer = setInterval(() => {
+    countdown.value -= 1
+    if (countdown.value <= 0) {
+      countdown.value = 0
+      if (countdownTimer) {
+        clearInterval(countdownTimer)
+        countdownTimer = null
+      }
+    }
+  }, 1000)
+}
 
 // 发送验证码按钮点击处理
 const sendCode = () => {
@@ -175,21 +202,23 @@ const handleCaptchaError = () => {
 // 发送短信验证码 API 调用
 const sendSmsCode = async (ticket: string, randstr: string) => {
   try {
+    startCountdown()
     const response = await getRegisterSmsCode({
       phoneNumber: form.phone,
       ticket,
       randstr
     })
 
-    if (response.status === 200) {
-      ElMessage.success('发送成功')
-    } else if (response.status === 400) {
-      const errorMsg = (response as any).data?.msg || (response as any).msg || '请重试'
-      ElMessage.error(`发送失败：${getErrorMessage(errorMsg, '请重试')}`)
-    }
-  } catch (error) {
-    console.error('发送验证码失败:', error)
-    ElMessage.error('发送验证码失败，请稍后重试')
+    console.log('sendSms=>resp:',response)
+    ElMessage.success('发送成功')     
+
+  } catch (error:any) {
+    console.log('sendSmsCode=>',error)
+    const data = error?.response.data
+    const errorMsg = data?.msg
+      ? getErrorMessage(data?.msg, '发送验证码失败')
+      : '发送验证码失败，请稍后重试'      
+    ElMessage.error(errorMsg)
   }
 }
 
@@ -232,6 +261,10 @@ const handleRegister = () => {
 
 onBeforeUnmount(() => {
   console.log('组件即将卸载');
+  if (countdownTimer) {
+    clearInterval(countdownTimer)
+    countdownTimer = null
+  }
   if (captchaInstance.value ) {
     captchaInstance.value.destroy();
   }
@@ -375,6 +408,14 @@ onBeforeUnmount(() => {
 .send-code-btn:hover {
   background: #409EFF;
   color: #fff;
+}
+
+.send-code-btn:disabled,
+.send-code-btn:disabled:hover {
+  background: #f5f5f5;
+  color: #999;
+  border-color: #ddd;
+  cursor: not-allowed;
 }
 
 .agreement-group {

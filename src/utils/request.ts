@@ -50,7 +50,7 @@ request.interceptors.response.use(
       // 跳转到登录页，携带 redirect 参数
       window.location.href = `/login?redirect=${encodeURIComponent(currentPath)}`;
     }
-    console.error('请求错误:', error);
+    console.log('请求错误:', error);
     return Promise.reject(error);
   }
 );

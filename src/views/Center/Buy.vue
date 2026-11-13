@@ -26,13 +26,9 @@
           :key="catalog.id"
           class="category-tab"
           :class="{ active: selectedCatalogId === catalog.id }"
-          :style="{ 
-            borderColor: selectedCatalogId === catalog.id ? catalog.uiConfig?.primaryColor : 'transparent',
-            backgroundColor: selectedCatalogId === catalog.id ? catalog.uiConfig?.primaryColor + '15' : '#f5f7fa'
-          }"
           @click="selectCategory(catalog)"
         >
-          <h3 :style="{ color: catalog.uiConfig?.primaryColor || '#2c3e50' }">
+          <h3>
             {{ catalog.name }}
           </h3>
           <p>{{ catalog.description }}</p>
@@ -42,18 +38,12 @@
       <!-- 当前选中的分类详情 -->
       <div v-if="currentCatalog" class="catalog-detail">
         <!-- 目录标题 -->
-        <div class="catalog-header" :style="{ backgroundColor: currentCatalog.uiConfig?.primaryColor }">
+        <div class="catalog-header">
           <h2>{{ currentCatalog.name }}</h2>
         </div>
 
-        <!-- 产品列表加载状态 -->
-        <div v-if="productsLoading" class="products-loading">
-          <div class="loading-spinner"></div>
-          <p>加载产品中...</p>
-        </div>
-
         <!-- 产品列表 -->
-        <div v-else class="products-grid">
+        <div class="products-grid">
           <div 
             v-for="product in currentProducts" 
             :key="product.id"
@@ -61,23 +51,13 @@
             :class="{ selected: selectedProduct?.id === product.id }"
             @click="selectProduct(product)"
           >
-            <!-- 标签 -->
-            <div 
-              v-if="product.tag" 
-              class="product-tag"
-              :style="{ backgroundColor: currentCatalog.uiConfig?.primaryColor }"
-            >
-              {{ product.tag }}
-            </div>
-
             <!-- 产品信息 -->
             <div class="product-info">
               <h3>{{ product.name }}</h3>
-              <p class="product-ttips">{{ product.ttips }}</p>
-              
+
               <!-- 价格 -->
               <div class="price-section">
-                <span class="current-price" :style="{ color: currentCatalog.uiConfig?.primaryColor }">
+                <span class="current-price">
                   ¥{{ product.price?.toFixed(2) }}
                 </span>
                 <span v-if="product.fullPrice" class="original-price">
@@ -89,18 +69,12 @@
               <div class="duration-badge">
                 {{ product.duration }}天
               </div>
-
-              <!-- 底部提示 -->
-              <p v-if="product.btips" class="product-btips" :style="{ color: currentCatalog.uiConfig?.secondaryColor }">
-                {{ product.btips }}
-              </p>
             </div>
 
             <!-- 立即购买按钮 -->
             <button 
               class="buy-btn"
-              :style="{ 
-                backgroundColor: currentCatalog.uiConfig?.primaryColor,
+              :style="{                 
                 color: 'white'
               }"
               @click.stop="handleBuy(product)"
@@ -352,9 +326,9 @@
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { getProductMetadata, getProductsByMetadataId } from '@/api/product'
+import { getProductCatelog } from '@/api/product'
 import { requestGames, requestLocations } from '@/api/packages'
-import type { ProductMetadataItem, ProductItem } from '@/types/product'
+import type { ProductCatalogVO, ProductItem } from '@/types/product'
 import type { Province, City } from '@/types/region'
 import type { GameDTO } from '@/types/packages'
 import { userInfo } from '@/reactive/user'
@@ -372,9 +346,8 @@ const router = useRouter()
 
 // 状态
 const loading = ref(false)
-const productsLoading = ref(false)
 const error = ref<string>('')
-const productMetadataList = ref<ProductMetadataItem[]>([])
+const productMetadataList = ref<ProductCatalogVO[]>([])
 const selectedCatalogId = ref<number | null>(null)
 const currentProducts = ref<ProductItem[]>([])
 const selectedProduct = ref<ProductItem | null>(null)
@@ -482,19 +455,20 @@ const urlMetadataId = computed(() => {
 const fetchProductMetadata = async () => {
   loading.value = true
   error.value = ''
-  
+
   try {
-    const productMetadata = await getProductMetadata()
-    productMetadataList.value = productMetadata
-      // 如果存在url参数
-    if (urlMetadataId.value) {      
-      const found = productMetadataList.value.find(p => p.id === urlMetadataId.value);
+    const catalogs = await getProductCatelog()
+    productMetadataList.value = catalogs
+
+    // 如果存在 url 参数
+    if (urlMetadataId.value) {
+      const found = catalogs.find(p => p.id === urlMetadataId.value)
       if (found) {
-        await selectCategory(found);
+        selectCategory(found)
       }
-    } else if (productMetadata.length > 0 && productMetadata[0].id) {
+    } else if (catalogs.length > 0 && catalogs[0].id) {
       // 默认选中第一个分类
-      await selectCategory(productMetadata[0])
+      selectCategory(catalogs[0])
     }
   } catch (err) {
     error.value = '获取产品列表失败，请稍后重试'
@@ -504,29 +478,19 @@ const fetchProductMetadata = async () => {
   }
 }
 
-// 选择分类并加载产品
-const selectCategory = async (catalog: ProductMetadataItem) => {
+// 选择分类并切换产品列表
+const selectCategory = (catalog: ProductCatalogVO) => {
   if (!catalog.id) return
-  
+
   selectedCatalogId.value = catalog.id
-  productsLoading.value = true
-  
-  try {
-    const products = await getProductsByMetadataId(catalog.id)
-    currentProducts.value = products
-    
-    // 如果有 URL 参数 productId，自动选中对应产品
-    if (urlProductId.value) {
-      const found = products.find(p => p.id === urlProductId.value)
-      if (found) {
-        selectedProduct.value = found
-      }
+  currentProducts.value = catalog.products || []
+
+  // 如果有 URL 参数 productId，自动选中对应产品
+  if (urlProductId.value) {
+    const found = currentProducts.value.find(p => p.id === urlProductId.value)
+    if (found) {
+      selectedProduct.value = found
     }
-  } catch (err) {
-    console.error('Failed to fetch products for catalog:', catalog.id, err)
-    currentProducts.value = []
-  } finally {
-    productsLoading.value = false
   }
 }
 
@@ -1033,29 +997,11 @@ onMounted(() => {
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
 }
 
-/* 产品标签 */
-.product-tag {
-  position: absolute;
-  top: 15px;
-  right: 15px;
-  padding: 5px 12px;
-  border-radius: 20px;
-  color: white;
-  font-size: 12px;
-  font-weight: bold;
-}
-
 /* 产品信息 */
 .product-info h3 {
   font-size: 20px;
   color: #2c3e50;
   margin-bottom: 8px;
-}
-
-.product-ttips {
-  font-size: 14px;
-  color: #7f8c8d;
-  margin-bottom: 15px;
 }
 
 /* 价格区域 */
@@ -1086,13 +1032,6 @@ onMounted(() => {
   font-size: 14px;
   color: #555;
   margin-bottom: 15px;
-}
-
-/* 底部提示 */
-.product-btips {
-  font-size: 13px;
-  font-weight: bold;
-  margin-bottom: 20px;
 }
 
 /* 立即购买按钮 */

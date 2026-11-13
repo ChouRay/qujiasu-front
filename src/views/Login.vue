@@ -163,7 +163,7 @@ const resetForm = reactive({
 const countdown = ref(0);
 let timer: any = null;
 const captchaInstance = ref<any>(null);
-const CaptchaAppId = ''; // TODO: 请替换为您的腾讯云 CaptchaAppId
+const CaptchaAppId = '191280376';
 
 const submitForm = async () => {
   if (!formRef.value) return;
@@ -266,23 +266,28 @@ const handleCaptchaError = () => {
 // 发送短信验证码 API 调用
 const sendSmsCode = async (ticket: string, randstr: string) => {
   try {
+    // 开始倒计时
+    startCountdown();
     const response = await getUpdatePsdSmsCode({
       phoneNumber: resetForm.phone,
       ticket,
       randstr
     });
-
+    
     if (response.status === 200) {
       ElMessage.success('发送成功');
-      // 开始倒计时
-      startCountdown();
+
     } else if (response.status === 400) {
       const errorMsg = (response as any).data?.msg || (response as any).msg || '请重试'
       ElMessage.error(`发送失败：${getErrorMessage(errorMsg, '请重试')}`);
     }
-  } catch (error) {
+  } catch (error:any) {
+    const data = error?.response?.data
+    const errorMsg = data?.msg
+      ? getErrorMessage(data?.msg, '发送验证码失败')
+      : '发送验证码失败，请稍后重试' 
     console.error('发送验证码失败:', error);
-    ElMessage.error('发送验证码失败，请稍后重试');
+    ElMessage.error(errorMsg);
   }
 };
 

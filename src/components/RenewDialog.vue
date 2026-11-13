@@ -181,7 +181,7 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { WarningFilled, CircleCheckFilled } from '@element-plus/icons-vue'
-import { getProductsByMetadataId } from '@/api/product'
+import { getProductCatelog } from '@/api/product'
 import { requestRenew } from '@/api/order'
 import type { ProductItem } from '@/types/product'
 import type { SubscriptionVO } from '@/types/packages'
@@ -313,12 +313,14 @@ const onlinePayAmountDisplay = computed(() => {
 // 获取产品列表
 const fetchProducts = async () => {
   if (!props.subscription.metadataId) return
-  
+
   loading.value = true
   try {
-    const products = await getProductsByMetadataId(props.subscription.metadataId)
+    const catalogs = await getProductCatelog()
+    const catalog = catalogs.find(c => c.id === props.subscription.metadataId)
+    const products = catalog?.products || []
     formData.value.productList = products.filter(p => p.status === 'ENABLED')
-    
+
     // 默认选中第一个产品
     if (formData.value.productList.length > 0) {
       formData.value.selectedProduct = formData.value.productList[0]

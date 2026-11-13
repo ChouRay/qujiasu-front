@@ -98,15 +98,17 @@ export function requestRegister(
     data
   })
     .then((res: any) => {
-      if (res.status === 200) {
-        callback(200)
-      } else if (res.status === 400) {
-        callback(400, getErrorMessage(res.msg, '注册失败'))
-      }
+      console.log('resp:',res?.response)
+      console.log('status:',res?.status)
+      callback(200)
     })
     .catch((error: any) => {
-      console.error('注册失败:', error)
-      callback(400, '注册失败，请稍后重试')
+      const res = error?.response
+      const data = res?.data
+      const errorMsg = data?.msg
+        ? getErrorMessage(data?.msg, '注册失败')
+        : '注册失败，请稍后重试'
+      callback(400, errorMsg)
     })
 }
 
@@ -133,15 +135,15 @@ export function requestResetPassword(
     data
   })
     .then((res: any) => {
-      if (res.status === 200) {
-        callback(200)
-      } else if (res.status === 400) {
-        callback(400, getErrorMessage(res.msg, '重置密码失败'))
-      }
+      console.log('res.status=>',res.status, res)
+      callback(200)
     })
     .catch((error: any) => {
-      console.error('重置密码失败:', error)
-      callback(400, '重置密码失败，请稍后重试')
+      const data = error?.response?.data
+      const errorMsg = data?.msg
+        ? getErrorMessage(data?.msg, '重置密码失败')
+        : '重置密码失败，请稍后重试'
+      callback(400, errorMsg)
     })
 }
 
