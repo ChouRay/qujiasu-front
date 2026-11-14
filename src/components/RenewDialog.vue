@@ -317,8 +317,10 @@ const fetchProducts = async () => {
   loading.value = true
   try {
     const catalogs = await getProductCatelog()
-    const catalog = catalogs.find(c => c.id === props.subscription.metadataId)
-    const products = catalog?.products || []
+    const metadata = catalogs
+      .flatMap(c => c.metadataList || [])
+      .find(m => m.id === props.subscription.metadataId)
+    const products = metadata?.products || []
     formData.value.productList = products.filter(p => p.status === 'ENABLED')
 
     // 默认选中第一个产品
