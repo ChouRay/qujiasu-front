@@ -31,8 +31,11 @@
         </div>
       </div>
 
-      <!-- 查看地区：独占一行 -->
-      <div class="view-regions-link">查看地区</div>
+      <!-- 查看地区：独占一行，左右两个 -->
+      <div class="view-regions-row">
+        <div class="view-regions-link" @click="goRegion('普通版')">查看普通地区</div>
+        <div class="view-regions-link" @click="goRegion('独享版')">查看独享地区</div>
+      </div>
 
       <!-- 分类：左右两列，每列一个分类 -->
       <div class="catalog-columns">
@@ -146,6 +149,20 @@ const handleGoBuy = () => {
   }
 }
 
+// 根据分类名获取元数据 id（取第一个元数据节点）
+const getMetadataIdByCatalogName = (name: string): number | null => {
+  const catalog = productMetadataList.value.find(c => c.name === name)
+  return catalog?.metadataList?.[0]?.id ?? null
+}
+
+// 查看地区：跳转到 /region，传入 metadataId
+const goRegion = (catalogName: string) => {
+  const metadataId = getMetadataIdByCatalogName(catalogName)
+  if (metadataId) {
+    router.push({ path: '/region', query: { metadataId } })
+  }
+}
+
 // 生命周期
 onMounted(() => {
   fetchProductMetadata()
@@ -226,12 +243,18 @@ onMounted(() => {
   margin: 0 auto;
 }
 
-/* 查看地区链接 */
+/* 查看地区行 */
+.view-regions-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
 .view-regions-link {
   display: block;
   width: fit-content;
-  margin-left: auto;
-  margin-bottom: 20px;
+  justify-self: end;
   padding: 6px 46px;
   color: #3498db;
   font-size: 14px;

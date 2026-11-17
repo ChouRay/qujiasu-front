@@ -14,13 +14,16 @@
 
     <!-- 产品目录 -->
     <div v-else class="catalog-container">
-      <!-- 上：查看地区 -->
-      <div class="view-regions-link">查看地区</div>
-
       <!-- 总体左右布局 -->
       <div class="buy-page-layout">
-        <!-- 左列：分类标签 + 套餐列表 -->
+        <!-- 左列：查看地区 + 分类标签 + 套餐列表 -->
         <div class="buy-left-column">
+          <!-- 查看地区（左右两个，与分类标签同列） -->
+          <div class="view-regions-row">
+            <div class="view-regions-link" @click="goRegion('普通版')">查看普通地区</div>
+            <div class="view-regions-link" @click="goRegion('独享版')">查看独享地区</div>
+          </div>
+
           <!-- 分类标签 -->
           <div class="category-tabs">
             <div
@@ -58,8 +61,6 @@
                   v-for="product in metadata.products"
                   :key="product.id"
                   class="product-option"
-                  :class="{ selected: selectedProduct?.id === product.id }"
-                  @click="handleBuy(product)"
                 >
                   <span class="option-duration">{{ product.duration }}天</span>
                   <div class="option-price-wrap">
@@ -80,14 +81,13 @@
         <div class="buy-right-column">
           <!-- 购买操作表单 -->
           <div class="buy-operation-panel">
-            <div v-if="!buyFormVisible" class="buy-operation-placeholder">
-              <p>请选择左侧的套餐</p>
-            </div>
             <BuyOperation
-              ref="buyOperationRef"
               :title="buyFormTitle"
               :title-color="buyFormTitleColor"
-              @close="handleBuyClose"
+              :catalogs="productMetadataList"
+              :selected-catalog-id="selectedCatalogId"
+              :metadata-list="currentCatalog?.metadataList"
+              @update:selected-catalog-id="handleSelectCatalog"
             />
           </div>
         </div>
@@ -97,27 +97,20 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, nextTick } from 'vue'
-import { useRoute } from 'vue-router'
+import { ref, onMounted, computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { getProductCatelog } from '@/api/product'
-import type { ProductCatalogVO, ProductCatalogMetadataVO, ProductItem } from '@/types/product'
+import type { ProductCatalogVO, ProductCatalogMetadataVO } from '@/types/product'
 import BuyOperation from '@/components/BuyOperation.vue'
 
 const route = useRoute()
+const router = useRouter()
 
 // 状态
 const loading = ref(false)
 const error = ref<string>('')
 const productMetadataList = ref<ProductCatalogVO[]>([])
 const selectedCatalogId = ref<number | null>(null)
-const currentProducts = ref<ProductItem[]>([])
-const selectedProduct = ref<ProductItem | null>(null)
-
-// 购买表单是否展开
-const buyFormVisible = ref(false)
-
-// 购买操作组件引用
-const buyOperationRef = ref<InstanceType<typeof BuyOperation>>()
 
 // 当前选中的分类
 const currentCatalog = computed(() => {
@@ -125,11 +118,6 @@ const currentCatalog = computed(() => {
 })
 
 // 获取 URL 参数
-const urlProductId = computed(() => {
-  const pid = route.query.pid
-  return pid ? Number(pid) : null
-})
-
 const urlMetadataId = computed(() => {
   const mid = route.query.mid
   return mid ? Number(mid) : null
@@ -169,7 +157,6 @@ const buyFormTitleColor = computed(() => {
 const fetchProductMetadata = async () => {
   loading.value = true
   error.value = ''
-  let defaultProduct: ProductItem | null = null
 
   try {
     const catalogs = await getProductCatelog()
@@ -182,13 +169,8 @@ const fetchProductMetadata = async () => {
         selectCategory(found)
       }
     } else if (catalogs.length > 0 && catalogs[0].id) {
-      // 默认选中第一个分类
+      // 默认选中第一个分类（BuyOperation 会自动选中第一个套餐与时长）
       selectCategory(catalogs[0])
-      // 默认选中第一个分类的第一个产品
-      if (currentProducts.value.length > 0) {
-        defaultProduct = currentProducts.value[0]
-        selectedProduct.value = defaultProduct
-      }
     }
   } catch (err) {
     error.value = '获取产品列表失败，请稍后重试'
@@ -196,42 +178,34 @@ const fetchProductMetadata = async () => {
   } finally {
     loading.value = false
   }
-
-  // 默认展开第一个产品的购买表单（等组件挂载后再调用 open）
-  if (defaultProduct) {
-    buyFormVisible.value = true
-    await nextTick()
-    buyOperationRef.value?.open(defaultProduct)
-  }
 }
 
 // 选择分类并切换产品列表
 const selectCategory = (catalog: ProductCatalogVO) => {
   if (!catalog.id) return
-
   selectedCatalogId.value = catalog.id
-  currentProducts.value = catalog.metadataList?.flatMap(m => m.products || []) || []
+}
 
-  // 如果有 URL 参数 productId，自动选中对应产品
-  if (urlProductId.value) {
-    const found = currentProducts.value.find(p => p.id === urlProductId.value)
-    if (found) {
-      selectedProduct.value = found
-    }
+// 版本联动：切换分类
+const handleSelectCatalog = (catalogId: number | null) => {
+  if (catalogId == null) return
+  const catalog = productMetadataList.value.find(c => c.id === catalogId)
+  if (!catalog) return
+  selectCategory(catalog)
+}
+
+// 根据分类名获取元数据 id（取第一个元数据节点）
+const getMetadataIdByCatalogName = (name: string): number | null => {
+  const catalog = productMetadataList.value.find(c => c.name === name)
+  return catalog?.metadataList?.[0]?.id ?? null
+}
+
+// 查看地区：跳转到 /region，传入 metadataId
+const goRegion = (catalogName: string) => {
+  const metadataId = getMetadataIdByCatalogName(catalogName)
+  if (metadataId) {
+    router.push({ path: '/region', query: { metadataId } })
   }
-}
-
-// 立即购买：选中产品并展开右侧购买表单
-const handleBuy = (product: ProductItem) => {
-  selectedProduct.value = product
-  buyFormVisible.value = true
-  buyOperationRef.value?.open(product)
-}
-
-// 关闭购买表单（由 BuyOperation 发出 close 时重置选中态）
-const handleBuyClose = () => {
-  buyFormVisible.value = false
-  selectedProduct.value = null
 }
 
 // 生命周期
@@ -387,12 +361,18 @@ onMounted(() => {
   align-self: start;
 }
 
-/* 查看地区链接 */
+/* 查看地区行 */
+.view-regions-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+}
+
 .view-regions-link {
   display: block;
   width: fit-content;
-  margin-bottom: 20px;
-  padding: 6px 56px;
+  justify-self: end;
+  padding: 6px 38px;
   color: #3498db;
   font-size: 14px;
   border: 1px solid #3498db;
@@ -488,18 +468,6 @@ onMounted(() => {
   border: 1px solid #e0e0e0;
   border-radius: 10px;
   background: #fafbfc;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.product-option:hover {
-  border-color: #667eea;
-  background: #f0f3ff;
-}
-
-.product-option.selected {
-  border-color: #667eea;
-  background: #f0f3ff;
 }
 
 .option-duration {
@@ -524,25 +492,6 @@ onMounted(() => {
   font-size: 12px;
   color: #95a5a6;
   text-decoration: line-through;
-}
-
-/* 右侧：购买操作面板 */
-.buy-operation-placeholder {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 220px;
-  padding: 40px 20px;
-  background: white;
-  border: 2px dashed #dcdfe6;
-  border-radius: 15px;
-  color: #909399;
-  font-size: 15px;
-  text-align: center;
-}
-
-.buy-operation-placeholder p {
-  margin: 0;
 }
 
 /* 空状态 */

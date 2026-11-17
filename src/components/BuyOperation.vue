@@ -1,15 +1,57 @@
 <template>
   <!-- 购买详情 -->
-  <div v-if="showPaymentDialog && selectedProduct" class="buy-form">
+  <div class="buy-form">
     <h3 class="buy-form-title" :style="{ color: titleColor }">{{ title }}-套餐购买</h3>
 
-    <div class="dialog-content">
-      <!-- 产品信息摘要 -->
-      <div class="product-summary">
-        <h3>{{ selectedProduct.name }}</h3>
-        <p class="product-duration">套餐时长：{{ selectedProduct.duration }}天</p>
+    <!-- 版本选择 -->
+    <div class="version-tabs">
+      <div
+        v-for="catalog in catalogs"
+        :key="catalog.id"
+        class="version-tab"
+        :class="{ active: selectedCatalogId === catalog.id }"
+        @click="selectVersion(catalog)"
+      >
+        {{ catalog.name }}
       </div>
+    </div>
 
+    <!-- 套餐选择 -->
+    <div class="select-group">
+      <span class="select-label">套餐选择</span>
+      <div class="package-options">
+        <div
+          v-for="metadata in metadataList"
+          :key="metadata.id"
+          class="package-option"
+          :class="{ active: selectedMetadata?.id === metadata.id }"
+          @click="selectPackage(metadata)"
+        >
+          {{ metadata.name }}
+        </div>
+      </div>
+    </div>
+
+    <!-- 时长选择 -->
+    <div v-if="selectedMetadata" class="select-group">
+      <span class="select-label">时长选择</span>
+      <div class="duration-options">
+        <div
+          v-for="product in selectedMetadata.products"
+          :key="product.id"
+          class="duration-option"
+          :class="{ active: selectedProduct?.id === product.id }"
+          @click="selectDuration(product)"
+        >
+          {{ product.duration }}天
+          <span class="duration-price">¥{{ product.price?.toFixed(2) }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div v-if="selectedProduct" class="dialog-content">
+      <!-- 产品信息摘要 -->
+      <div class="product-summary"></div>
       <el-form :model="formData" :rules="formRules" ref="formRef" label-width="100px" size="default">
         <!-- 1. 账号 -->
         <el-form-item label="设置账号" prop="username">
@@ -101,7 +143,7 @@
       </el-form>
     </div>
 
-    <div class="dialog-footer">
+    <div v-if="selectedProduct" class="dialog-footer">
       <button @click="handleCancelBuy" class="cancel-btn">取消</button>
       <button
         @click="handleConfirmOrder"
@@ -228,7 +270,7 @@
 import { ref, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { requestGames, requestLocations } from '@/api/packages'
-import type { ProductItem } from '@/types/product'
+import type { ProductItem, ProductCatalogVO, ProductCatalogMetadataVO } from '@/types/product'
 import type { Province, City } from '@/types/region'
 import type { GameDTO } from '@/types/packages'
 import { userInfo } from '@/reactive/user'
@@ -244,23 +286,29 @@ import { PAY_SOURCE, PAY_TRADE_TYPE } from '@/utils/apiEnums'
 
 const router = useRouter()
 
-// 事件：关闭购买表单时通知父组件重置选中态
+// 事件：版本变化通知父组件联动
 const emit = defineEmits<{
-  (e: 'close'): void
+  (e: 'update:selectedCatalogId', value: number | null): void
 }>()
 
-// 标题由父组件动态传入（分类名 + 主色）
-withDefaults(defineProps<{
+// 标题/分类/版本/套餐由父组件传入
+const props = withDefaults(defineProps<{
   title?: string
   titleColor?: string
+  catalogs?: ProductCatalogVO[]
+  selectedCatalogId?: number | null
+  metadataList?: ProductCatalogMetadataVO[]
 }>(), {
   title: '套餐购买',
-  titleColor: '#2c3e50'
+  titleColor: '#2c3e50',
+  catalogs: () => [],
+  selectedCatalogId: null,
+  metadataList: () => []
 })
 
 // 状态
 const selectedProduct = ref<ProductItem | null>(null)
-const showPaymentDialog = ref(false)
+const selectedMetadata = ref<ProductCatalogMetadataVO | null>(null)
 const showPaymentConfirmDialog = ref(false)
 const dialogWidth = ref(isMobile(navigator.userAgent) ? '90%' : 560)
 
@@ -526,10 +574,68 @@ const selectPayMethod = (method: typeof PAY_SOURCE.ALIPAY | typeof PAY_SOURCE.WE
   payMethod.value = method
 }
 
-// 取消购买：关闭购买表单并通知父组件
+// 选择版本：切换分类（metadataList 更新后会自动选中第一个套餐与时长）
+const selectVersion = (catalog: ProductCatalogVO) => {
+  if (catalog.id === props.selectedCatalogId) return
+  emit('update:selectedCatalogId', catalog.id ?? null)
+}
+
+// 选择套餐：选中元数据节点，并清空已选产品
+const selectPackage = (metadata: ProductCatalogMetadataVO) => {
+  if (metadata.id === selectedMetadata.value?.id) return
+  selectedMetadata.value = metadata
+  selectedProduct.value = null
+}
+
+// 应用产品选择：重置表单
+const applyProductSelection = (product: ProductItem) => {
+  selectedProduct.value = product
+  formData.value = {
+    username: '',
+    password: '',
+    usageCount: 1,
+    gameId: undefined,
+    locationIds: []
+  }
+  usernameAvailabilityError.value = ''
+  payMethod.value = PAY_SOURCE.ALIPAY
+  wechatPayDisabled.value = false
+  handleDialogOpen()
+}
+
+// 选择时长：选中产品
+const selectDuration = (product: ProductItem) => {
+  applyProductSelection(product)
+}
+
+// 版本变化（metadataList 更新）后，默认选中第一个套餐与第一个时长
+// immediate: true 保证首次挂载时（BuyOperation 随 loading=false 才渲染，此时 metadataList 已有值）也自动选中
+watch(() => props.metadataList, (list) => {
+  const firstMetadata = list?.[0] || null
+  const firstProduct = firstMetadata?.products?.[0] || null
+  selectedMetadata.value = firstMetadata
+  if (firstProduct) {
+    applyProductSelection(firstProduct)
+  } else {
+    selectedProduct.value = null
+  }
+}, { immediate: true })
+
+// 取消购买：清空表单填写内容（表单保持显示）
 const handleCancelBuy = () => {
-  showPaymentDialog.value = false
-  emit('close')
+  formData.value = {
+    username: '',
+    password: '',
+    usageCount: 1,
+    gameId: undefined,
+    locationIds: []
+  }
+  usernameAvailabilityError.value = ''
+  payMethod.value = PAY_SOURCE.ALIPAY
+  wechatPayDisabled.value = false
+  if (formRef.value) {
+    formRef.value.resetFields()
+  }
 }
 
 // 确认订单 - 弹出支付详情对话框
@@ -599,8 +705,6 @@ const createOrderAndPay = async () => {
 
     ElMessage.success('购买成功')
     showPaymentConfirmDialog.value = false
-    showPaymentDialog.value = false
-    emit('close')
 
     // 询问是否继续购买
     try {
@@ -659,29 +763,6 @@ const resetForm = () => {
   }
 }
 
-// 打开购买弹窗
-const open = (product: ProductItem) => {
-  selectedProduct.value = product
-  // 重置表单数据
-  formData.value = {
-    username: '',
-    password: '',
-    usageCount: 1,
-    gameId: undefined,
-    locationIds: []
-  }
-  // 重置验证状态
-  usernameAvailabilityError.value = ''
-  // 重置支付状态
-  payMethod.value = PAY_SOURCE.ALIPAY
-  wechatPayDisabled.value = false
-
-  showPaymentDialog.value = true
-  // 加载游戏列表（原 el-dialog @opened 逻辑）
-  handleDialogOpen()
-}
-
-defineExpose({ open })
 </script>
 
 <style scoped>
@@ -697,6 +778,117 @@ defineExpose({ open })
   color: #2c3e50;
   text-align: center;
   margin-bottom: 16px;
+}
+
+/* 版本选择 */
+.version-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.version-tab {
+  flex: 1;
+  padding: 10px 16px;
+  text-align: center;
+  font-size: 15px;
+  font-weight: bold;
+  color: #606266;
+  background: #f5f7fa;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  user-select: none;
+}
+
+.version-tab:hover {
+  border-color: #667eea;
+}
+
+.version-tab.active {
+  border-color: #667eea;
+  color: #667eea;
+  background: #f0f3ff;
+}
+
+/* 套餐/时长选择 */
+.select-group {
+  margin-bottom: 16px;
+}
+
+.select-label {
+  display: block;
+  font-size: 14px;
+  font-weight: bold;
+  color: #303133;
+  margin-bottom: 8px;
+}
+
+.package-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.package-option {
+  padding: 8px 14px;
+  font-size: 14px;
+  color: #606266;
+  background: #f5f7fa;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  user-select: none;
+}
+
+.package-option:hover {
+  border-color: #667eea;
+}
+
+.package-option.active {
+  border-color: #667eea;
+  color: #667eea;
+  background: #f0f3ff;
+}
+
+.duration-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.duration-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 14px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #2c3e50;
+  background: #f5f7fa;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  user-select: none;
+}
+
+.duration-option:hover {
+  border-color: #667eea;
+}
+
+.duration-option.active {
+  border-color: #667eea;
+  color: #667eea;
+  background: #f0f3ff;
+}
+
+.duration-price {
+  font-size: 13px;
+  color: #e74c3c;
 }
 
 .dialog-content {
