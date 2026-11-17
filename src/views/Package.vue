@@ -150,16 +150,16 @@ const handleGoBuy = () => {
 }
 
 // 根据分类名获取元数据 id（取第一个元数据节点）
-const getMetadataIdByCatalogName = (name: string): number | null => {
+const getCategoryIdByCatalogName = (name: string): number | null => {
   const catalog = productMetadataList.value.find(c => c.name === name)
-  return catalog?.metadataList?.[0]?.id ?? null
+  return catalog?.id ?? 0
 }
 
-// 查看地区：跳转到 /region，传入 metadataId
+// 查看地区：跳转到 /region，传入 categoryId
 const goRegion = (catalogName: string) => {
-  const metadataId = getMetadataIdByCatalogName(catalogName)
-  if (metadataId) {
-    router.push({ path: '/region', query: { metadataId } })
+  const categoryId = getCategoryIdByCatalogName(catalogName)
+  if (categoryId) {
+    router.push({ path: '/region', query: { categoryId } })
   }
 }
 

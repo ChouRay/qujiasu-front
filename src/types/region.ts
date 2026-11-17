@@ -14,3 +14,10 @@ export interface Province {
   cities: City[];      // 城市列表
   pname: string;       // 省份名称
 }
+
+// 套餐所属地区定义
+export interface PackageMetadata {
+  metadataId: number,
+	metadataName: string,
+	locations: Province[]
+}

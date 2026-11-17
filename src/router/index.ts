@@ -17,7 +17,7 @@ const routes = [
     path: '/region',
     name: 'Region',
     component: () => import('@/components/DisplayRegionList.vue'),
-    props: (route: RouteLocationNormalized) => ({ metadataId: Number(route.query.metadataId) }),
+    props: (route: RouteLocationNormalized) => ({ categoryId: Number(route.query.categoryId) }),
     meta: { title: '地区' }
   },
   {

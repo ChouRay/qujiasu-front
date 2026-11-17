@@ -35,7 +35,20 @@ export function requestGames() {
 }
 
 /**
- * 获取地区列表
+ * 根据版本分类获取地区列表
+ * @param params.categoryId - 版本分类ID（必需）
+ * @returns Promise<any>
+ */
+export function requestLocationsByCategory(params: { categoryId: number}) {
+  return request({
+    url: '/api/locations/metadata-groups',
+    method: 'get',
+    params,
+  })
+}
+
+/**
+ * 根据套餐获取关联地区列表
  * @param params.metadataId - 元数据 ID（必需）
  * @param params.gameId - 游戏 ID（可选）
  * @returns Promise<any>
