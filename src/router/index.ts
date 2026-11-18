@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory, type RouteLocationNormalized } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router'
 
 const routes = [
   {
@@ -12,13 +12,6 @@ const routes = [
     name: 'Package',
     component: () => import('@/views/Package.vue'),
     meta: { title: '套餐购买' }
-  },
-  {
-    path: '/region',
-    name: 'Region',
-    component: () => import('@/components/DisplayRegionList.vue'),
-    props: (route: RouteLocationNormalized) => ({ categoryId: Number(route.query.categoryId) }),
-    meta: { title: '地区' }
   },
   {
     path: '/download',

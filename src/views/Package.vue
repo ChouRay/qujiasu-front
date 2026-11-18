@@ -71,7 +71,6 @@
                 <span class="option-duration">{{ product.duration }}天</span>
                 <div class="option-price-wrap">
                   <span class="option-price">¥{{ product.price?.toFixed(2) }}</span>
-                  <span v-if="product.fullPrice" class="option-original-price">¥{{ product.fullPrice.toFixed(2) }}</span>
                 </div>
               </div>
             </div>
@@ -86,6 +85,13 @@
 
     <!-- 前往购买悬浮按钮 -->
     <button class="go-buy-btn" @click="handleGoBuy">前往购买</button>
+
+    <!-- 查看地区弹窗 -->
+    <DisplayRegionList
+      v-model="regionDialogVisible"
+      :category-id="regionCategoryId"
+      :catalog-name="regionCatalogName"
+    />
   </div>
 </template>
 
@@ -95,6 +101,7 @@ import { useRouter } from 'vue-router'
 import { getProductCatelog } from '@/api/product'
 import { getToken } from '@/api/auth'
 import type { ProductCatalogVO, ProductCatalogMetadataVO } from '@/types/product'
+import DisplayRegionList from '@/components/DisplayRegionList.vue'
 
 const router = useRouter()
 
@@ -149,17 +156,24 @@ const handleGoBuy = () => {
   }
 }
 
-// 根据分类名获取元数据 id（取第一个元数据节点）
+// 根据分类名获取分类 id
 const getCategoryIdByCatalogName = (name: string): number | null => {
   const catalog = productMetadataList.value.find(c => c.name === name)
   return catalog?.id ?? 0
 }
 
-// 查看地区：跳转到 /region，传入 categoryId
+// 查看地区弹窗
+const regionDialogVisible = ref(false)
+const regionCategoryId = ref<number | undefined>(undefined)
+const regionCatalogName = ref('')
+
+// 查看地区：弹出地区弹窗，传入 categoryId 与 catalogName
 const goRegion = (catalogName: string) => {
   const categoryId = getCategoryIdByCatalogName(catalogName)
   if (categoryId) {
-    router.push({ path: '/region', query: { categoryId } })
+    regionCategoryId.value = categoryId
+    regionCatalogName.value = catalogName
+    regionDialogVisible.value = true
   }
 }
 

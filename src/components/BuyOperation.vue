@@ -79,8 +79,8 @@
           </div>
         </el-form-item>
 
-        <!-- 4. 绑定项目 -->
-        <el-form-item label="绑定项目" prop="gameId">
+        <!-- 4. 绑定项目（独享版无需） -->
+        <el-form-item v-if="!isExclusive" label="绑定项目" prop="gameId">
           <el-select
             v-model="formData.gameId"
             filterable
@@ -96,31 +96,13 @@
           </el-select>
         </el-form-item>
 
-        <!-- 5. 绑定地区 -->
-        <el-form-item label="绑定地区">
-          <el-select
-            v-model="formData.locationIds"
-            multiple
-            placeholder="请选择地区(可不选)"
-            style="width: 100%;"
-            :value-format="Number"
-          >
-            <el-option-group
-              v-for="province in locationOptions"
-              :key="province.id"
-              :label="province.pname"
-            >
-              <el-option
-                v-for="city in province.cities"
-                :key="city.id"
-                :label="city.cname"
-                :value="city.id"
-                :disabled="city.isEnable !== 1"
-              />
-            </el-option-group>
-          </el-select>
-          <div v-if="formData.locationIds.length > 0" class="selected-locations">
-            已选择：{{ getLocationDisplay() }}
+        <!-- 5. 绑定地区（独享版无需） -->
+        <el-form-item v-if="!isExclusive" label="绑定地区">
+          <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+            <el-button @click="openCitySelection">选择地区</el-button>
+            <span v-if="formData.locationIds.length > 0" class="selected-locations">
+              已选择：{{ getLocationDisplay() }}
+            </span>
           </div>
         </el-form-item>
 
@@ -264,14 +246,23 @@
       </div>
     </template>
   </el-dialog>
+
+  <!-- 地区选择弹窗 -->
+  <CitySelection
+    v-model="citySelectionVisible"
+    :category-id="selectedCatalogId"
+    :metadata-id="selectedMetadata?.id"
+    :game-id="formData.gameId"
+    @confirm="handleCityConfirm"
+  />
 </template>
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { requestGames, requestLocations } from '@/api/packages'
+import { requestGames } from '@/api/packages'
 import type { ProductItem, ProductCatalogVO, ProductCatalogMetadataVO } from '@/types/product'
-import type { Province, City } from '@/types/region'
+import type { City } from '@/types/region'
 import type { GameDTO } from '@/types/packages'
 import { userInfo } from '@/reactive/user'
 import { getUserInfo } from '@/api/user'
@@ -283,6 +274,7 @@ import { ElMessage, FormRules, ElMessageBox } from 'element-plus'
 import { QuestionFilled, CircleCheckFilled, WarningFilled } from '@element-plus/icons-vue'
 import { getErrorMessage } from '@/utils/errorMessage'
 import { PAY_SOURCE, PAY_TRADE_TYPE } from '@/utils/apiEnums'
+import CitySelection from '@/components/CitySelection.vue'
 
 const router = useRouter()
 
@@ -306,16 +298,19 @@ const props = withDefaults(defineProps<{
   metadataList: () => []
 })
 
+// 是否独享版（独享版无需绑定项目和地区）
+const isExclusive = computed(() => props.title === '独享版')
+
 // 状态
 const selectedProduct = ref<ProductItem | null>(null)
 const selectedMetadata = ref<ProductCatalogMetadataVO | null>(null)
 const showPaymentConfirmDialog = ref(false)
 const dialogWidth = ref(isMobile(navigator.userAgent) ? '90%' : 560)
+const citySelectionVisible = ref(false)
 
-// 游戏列表和地区数据
+// 游戏列表和已选地区
 const gameList = ref<GameDTO[]>([])
-const locationOptions = ref<Province[]>([])
-const allCitiesMap = ref<Map<number, City>>(new Map())
+const selectedCityNames = ref<string[]>([])
 
 // 表单引用
 const formRef = ref<any>(null)
@@ -329,21 +324,28 @@ const formData = ref({
   locationIds: [] as number[]
 })
 
-// 表单验证规则
-const formRules: FormRules = {
-  username: [
-    { required: true, message: '请输入账号', trigger: 'blur' },
-    { pattern: /^[a-zA-Z0-9]{6,20}$/, message: '账号应为 6-20 位字母和数字组合', trigger: 'blur' }
-  ],
-  password: [
-    { required: true, message: '请输入密码', trigger: 'blur' },
-    { min: 6, message: '密码不能少于 6 位', trigger: 'blur' },
-    { pattern: /^[a-zA-Z0-9]+$/, message: '密码仅限数字和字母', trigger: 'blur' }
-  ],
-  gameId: [
-    { required: true, message: '请选择绑定项目', trigger: 'change' }
-  ]
-}
+// 表单验证规则（独享版无需绑定项目）
+const formRules = computed<FormRules>(() => {
+  const rules: FormRules = {
+    username: [
+      { required: true, message: '请输入账号', trigger: 'blur' },
+      { pattern: /^[a-zA-Z0-9]{6,20}$/, message: '账号应为 6-20 位字母和数字组合', trigger: 'blur' }
+    ],
+    password: [
+      { required: true, message: '请输入密码', trigger: 'blur' },
+      { min: 6, message: '密码不能少于 6 位', trigger: 'blur' },
+      { pattern: /^[a-zA-Z0-9]+$/, message: '密码仅限数字和字母', trigger: 'blur' }
+    ]
+  }
+
+  if (!isExclusive.value) {
+    rules.gameId = [
+      { required: true, message: '请选择绑定项目', trigger: 'change' }
+    ]
+  }
+
+  return rules
+})
 
 // 随机生成账号状态
 const generatingUsername = ref(false)
@@ -408,48 +410,12 @@ const handleDialogOpen = async () => {
   }
 }
 
-// 监听 gameId 和 metadataId 变化，动态加载地区列表
+// 监听 gameId 和 metadataId 变化，清空已选地区
 watch(
   [() => formData.value.gameId, () => selectedProduct.value?.metadataId],
-  async ([gameId, metadataId]) => {
-    // 清空旧选项和选中值
-    locationOptions.value = []
-    allCitiesMap.value.clear()
+  () => {
     formData.value.locationIds = []
-
-    // 必须同时有 gameId 和 metadataId 才请求
-    if (!gameId || !metadataId) {
-      return
-    }
-
-    try {
-      const locations = await requestLocations({ metadataId, gameId })
-      if (Array.isArray(locations)) {
-        // 过滤：只有当 province.isEnable == 1 且 cities 不为空时，才处理其 cities
-        const filteredProvinces: Province[] = []
-        locations.forEach((province: Province) => {
-          if (province.isEnable === 1 && province.cities && province.cities.length > 0) {
-            // 创建新的 province 对象，只包含启用的城市
-            const enabledCities = province.cities.filter(city => city.isEnable === 1)
-            if (enabledCities.length > 0) {
-              const filteredProvince: Province = {
-                ...province,
-                cities: enabledCities
-              }
-              filteredProvinces.push(filteredProvince)
-
-              // 将启用的城市加入 allCitiesMap
-              enabledCities.forEach(city => {
-                allCitiesMap.value.set(city.id, city)
-              })
-            }
-          }
-        })
-        locationOptions.value = filteredProvinces
-      }
-    } catch (err) {
-      console.error('获取地区列表失败:', err)
-    }
+    selectedCityNames.value = []
   },
   { immediate: false }
 )
@@ -510,14 +476,12 @@ const generateRandomUsername = async () => {
 
 // 获取地区显示文本
 const getLocationDisplay = () => {
-  const selectedIds = formData.value.locationIds
-  if (selectedIds.length === 0) return ''
-
-  const firstCity = allCitiesMap.value.get(selectedIds[0])
-  if (selectedIds.length === 1) {
-    return firstCity?.cname || ''
+  const names = selectedCityNames.value
+  if (names.length === 0) return ''
+  if (names.length > 6) {
+    return `${names.slice(0, 6).join('、')}...`
   }
-  return `${firstCity?.cname || ''}+${selectedIds.length - 1}个`
+  return names.join('、')
 }
 
 // 计算实际总价 = 连接数 * 单价
@@ -597,6 +561,7 @@ const applyProductSelection = (product: ProductItem) => {
     gameId: undefined,
     locationIds: []
   }
+  selectedCityNames.value = []
   usernameAvailabilityError.value = ''
   payMethod.value = PAY_SOURCE.ALIPAY
   wechatPayDisabled.value = false
@@ -630,12 +595,24 @@ const handleCancelBuy = () => {
     gameId: undefined,
     locationIds: []
   }
+  selectedCityNames.value = []
   usernameAvailabilityError.value = ''
   payMethod.value = PAY_SOURCE.ALIPAY
   wechatPayDisabled.value = false
   if (formRef.value) {
     formRef.value.resetFields()
   }
+}
+
+// 打开地区选择弹窗
+const openCitySelection = () => {
+  citySelectionVisible.value = true
+}
+
+// 确认选择地区：回填到表单
+const handleCityConfirm = (cities: City[]) => {
+  formData.value.locationIds = cities.map(c => c.id)
+  selectedCityNames.value = cities.map(c => c.cname)
 }
 
 // 确认订单 - 弹出支付详情对话框
@@ -756,6 +733,7 @@ const resetForm = () => {
     gameId: undefined,
     locationIds: []
   }
+  selectedCityNames.value = []
   selectedProduct.value = null
   payMethod.value = PAY_SOURCE.ALIPAY
   if (formRef.value) {

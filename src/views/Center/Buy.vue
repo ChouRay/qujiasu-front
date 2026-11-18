@@ -65,7 +65,6 @@
                   <span class="option-duration">{{ product.duration }}天</span>
                   <div class="option-price-wrap">
                     <span class="option-price">¥{{ product.price?.toFixed(2) }}</span>
-                    <span v-if="product.fullPrice" class="option-original-price">¥{{ product.fullPrice.toFixed(2) }}</span>
                   </div>
                 </div>
               </div>
@@ -93,18 +92,25 @@
         </div>
       </div>
     </div>
+
+    <!-- 查看地区弹窗 -->
+    <DisplayRegionList
+      v-model="regionDialogVisible"
+      :category-id="regionCategoryId"
+      :catalog-name="regionCatalogName"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import { getProductCatelog } from '@/api/product'
 import type { ProductCatalogVO, ProductCatalogMetadataVO } from '@/types/product'
 import BuyOperation from '@/components/BuyOperation.vue'
+import DisplayRegionList from '@/components/DisplayRegionList.vue'
 
 const route = useRoute()
-const router = useRouter()
 
 // 状态
 const loading = ref(false)
@@ -194,17 +200,24 @@ const handleSelectCatalog = (catalogId: number | null) => {
   selectCategory(catalog)
 }
 
-// 根据分类名获取元数据 id（取第一个元数据节点）
-const getMetadataIdByCatalogName = (name: string): number | null => {
+// 根据分类名获取分类 id
+const getCategoryIdByCatalogName = (name: string): number | null => {
   const catalog = productMetadataList.value.find(c => c.name === name)
-  return catalog?.metadataList?.[0]?.id ?? null
+  return catalog?.id ?? null
 }
 
-// 查看地区：跳转到 /region，传入 metadataId
+// 查看地区弹窗
+const regionDialogVisible = ref(false)
+const regionCategoryId = ref<number | undefined>(undefined)
+const regionCatalogName = ref('')
+
+// 查看地区：弹出地区弹窗，传入 categoryId 与 catalogName
 const goRegion = (catalogName: string) => {
-  const metadataId = getMetadataIdByCatalogName(catalogName)
-  if (metadataId) {
-    router.push({ path: '/region', query: { metadataId } })
+  const categoryId = getCategoryIdByCatalogName(catalogName)
+  if (categoryId) {
+    regionCategoryId.value = categoryId
+    regionCatalogName.value = catalogName
+    regionDialogVisible.value = true
   }
 }
 
